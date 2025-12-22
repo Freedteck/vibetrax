@@ -1,0 +1,253 @@
+/* Track List Item - Table-like row view */
+.trackItem {
+  display: grid;
+  grid-template-columns: 40px 60px 1fr 140px 100px 100px;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.trackItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(4px);
+}
+
+.trackNumber {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+  font-weight: 500;
+}
+
+.trackItem:hover .trackNumber {
+  color: var(--color-primary);
+}
+
+.trackImageContainer {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.trackImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.playOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  color: white;
+  font-size: 18px;
+}
+
+.trackItem:hover .playOverlay {
+  opacity: 1;
+}
+
+.playOverlay:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.trackInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.trackTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trackArtist {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trackGenre {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trackVotes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.voteIcon {
+  color: var(--color-primary);
+  font-size: 16px;
+}
+
+.trackActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.trackItem:hover .trackActions {
+  opacity: 1;
+}
+
+.actionButton {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+  font-size: 16px;
+}
+
+.actionButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: scale(1.1);
+}
+
+.moreActions {
+  position: relative;
+}
+
+.actionMenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px;
+  min-width: 160px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menuItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.menuItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-primary);
+}
+
+.menuItem svg {
+  font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .trackItem {
+    grid-template-columns: 40px 60px 1fr 100px 80px;
+  }
+  
+  .trackGenre {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .trackItem {
+    grid-template-columns: 40px 48px 1fr 80px;
+    gap: 12px;
+    padding: 10px 12px;
+  }
+  
+  .trackVotes {
+    display: none;
+  }
+
+  .trackActions {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .trackItem {
+    grid-template-columns: 32px 40px 1fr 60px;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .trackImageContainer {
+    width: 40px;
+    height: 40px;
+  }
+
+  .trackTitle {
+    font-size: 0.85rem;
+  }
+
+  .trackArtist {
+    font-size: 0.75rem;
+  }
+
+  .actionButton {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+}

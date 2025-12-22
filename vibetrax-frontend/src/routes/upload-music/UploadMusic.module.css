@@ -1,0 +1,275 @@
+/* Upload Music Page - Modern Streaming App Style */
+.uploadPage {
+  min-height: 100vh;
+  padding: 0;
+}
+
+.pageHeader {
+  padding: 64px 40px 48px;
+  background: linear-gradient(
+    180deg,
+    rgba(29, 185, 84, 0.15) 0%,
+    transparent 100%
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.headerIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.2), rgba(29, 185, 84, 0.1));
+  border-radius: 20px;
+  color: var(--color-primary);
+  font-size: 40px;
+  margin-bottom: 24px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.pageTitle {
+  font-size: 3rem;
+  font-weight: 900;
+  margin: 0 0 16px;
+  color: var(--color-text-primary);
+  background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pageSubtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.contentWrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 40px 80px;
+}
+
+.infoCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.infoCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.infoCard:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(29, 185, 84, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.infoIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.2), rgba(29, 185, 84, 0.1));
+  border-radius: 14px;
+  color: var(--color-primary);
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.infoCard h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: var(--color-text-primary);
+}
+
+.infoCard p {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.gasFeeNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 12px;
+  margin-bottom: 48px;
+}
+
+.noticeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(99, 102, 241, 0.2);
+  border-radius: 10px;
+  color: #818cf8;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.noticeContent h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: var(--color-text-primary);
+}
+
+.noticeContent p {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.noticeContent strong {
+  color: #818cf8;
+  font-weight: 700;
+}
+
+.noticeContent a {
+  color: #818cf8;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.noticeContent a:hover {
+  color: #a5b4fc;
+  text-decoration: underline;
+}
+
+.uploadContainer {
+  background: var(--color-bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .infoCards {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .uploadContainer {
+    padding: 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageHeader {
+    padding: 48px 24px 32px;
+  }
+
+  .pageTitle {
+    font-size: 2.25rem;
+  }
+
+  .pageSubtitle {
+    font-size: 1rem;
+  }
+
+  .contentWrapper {
+    padding: 32px 24px 60px;
+  }
+
+  .headerIcon {
+    width: 64px;
+    height: 64px;
+    font-size: 32px;
+  }
+
+  .uploadContainer {
+    padding: 24px;
+    border-radius: 16px;
+  }
+
+  .gasFeeNotice {
+    padding: 16px 20px;
+    gap: 12px;
+  }
+
+  .noticeIcon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageHeader {
+    padding: 40px 16px 24px;
+  }
+
+  .pageTitle {
+    font-size: 1.875rem;
+  }
+
+  .contentWrapper {
+    padding: 24px 16px 50px;
+  }
+
+  .headerIcon {
+    width: 56px;
+    height: 56px;
+    font-size: 28px;
+    margin-bottom: 16px;
+  }
+
+  .uploadContainer {
+    padding: 20px;
+  }
+
+  .infoCard {
+    padding: 24px 20px;
+  }
+
+  .infoIcon {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+
+  .infoCard h3 {
+    font-size: 1.125rem;
+  }
+
+  .infoCard p {
+    font-size: 0.875rem;
+  }
+}

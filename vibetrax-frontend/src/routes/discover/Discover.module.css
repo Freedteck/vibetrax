@@ -1,0 +1,292 @@
+.discover {
+  min-height: 100vh;
+  padding: 0;
+}
+
+/* Hero Carousel */
+.heroCarousel {
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+  background: var(--color-bg-secondary);
+}
+
+.carouselSlide {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  transition: opacity 0.5s ease;
+}
+
+.carouselOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.6) 50%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  display: flex;
+  align-items: flex-end;
+}
+
+.carouselContent {
+  padding: 48px;
+  max-width: 600px;
+}
+
+.featuredBadge {
+  display: inline-block;
+  padding: 6px 16px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+}
+
+.carouselTitle {
+  font-size: 48px;
+  font-weight: 900;
+  margin: 0 0 12px 0;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.carouselArtist {
+  font-size: 20px;
+  color: var(--color-text-secondary);
+  margin: 0 0 24px 0;
+}
+
+.carouselActions {
+  display: flex;
+  gap: 16px;
+}
+
+.playButton {
+  padding: 14px 32px;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 24px;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.playButton:hover {
+  background: var(--color-primary-light);
+  transform: scale(1.05);
+}
+
+.playButton svg {
+  font-size: 20px;
+}
+
+.carouselIndicators {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.indicator.active {
+  width: 24px;
+  border-radius: 4px;
+  background: white;
+}
+
+/* Browse Section */
+.browseSection {
+  padding: 32px;
+}
+
+.filterBar {
+  margin-bottom: 24px;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid var(--color-border-light);
+  padding-bottom: 0;
+}
+
+.tab {
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.tab:hover {
+  color: var(--color-text-primary);
+}
+
+.tab.active {
+  color: var(--color-text-primary);
+}
+
+.tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-primary);
+}
+
+/* Genre Pills */
+.genreScroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 16px 0;
+  margin-bottom: 24px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.genreScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.genrePill {
+  padding: 8px 20px;
+  background: var(--color-bg-card);
+  border: none;
+  border-radius: 20px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.genrePill:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.genrePill.active {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Music Grid */
+.musicGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .carouselContent {
+    padding: 32px;
+  }
+
+  .carouselTitle {
+    font-size: 36px;
+  }
+
+  .musicGrid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .heroCarousel {
+    height: 300px;
+  }
+
+  .carouselContent {
+    padding: 24px;
+  }
+
+  .carouselTitle {
+    font-size: 28px;
+  }
+
+  .carouselArtist {
+    font-size: 16px;
+  }
+
+  .playButton {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+
+  .browseSection {
+    padding: 20px;
+  }
+
+  .tab {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .musicGrid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroCarousel {
+    height: 250px;
+  }
+
+  .carouselContent {
+    padding: 20px;
+  }
+
+  .carouselTitle {
+    font-size: 24px;
+  }
+
+  .carouselArtist {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .browseSection {
+    padding: 16px;
+  }
+
+  .musicGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}

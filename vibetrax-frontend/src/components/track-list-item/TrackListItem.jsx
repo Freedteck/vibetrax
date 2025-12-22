@@ -1,32 +1,36 @@
-import { FiPlay, FiHeart, FiMoreVertical, FiPlus, FiEdit, FiTrash2 } from "react-icons/fi";
+import {
+  FiPlay,
+  FiHeart,
+  FiMoreVertical,
+  FiPlus,
+  FiEdit,
+  FiTrash2,
+} from "react-icons/fi";
 import { useState } from "react";
 import styles from "./TrackListItem.module.css";
 
-const TrackListItem = ({ 
-  track, 
-  index, 
-  onPlay, 
+const TrackListItem = ({
+  track,
+  index,
+  onPlay,
   onAddToPlaylist,
   onEdit,
   onDelete,
-  showActions = false
+  showActions = false,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
 
   return (
     <div className={styles.trackItem}>
       <div className={styles.trackNumber}>{index + 1}</div>
-      
+
       <div className={styles.trackImageContainer}>
-        <img 
-          src={track.music_art} 
-          alt={track.title} 
+        <img
+          src={track.music_art}
+          alt={track.title}
           className={styles.trackImage}
         />
-        <button 
-          className={styles.playOverlay}
-          onClick={onPlay}
-        >
+        <button className={styles.playOverlay} onClick={onPlay}>
           <FiPlay />
         </button>
       </div>
@@ -53,7 +57,7 @@ const TrackListItem = ({
             <FiPlus />
           </button>
         )}
-        
+
         {showActions && (
           <div className={styles.moreActions}>
             <button
@@ -62,11 +66,11 @@ const TrackListItem = ({
             >
               <FiMoreVertical />
             </button>
-            
+
             {showMenu && (
               <div className={styles.actionMenu}>
                 {onEdit && (
-                  <button 
+                  <button
                     className={styles.menuItem}
                     onClick={() => {
                       onEdit();
@@ -77,7 +81,7 @@ const TrackListItem = ({
                   </button>
                 )}
                 {onDelete && (
-                  <button 
+                  <button
                     className={styles.menuItem}
                     onClick={() => {
                       onDelete();

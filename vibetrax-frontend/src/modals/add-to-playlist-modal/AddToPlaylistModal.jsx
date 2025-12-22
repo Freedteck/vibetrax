@@ -3,7 +3,14 @@ import { FiX, FiMusic, FiCheckCircle, FiPlus } from "react-icons/fi";
 import styles from "./AddToPlaylistModal.module.css";
 import toast from "react-hot-toast";
 
-const AddToPlaylistModal = ({ isOpen, onClose, track, playlists, onAddToPlaylist, onCreateNew }) => {
+const AddToPlaylistModal = ({
+  isOpen,
+  onClose,
+  track,
+  playlists,
+  onAddToPlaylist,
+  onCreateNew,
+}) => {
   const [selectedPlaylists, setSelectedPlaylists] = useState([]);
 
   useEffect(() => {
@@ -27,7 +34,9 @@ const AddToPlaylistModal = ({ isOpen, onClose, track, playlists, onAddToPlaylist
   if (!isOpen || !track) return null;
 
   const isTrackInPlaylist = (playlist) => {
-    return playlist.tracks?.some((t) => t.id === track.id?.id || t.id === track.id);
+    return playlist.tracks?.some(
+      (t) => t.id === track.id?.id || t.id === track.id
+    );
   };
 
   const handlePlaylistClick = (playlist) => {
@@ -37,7 +46,9 @@ const AddToPlaylistModal = ({ isOpen, onClose, track, playlists, onAddToPlaylist
     }
 
     if (selectedPlaylists.includes(playlist.id)) {
-      setSelectedPlaylists(selectedPlaylists.filter((id) => id !== playlist.id));
+      setSelectedPlaylists(
+        selectedPlaylists.filter((id) => id !== playlist.id)
+      );
     } else {
       setSelectedPlaylists([...selectedPlaylists, playlist.id]);
     }
@@ -72,16 +83,25 @@ const AddToPlaylistModal = ({ isOpen, onClose, track, playlists, onAddToPlaylist
         <div className={styles.modalHeader}>
           <h2 className={styles.modalTitle}>Add to Playlist</h2>
           <div className={styles.trackInfo}>
-            <img src={track.music_art} alt={track.title} className={styles.trackThumb} />
+            <img
+              src={track.music_art}
+              alt={track.title}
+              className={styles.trackThumb}
+            />
             <div className={styles.trackDetails}>
               <p className={styles.trackTitle}>{track.title}</p>
-              <p className={styles.trackArtist}>{track.artist_name || "Unknown Artist"}</p>
+              <p className={styles.trackArtist}>
+                {track.artist_name || "Unknown Artist"}
+              </p>
             </div>
           </div>
         </div>
 
         <div className={styles.modalBody}>
-          <button className={styles.createNewButton} onClick={handleCreateNewClick}>
+          <button
+            className={styles.createNewButton}
+            onClick={handleCreateNewClick}
+          >
             <FiPlus />
             <span>Create New Playlist</span>
           </button>
@@ -132,7 +152,8 @@ const AddToPlaylistModal = ({ isOpen, onClose, track, playlists, onAddToPlaylist
         {selectedPlaylists.length > 0 && (
           <div className={styles.modalFooter}>
             <button className={styles.addButton} onClick={handleAddToSelected}>
-              Add to {selectedPlaylists.length} playlist{selectedPlaylists.length > 1 ? "s" : ""}
+              Add to {selectedPlaylists.length} playlist
+              {selectedPlaylists.length > 1 ? "s" : ""}
             </button>
           </div>
         )}

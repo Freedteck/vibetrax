@@ -450,7 +450,7 @@ const Form = ({
                   setLowQuality(e.target.files[0]);
                 }
               }}
-            />  
+            />
             <div className={styles["upload-icon"]}>
               {lowQualityFile ? <FiCheck /> : <FiMusic />}
             </div>

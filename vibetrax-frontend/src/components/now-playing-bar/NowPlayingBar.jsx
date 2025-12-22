@@ -14,7 +14,12 @@ import {
 import { MdShuffle, MdRepeat, MdRepeatOne } from "react-icons/md";
 import styles from "./NowPlayingBar.module.css";
 
-const NowPlayingBar = ({ currentTrack, playlist = [], onTrackChange, onClose }) => {
+const NowPlayingBar = ({
+  currentTrack,
+  playlist = [],
+  onTrackChange,
+  onClose,
+}) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -303,13 +308,13 @@ const NowPlayingBar = ({ currentTrack, playlist = [], onTrackChange, onClose }) 
           onChange={handleVolumeChange}
           className={styles.volumeSlider}
         />
-        <button 
+        <button
           className={styles.controlBtn}
           onClick={() => navigate(`/discover/${currentTrack.id.id}`)}
         >
           <FiMaximize2 />
         </button>
-        <button 
+        <button
           className={`${styles.controlBtn} ${styles.closeBtn}`}
           onClick={onClose}
           title="Close player"

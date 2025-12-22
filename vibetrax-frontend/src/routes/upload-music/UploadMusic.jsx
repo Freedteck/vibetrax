@@ -4,7 +4,13 @@ import Preview from "../../components/preview/Preview";
 import styles from "./UploadMusic.module.css";
 import { useCurrentAccount } from "@iota/dapp-kit";
 import { UnconnectedState } from "../../components/state/UnconnectedState";
-import { FiUploadCloud, FiMusic, FiDollarSign, FiUsers, FiInfo } from "react-icons/fi";
+import {
+  FiUploadCloud,
+  FiMusic,
+  FiDollarSign,
+  FiUsers,
+  FiInfo,
+} from "react-icons/fi";
 
 const UploadMusic = () => {
   const [previewClicked, setPreviewClicked] = useState(false);
@@ -33,7 +39,8 @@ const UploadMusic = () => {
           </div>
           <h1 className={styles.pageTitle}>Upload Your Music</h1>
           <p className={styles.pageSubtitle}>
-            Share your music with the world and set up fair revenue distribution for all your contributors
+            Share your music with the world and set up fair revenue distribution
+            for all your contributors
           </p>
         </div>
       </div>
@@ -45,7 +52,10 @@ const UploadMusic = () => {
               <FiMusic />
             </div>
             <h3>High Quality</h3>
-            <p>Upload your tracks in premium quality for the best listening experience</p>
+            <p>
+              Upload your tracks in premium quality for the best listening
+              experience
+            </p>
           </div>
           <div className={styles.infoCard}>
             <div className={styles.infoIcon}>

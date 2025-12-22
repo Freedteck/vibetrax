@@ -35,7 +35,7 @@ const PlaylistModal = ({ isOpen, onClose, onCreatePlaylist }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!playlistName.trim()) {
       setError("Please enter a playlist name");
       return;
@@ -51,7 +51,7 @@ const PlaylistModal = ({ isOpen, onClose, onCreatePlaylist }) => {
         tracks: [],
         createdAt: new Date().toISOString(),
       });
-      
+
       setSuccess(true);
       setTimeout(() => {
         onClose();
@@ -146,7 +146,11 @@ const PlaylistModal = ({ isOpen, onClose, onCreatePlaylist }) => {
               disabled={isLoading || success || !playlistName.trim()}
               className={styles.createButton}
             >
-              {isLoading ? "Creating..." : success ? "Created!" : "Create Playlist"}
+              {isLoading
+                ? "Creating..."
+                : success
+                ? "Created!"
+                : "Create Playlist"}
             </Button>
           </div>
         </form>

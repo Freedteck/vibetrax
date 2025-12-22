@@ -11,7 +11,14 @@ import { EmptyState } from "../../components/state/EmptyState";
 import PlaylistModal from "../../modals/playlist-modal/PlaylistModal";
 import AddToPlaylistModal from "../../modals/add-to-playlist-modal/AddToPlaylistModal";
 import PlaylistDetailModal from "../../modals/playlist-detail-modal/PlaylistDetailModal";
-import { FiMusic, FiHeart, FiClock, FiGrid, FiList, FiPlus } from "react-icons/fi";
+import {
+  FiMusic,
+  FiHeart,
+  FiClock,
+  FiGrid,
+  FiList,
+  FiPlus,
+} from "react-icons/fi";
 import styles from "./Library.module.css";
 import toast from "react-hot-toast";
 
@@ -27,7 +34,8 @@ const Library = () => {
   const [recentlyPlayed, setRecentlyPlayed] = useState([]);
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
   const [showAddToPlaylistModal, setShowAddToPlaylistModal] = useState(false);
-  const [selectedTrackForPlaylist, setSelectedTrackForPlaylist] = useState(null);
+  const [selectedTrackForPlaylist, setSelectedTrackForPlaylist] =
+    useState(null);
   const [showPlaylistDetail, setShowPlaylistDetail] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
 
@@ -136,10 +144,12 @@ const Library = () => {
 
     setPlaylists(updatedPlaylists);
     savePlaylistsToStorage(updatedPlaylists);
-    
+
     // Update the selected playlist if it's currently open
     if (selectedPlaylist?.id === playlistId) {
-      const updatedSelectedPlaylist = updatedPlaylists.find(p => p.id === playlistId);
+      const updatedSelectedPlaylist = updatedPlaylists.find(
+        (p) => p.id === playlistId
+      );
       setSelectedPlaylist(updatedSelectedPlaylist);
     }
   };
@@ -176,7 +186,12 @@ const Library = () => {
   );
 
   const tabs = [
-    { id: "playlists", label: "Playlists", icon: FiMusic, count: playlists.length },
+    {
+      id: "playlists",
+      label: "Playlists",
+      icon: FiMusic,
+      count: playlists.length,
+    },
     { id: "tracks", label: "Tracks", icon: FiMusic, count: ownedMusic.length },
     {
       id: "uploads",
@@ -184,7 +199,12 @@ const Library = () => {
       icon: FiMusic,
       count: uploadedMusic.length,
     },
-    { id: "liked", label: "Liked Songs", icon: FiHeart, count: likedTracks.length },
+    {
+      id: "liked",
+      label: "Liked Songs",
+      icon: FiHeart,
+      count: likedTracks.length,
+    },
     {
       id: "recent",
       label: "Recently Played",
@@ -250,13 +270,14 @@ const Library = () => {
                 </div>
                 <div className={styles.playlistGrid}>
                   {playlists.map((playlist) => (
-                    <div 
-                      key={playlist.id} 
+                    <div
+                      key={playlist.id}
                       className={styles.playlistCard}
                       onClick={() => handleOpenPlaylistDetail(playlist)}
                     >
                       <div className={styles.playlistImage}>
-                        {playlist.tracks?.length > 0 && playlist.tracks[0].music_art ? (
+                        {playlist.tracks?.length > 0 &&
+                        playlist.tracks[0].music_art ? (
                           <img
                             src={playlist.tracks[0].music_art}
                             alt={playlist.name}
@@ -352,34 +373,32 @@ const Library = () => {
         <div
           className={viewMode === "grid" ? styles.trackGrid : styles.trackList}
         >
-          {viewMode === "grid" ? (
-            tracks.map((track) => (
-              <MusicCard
-                key={track.id?.id || track.id}
-                track={track}
-                music={track}
-                onPlay={() => handlePlayTrack(track, tracks)}
-                onAddToPlaylist={handleOpenAddToPlaylist}
-              />
-            ))
-          ) : (
-            tracks.map((track, index) => (
-              <TrackListItem
-                key={track.id?.id || track.id}
-                track={track}
-                index={index}
-                onPlay={() => handlePlayTrack(track, tracks)}
-                onAddToPlaylist={() => handleOpenAddToPlaylist(track)}
-                showActions={showManagement}
-                onEdit={() => {
-                  toast.info("Edit functionality coming soon!");
-                }}
-                onDelete={() => {
-                  toast.info("Delete functionality coming soon!");
-                }}
-              />
-            ))
-          )}
+          {viewMode === "grid"
+            ? tracks.map((track) => (
+                <MusicCard
+                  key={track.id?.id || track.id}
+                  track={track}
+                  music={track}
+                  onPlay={() => handlePlayTrack(track, tracks)}
+                  onAddToPlaylist={handleOpenAddToPlaylist}
+                />
+              ))
+            : tracks.map((track, index) => (
+                <TrackListItem
+                  key={track.id?.id || track.id}
+                  track={track}
+                  index={index}
+                  onPlay={() => handlePlayTrack(track, tracks)}
+                  onAddToPlaylist={() => handleOpenAddToPlaylist(track)}
+                  showActions={showManagement}
+                  onEdit={() => {
+                    toast.info("Edit functionality coming soon!");
+                  }}
+                  onDelete={() => {
+                    toast.info("Delete functionality coming soon!");
+                  }}
+                />
+              ))}
         </div>
       </div>
     );

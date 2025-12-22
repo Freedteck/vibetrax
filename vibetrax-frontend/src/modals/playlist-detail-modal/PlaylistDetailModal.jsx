@@ -3,7 +3,13 @@ import { FiX, FiPlay, FiTrash2, FiMusic } from "react-icons/fi";
 import styles from "./PlaylistDetailModal.module.css";
 import toast from "react-hot-toast";
 
-const PlaylistDetailModal = ({ isOpen, onClose, playlist, onRemoveTrack, onPlayPlaylist }) => {
+const PlaylistDetailModal = ({
+  isOpen,
+  onClose,
+  playlist,
+  onRemoveTrack,
+  onPlayPlaylist,
+}) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -69,7 +75,9 @@ const PlaylistDetailModal = ({ isOpen, onClose, playlist, onRemoveTrack, onPlayP
             <span className={styles.playlistType}>Playlist</span>
             <h2 className={styles.playlistName}>{playlist.name}</h2>
             {playlist.description && (
-              <p className={styles.playlistDescription}>{playlist.description}</p>
+              <p className={styles.playlistDescription}>
+                {playlist.description}
+              </p>
             )}
             <div className={styles.playlistMeta}>
               <span>{playlist.tracks?.length || 0} songs</span>
@@ -111,7 +119,10 @@ const PlaylistDetailModal = ({ isOpen, onClose, playlist, onRemoveTrack, onPlayP
                 <div className={styles.trackInfo}>
                   <p className={styles.trackTitle}>{track.title}</p>
                   <p className={styles.trackArtist}>
-                    {track.artist_name || `${track.artist?.slice(0, 6)}...${track.artist?.slice(-4)}`}
+                    {track.artist_name ||
+                      `${track.artist?.slice(0, 6)}...${track.artist?.slice(
+                        -4
+                      )}`}
                   </p>
                 </div>
                 <div className={styles.trackMeta}>

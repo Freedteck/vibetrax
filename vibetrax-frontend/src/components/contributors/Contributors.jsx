@@ -34,7 +34,7 @@ const Contributors = ({
                   {splits[index] / 100}% Shares of Royalty <br /> (
                   {((price * (royalty_percentage / 100)) / 100) *
                     (splits[index] / 100 / 100)}{" "}
-                  IOTA)
+                  MOVE)
                 </p>
               ) : (
                 " "

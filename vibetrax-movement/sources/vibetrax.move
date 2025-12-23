@@ -368,6 +368,11 @@ module vibetrax::vibetrax {
     ) acquires MusicNFT {
         let buyer_addr = signer::address_of(buyer);
         
+        // Register coin store if not already registered
+        if (!coin::is_account_registered<AptosCoin>(buyer_addr)) {
+            coin::register<AptosCoin>(buyer);
+        };
+        
         // Using bracket notation for resource access (Move 2.0)
         assert!(exists<MusicNFT>(nft_address), ENFT_NOT_FOUND);
         let nft = &mut MusicNFT[nft_address];

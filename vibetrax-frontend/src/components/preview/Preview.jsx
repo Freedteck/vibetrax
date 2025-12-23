@@ -49,12 +49,13 @@ const Preview = ({
               </div>
               <div className={styles["preview-metadata-item"]}>
                 <div className={styles["preview-metadata-label"]}>Artist</div>
-                <div
-                  className={styles["preview-metadata-value"]}
-                >{`${currentAccount?.address.slice(
-                  0,
-                  5
-                )}...${currentAccount?.address.slice(-5)}`}</div>
+                <div className={styles["preview-metadata-value"]}>
+                  {walletAddress
+                    ? `${walletAddress.slice(0, 5)}...${walletAddress.slice(
+                        -5
+                      )}`
+                    : "Not connected"}
+                </div>
               </div>
               <div className={styles["preview-metadata-item"]}>
                 <div className={styles["preview-metadata-label"]}>Genre</div>

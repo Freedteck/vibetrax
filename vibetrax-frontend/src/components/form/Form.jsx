@@ -30,48 +30,35 @@ const Form = ({
   const { walletAddress } = useMovementWallet();
   const { uploadMusic, updateMusic } = useMusicUpload();
   const { id } = useParams();
-  // uploading to tusky
-  // const tusky = new Tusky({ apiKey: import.meta.env.VITE_TUSKY_API_KEY });
+  const [songData, setSongData] = useState(null);
+  const [isPending, setIsPending] = useState(false);
 
-  // const upToTusky = async() =>{
+  // Function to fetch NFT data from Movement blockchain
+  useEffect(() => {
+    const fetchNFTData = async () => {
+      if (!id) return;
 
-  //   const vaults = await tusky.vault.listAll();
-  //   console.log(vaults);
+      try {
+        setIsPending(true);
+        const { aptos } = await import("../../config/movement");
+        const { MOVEMENT_CONTRACT_ADDRESS } = await import(
+          "../../config/constants"
+        );
+        const nftResource = await aptos.getAccountResource({
+          accountAddress: id,
+          resourceType: `${MOVEMENT_CONTRACT_ADDRESS}::vibetrax::MusicNFT`,
+        });
+        setSongData(nftResource);
+      } catch (error) {
+        console.error("Error fetching NFT:", error);
+        toast.error("Failed to load music data");
+      } finally {
+        setIsPending(false);
+      }
+    };
 
-  //   const publicVault = vaults.find(vault => vault.name === "My public vault");
-  //   let publicVaultId = publicVault?.id
-  //   if(!publicVault){
-  //     const { id } = await tusky.vault.create("My public vault", { encrypted: false });
-  //     publicVaultId = id
-  //   }
-  //   const imageId = await tusky.file.upload(publicVaultId, imageFile);
-  //   const imageData = await tusky.file.get(imageId);
-  //   console.log(imageData.blobId);
-
-  //   const lowQualityId = await tusky.file.upload(publicVaultId, lowQualityFile);
-  //   const lowQualityData = await tusky.file.get(lowQualityId);
-  //   console.log(lowQualityData.blobId);
-
-  //   console.log(vaults);
-  //   const privateVault = vaults.find(vault => vault.name === "My private vault");
-  //   let privateVaultId = privateVault?.id
-  //   if(!privateVault){
-  //     await tusky.addEncrypter({ password: import.meta.env.VITE_TUSKY_ACCOUNT_PASSWORD })
-  //     const { id } = await tusky.vault.create("My private vault", { encrypted: true });
-  //     privateVaultId = id
-  //   }
-  //   const highQualityId = await tusky.file.upload(privateVaultId, highQualityFile);
-  //   const highQualityAudioData = await tusky.file.get(highQualityId);
-  //   console.log(highQualityAudioData.blobId);
-
-  // }
-
-  // function to fetch song details using id
-  const { data: songData, isPending } = useIotaClientQuery(
-    "getObject",
-    { id, options: { showContent: true } },
-    { select: (data) => data.data?.content }
-  );
+    fetchNFTData();
+  }, [id]);
 
   // function go get image and music blob file
   const getBlobFile = async (blobUrl) => {
@@ -82,45 +69,48 @@ const Form = ({
 
   // effect to update form
   useEffect(() => {
-    if (id && !isPending) {
-      setTitle(songData?.fields?.title);
-      setPreviewTitle(songData?.fields?.title);
-      setDescription(songData?.fields?.description);
-      setGenre(songData?.fields?.genre);
-      setPreviewGenre(songData?.fields?.genre);
-      setForSale(songData?.fields?.for_sale);
-      setPrice(songData?.fields?.price);
-      getBlobFile(songData?.fields?.music_art).then((blob) => {
+    if (id && !isPending && songData) {
+      setTitle(songData?.title);
+      setPreviewTitle(songData?.title);
+      setDescription(songData?.description);
+      setGenre(songData?.genre);
+      setPreviewGenre(songData?.genre);
+      const isForSale =
+        songData?.status?.__variant__ === "Available" ||
+        songData?.status === "Available";
+      setForSale(isForSale);
+      setPrice(songData?.current_price / 100000000);
+      getBlobFile(songData?.music_art).then((blob) => {
         setImageFile(blob);
         setPreviewImage(blob);
       });
-      getBlobFile(songData?.fields?.high_quality_ipfs).then((blob) => {
+      getBlobFile(songData?.high_quality_ipfs).then((blob) => {
         setHighQualityFile(blob);
         setHighQuality(blob);
       });
-      getBlobFile(songData?.fields?.low_quality_ipfs).then((blob) => {
+      getBlobFile(songData?.low_quality_ipfs).then((blob) => {
         setLowQualityFile(blob);
         setLowQuality(blob);
       });
       setContributors(
-        songData?.fields?.collaborators.map((collaborator, index) => ({
-          role: songData?.fields?.collaborator_roles[index],
+        songData?.collaborators?.map((collaborator, index) => ({
+          role: songData?.collaborator_roles[index],
           address: collaborator,
-          percentage: songData?.fields?.collaborator_splits[index] / 100,
-        }))
+          percentage: parseInt(songData?.collaborator_splits[index]) / 100,
+        })) || []
       );
     } else {
-      if (currentAccount) {
+      if (walletAddress) {
         setContributors([
           {
             role: "Artist",
-            address: currentAccount?.address,
-            percentage: 50,
+            address: walletAddress,
+            percentage: 100,
           },
         ]);
       }
     }
-  }, [id, songData, isPending, currentAccount]);
+  }, [id, songData, isPending, walletAddress]);
 
   // Track remaining percentage
   const [_remainingPercentage, setRemainingPercentage] = useState(0);
@@ -299,6 +289,7 @@ const Form = ({
 
     const { lowQualityCid, highQualityCid, imageCid } = cIds;
 
+    const addresses = contributors.map((c) => c.address);
     const roles = contributors.map((c) => c.role);
     const percentages = contributors.map((c) => parseInt(c.percentage) * 100);
 
@@ -312,7 +303,7 @@ const Form = ({
       `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${lowQualityCid}`,
       price,
       royaltyPercentage,
-      contributors,
+      addresses,
       roles,
       percentages
     );
@@ -346,6 +337,7 @@ const Form = ({
     const { lowQualityCid, highQualityCid, imageCid } = cIds;
     // const { lowQualityBlobId, highQualityBlobId, imageBlobId } = blobId;
 
+    const addresses = contributors.map((c) => c.address);
     const roles = contributors.map((c) => c.role);
     const percentages = contributors.map((c) => parseInt(c.percentage) * 100);
 
@@ -360,7 +352,7 @@ const Form = ({
       `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${lowQualityCid}`,
       price,
       forSale,
-      contributors,
+      addresses,
       roles,
       percentages
     );
@@ -696,13 +688,13 @@ const Form = ({
 
         <div className={styles["form-group"]}>
           <label className={styles["form-label"]} htmlFor="price">
-            Premium Access Price (IOTA)
+            Premium Access Price (MOVE)
           </label>
           <input
             type="number"
             id="price"
             className={styles["form-input"]}
-            placeholder="Enter price in IOTA"
+            placeholder="Enter price in MOVE"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             step="0.0001"

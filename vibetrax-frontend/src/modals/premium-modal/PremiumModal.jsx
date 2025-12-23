@@ -39,7 +39,7 @@ const PremiumModal = ({ isOpen, onClose, songData, onPurchase }) => {
     setPaymentStatus("pending");
     const success = await onPurchase();
     setPaymentStatus(success ? "success" : "failed");
-    
+
     if (success) {
       setTimeout(() => {
         onClose();
@@ -70,14 +70,16 @@ const PremiumModal = ({ isOpen, onClose, songData, onPurchase }) => {
         <div className={styles.modalContent}>
           <div className={styles.trackPreview}>
             <img
-              src={songData?.fields.music_art}
+              src={songData?.music_art}
               alt="Album Art"
               className={styles.previewImg}
             />
             <div className={styles.previewDetails}>
-              <h3 className={styles.previewTitle}>{songData?.fields.title}</h3>
+              <h3 className={styles.previewTitle}>{songData?.title}</h3>
               <p className={styles.previewArtist}>
-                {`${songData?.fields.artist.slice(0, 6)}...${songData?.fields.artist.slice(-6)}`}
+                {`${songData?.artist.slice(0, 6)}...${songData?.artist.slice(
+                  -6
+                )}`}
               </p>
               <div className={styles.trackMeta}>
                 <div className={styles.metaItem}>
@@ -143,8 +145,10 @@ const PremiumModal = ({ isOpen, onClose, songData, onPurchase }) => {
             <div className={styles.priceInfo}>
               <span className={styles.priceLabel}>One-time purchase</span>
               <div className={styles.priceAmount}>
-                <span className={styles.price}>{songData?.fields.price}</span>
-                <span className={styles.currency}>IOTA</span>
+                <span className={styles.price}>
+                  {songData?.current_price / 100000000}
+                </span>
+                <span className={styles.currency}>MOVE</span>
               </div>
             </div>
           </div>
@@ -170,13 +174,15 @@ const PremiumModal = ({ isOpen, onClose, songData, onPurchase }) => {
                 : "Complete Purchase"
             }
             onClick={handleBuy}
-            disabled={paymentStatus === "pending" || paymentStatus === "success"}
+            disabled={
+              paymentStatus === "pending" || paymentStatus === "success"
+            }
             className={styles.purchaseButton}
           />
-          
+
           <p className={styles.secureNote}>
             <FiShield />
-            Secure blockchain transaction via IOTA Network
+            Secure blockchain transaction via MOVE Network
           </p>
         </div>
       </div>

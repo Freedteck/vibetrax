@@ -91,7 +91,9 @@ const AddToPlaylistModal = ({
             <div className={styles.trackDetails}>
               <p className={styles.trackTitle}>{track.title}</p>
               <p className={styles.trackArtist}>
-                {track.artist_name || "Unknown Artist"}
+                {track.artist
+                  ? `${track.artist.slice(0, 6)}...${track.artist.slice(-4)}`
+                  : "Unknown Artist"}
               </p>
             </div>
           </div>

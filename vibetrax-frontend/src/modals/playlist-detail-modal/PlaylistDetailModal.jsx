@@ -119,14 +119,15 @@ const PlaylistDetailModal = ({
                 <div className={styles.trackInfo}>
                   <p className={styles.trackTitle}>{track.title}</p>
                   <p className={styles.trackArtist}>
-                    {track.artist_name ||
-                      `${track.artist?.slice(0, 6)}...${track.artist?.slice(
-                        -4
-                      )}`}
+                    {track.artist
+                      ? `${track.artist.slice(0, 6)}...${track.artist.slice(
+                          -4
+                        )}`
+                      : "Unknown Artist"}
                   </p>
                 </div>
                 <div className={styles.trackMeta}>
-                  <span>{track.vote_count || 0} votes</span>
+                  <span>{track.like_count || 0} likes</span>
                 </div>
                 <button
                   className={styles.removeButton}

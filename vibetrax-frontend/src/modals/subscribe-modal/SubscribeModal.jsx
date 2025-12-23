@@ -71,7 +71,7 @@ const SubscribeModal = ({ isOpen, onClose }) => {
           <div className={styles.priceCard}>
             <span className={styles.priceLabel}>One-time</span>
             <div className={styles.priceAmount}>
-              <span className={styles.currency}>IOTA</span>
+              <span className={styles.currency}>MOVE</span>
               <span className={styles.price}>1</span>
             </div>
             <span className={styles.priceNote}>Lifetime access</span>
@@ -175,7 +175,7 @@ const SubscribeModal = ({ isOpen, onClose }) => {
           )}
 
           <p className={styles.secureNote}>
-            <FiLock size={14} /> Secure blockchain transaction via IOTA
+            <FiLock size={14} /> Secure blockchain transaction via MOVE
           </p>
         </div>
       </div>

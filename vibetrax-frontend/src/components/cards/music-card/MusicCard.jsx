@@ -81,7 +81,9 @@ const MusicCard = ({ track, quality, onPlay, onAddToPlaylist }) => {
         <div className={styles.musicMeta}>
           <span>{formattedDuration}</span>
           <span>•</span>
-          <span>{track.vote_count} votes</span>
+          <span>{track.like_count || 0} likes</span>
+          <span>•</span>
+          <span>{track.streaming_count || 0} plays</span>
           {onAddToPlaylist && (
             <>
               <span>•</span>

@@ -8,8 +8,6 @@ import { useState } from "react";
 const SongDetails = ({ songData, isPremium, handleVote }) => {
   const [duration, setDuration] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  
-
 
   const handleDurationLoaded = (durationInSeconds) => {
     setDuration(durationInSeconds);
@@ -30,7 +28,7 @@ const SongDetails = ({ songData, isPremium, handleVote }) => {
     <section className={styles.container}>
       <div className={styles.albumArt}>
         <img
-          src={songData.fields.music_art}
+          src={songData.music_art}
           alt="Album Cover"
           className={styles.albumImg}
         />
@@ -46,17 +44,14 @@ const SongDetails = ({ songData, isPremium, handleVote }) => {
       </div>
 
       <div className={styles.details}>
-        <h1 className={styles.title}>{songData.fields.title}</h1>
+        <h1 className={styles.title}>{songData.title}</h1>
         <div className={styles.artist}>
           By{" "}
           <Link
-            to={`/profile/${songData.fields.artist}`}
+            to={`/profile/${songData.artist}`}
             className={styles.artistLink}
           >
-            {`${songData.fields.artist.slice(
-              0,
-              5
-            )}...${songData.fields.artist.slice(-5)}`}
+            {`${songData.artist.slice(0, 6)}...${songData.artist.slice(-4)}`}
           </Link>
           <div className={styles.artistBadge}>
             <FiCheckCircle className={styles.verifiedIcon} />
@@ -71,18 +66,22 @@ const SongDetails = ({ songData, isPremium, handleVote }) => {
           </div>
           <div className={styles.metaItem}>
             <FiEye className={styles.metaIcon} />
-            <span>{5} plays</span>
+            <span>{songData.streaming_count || 0} plays</span>
           </div>
-          <div title={"Upvote Music"} className={`${styles.metaItem} ${styles.vote}`} onClick={handleVote}>
+          <div
+            title={"Upvote Music"}
+            className={`${styles.metaItem} ${styles.vote}`}
+            onClick={handleVote}
+          >
             <FiHeart className={styles.metaIcon} />
-            <span>{songData.fields.vote_count} Votes</span>
+            <span>{songData.like_count || 0} Likes</span>
           </div>
         </div>
 
-        <p className={styles.description}>{songData.fields.description}</p>
+        <p className={styles.description}>{songData.description}</p>
 
         <div className={styles.tags}>
-          <span className={styles.tag}>{songData.fields.genre}</span>
+          <span className={styles.tag}>{songData.genre}</span>
         </div>
 
         <div>

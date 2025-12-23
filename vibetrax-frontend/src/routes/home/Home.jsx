@@ -4,13 +4,44 @@ import { useMusicNfts } from "../../hooks/useMusicNfts";
 import { LoadingState } from "../../components/state/LoadingState";
 import { ErrorState } from "../../components/state/ErrorState";
 import { EmptyState } from "../../components/state/EmptyState";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
 import styles from "./Home.module.css";
 
 const Home = () => {
   const { subscriberData, handlePlayTrack } = useOutletContext();
+  const { walletAddress } = useMovementWallet();
   const { musicNfts, isPending, isError } = useMusicNfts();
 
-  const isSubscribed = subscriberData?.length > 0;
+  const getQualityForTrack = (track) => {
+    if (!walletAddress) return "Standard";
+
+    // Normalize addresses: ensure 0x prefix and pad to 66 chars (0x + 64 hex chars)
+    const normalizeAddress = (addr) => {
+      if (!addr) return "";
+      let normalized = addr.toLowerCase();
+      if (!normalized.startsWith("0x")) normalized = "0x" + normalized;
+      // Pad with zeros after 0x to make it 66 chars total
+      if (normalized.length < 66) {
+        normalized = "0x" + normalized.slice(2).padStart(64, "0");
+      }
+      return normalized;
+    };
+
+    const normalizedWallet = normalizeAddress(walletAddress);
+    const normalizedArtist = normalizeAddress(track.artist);
+    const normalizedOwner = normalizeAddress(track.current_owner);
+    const normalizedCollaborators = track.collaborators?.map((c) =>
+      normalizeAddress(c)
+    );
+
+    const isPremium =
+      normalizedWallet === normalizedArtist ||
+      normalizedWallet === normalizedOwner ||
+      normalizedCollaborators?.includes(normalizedWallet) ||
+      (subscriberData && subscriberData.is_active);
+
+    return isPremium ? "Premium" : "Standard";
+  };
 
   if (isPending) return <LoadingState />;
   if (isError) return <ErrorState />;
@@ -18,7 +49,7 @@ const Home = () => {
 
   // Get trending tracks (most voted)
   const trendingTracks = [...musicNfts]
-    .sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0))
+    .sort((a, b) => (b.like_count || 0) - (a.like_count || 0))
     .slice(0, 6);
 
   // Get recent uploads
@@ -38,7 +69,7 @@ const Home = () => {
       };
     }
     artistMap[track.artist].tracks.push(track);
-    artistMap[track.artist].totalVotes += track.vote_count || 0;
+    artistMap[track.artist].totalVotes += track.like_count || 0;
   });
 
   const popularArtists = Object.values(artistMap)
@@ -71,7 +102,7 @@ const Home = () => {
               <MusicCard
                 key={track.id.id}
                 track={track}
-                quality={isSubscribed ? "Premium" : "Standard"}
+                quality={getQualityForTrack(track)}
                 onPlay={(track) => handlePlayTrack(track, trendingTracks)}
               />
             ))}
@@ -93,7 +124,7 @@ const Home = () => {
               <MusicCard
                 key={track.id.id}
                 track={track}
-                quality={isSubscribed ? "Premium" : "Standard"}
+                quality={getQualityForTrack(track)}
                 onPlay={(track) => handlePlayTrack(track, recentTracks)}
               />
             ))}
@@ -115,7 +146,7 @@ const Home = () => {
               <MusicCard
                 key={track.id.id}
                 track={track}
-                quality={isSubscribed ? "Premium" : "Standard"}
+                quality={getQualityForTrack(track)}
                 onPlay={(track) => handlePlayTrack(track, albums)}
               />
             ))}

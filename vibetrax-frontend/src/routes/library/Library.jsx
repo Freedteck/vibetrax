@@ -25,7 +25,7 @@ import toast from "react-hot-toast";
 const Library = () => {
   const { walletAddress } = useMovementWallet();
   const navigate = useNavigate();
-  const { handlePlayTrack } = useOutletContext();
+  const { handlePlayTrack, subscriberData } = useOutletContext();
   const { musicNfts, isPending, isError } = useMusicNfts();
   const [activeTab, setActiveTab] = useState("playlists");
   const [viewMode, setViewMode] = useState("grid");
@@ -38,6 +38,36 @@ const Library = () => {
     useState(null);
   const [showPlaylistDetail, setShowPlaylistDetail] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
+
+  const getQualityForTrack = (track) => {
+    if (!walletAddress) return "Standard";
+
+    // Normalize addresses: ensure 0x prefix and pad to 66 chars (0x + 64 hex chars)
+    const normalizeAddress = (addr) => {
+      if (!addr) return "";
+      let normalized = addr.toLowerCase();
+      if (!normalized.startsWith("0x")) normalized = "0x" + normalized;
+      // Pad with zeros after 0x to make it 66 chars total
+      if (normalized.length < 66) {
+        normalized = "0x" + normalized.slice(2).padStart(64, "0");
+      }
+      return normalized;
+    };
+
+    const normalizedWallet = normalizeAddress(walletAddress);
+    const normalizedArtist = normalizeAddress(track.artist);
+    const normalizedOwner = normalizeAddress(track.current_owner);
+    const normalizedCollaborators = track.collaborators?.map((c) =>
+      normalizeAddress(c)
+    );
+
+    const isPremium =
+      normalizedWallet === normalizedArtist ||
+      normalizedWallet === normalizedOwner ||
+      normalizedCollaborators?.includes(normalizedWallet) ||
+      (subscriberData && subscriberData.is_active);
+    return isPremium ? "Premium" : "Standard";
+  };
 
   // Load data from localStorage
   useEffect(() => {
@@ -89,11 +119,10 @@ const Library = () => {
           id: track.id?.id || track.id,
           title: track.title,
           artist: track.artist,
-          artist_name: track.artist_name,
           music_art: track.music_art,
           high_quality_ipfs: track.high_quality_ipfs,
           low_quality_ipfs: track.low_quality_ipfs,
-          vote_count: track.vote_count,
+          like_count: track.like_count,
         };
         return {
           ...playlist,
@@ -156,7 +185,7 @@ const Library = () => {
     }
   };
 
-  if (!currentAccount) {
+  if (!walletAddress) {
     return <UnconnectedState />;
   }
 
@@ -168,12 +197,25 @@ const Library = () => {
     return <ErrorState />;
   }
 
+  // Normalize address for comparison
+  const normalizeAddress = (addr) => {
+    if (!addr) return "";
+    let normalized = addr.toLowerCase();
+    if (!normalized.startsWith("0x")) normalized = "0x" + normalized;
+    if (normalized.length < 66) {
+      normalized = "0x" + normalized.slice(2).padStart(64, "0");
+    }
+    return normalized;
+  };
+
   // Filter music based on current user
   const ownedMusic = musicNfts.filter(
-    (track) => track.current_owner === currentAccount.address
+    (track) =>
+      normalizeAddress(track.current_owner) === normalizeAddress(walletAddress)
   );
   const uploadedMusic = musicNfts.filter(
-    (track) => track.artist === currentAccount.address
+    (track) =>
+      normalizeAddress(track.artist) === normalizeAddress(walletAddress)
   );
 
   // Get liked songs from storage
@@ -320,7 +362,7 @@ const Library = () => {
           {showManagement && (
             <button
               className={styles.createSongButton}
-              onClick={() => navigate("/upload-music")}
+              onClick={() => navigate("/upload")}
             >
               <FiPlus /> Upload New Song
             </button>
@@ -340,7 +382,7 @@ const Library = () => {
             {showManagement && (
               <button
                 className={styles.createSongButton}
-                onClick={() => navigate("/upload-music")}
+                onClick={() => navigate("/upload")}
               >
                 <FiPlus /> Upload Song
               </button>
@@ -375,6 +417,7 @@ const Library = () => {
                   key={track.id?.id || track.id}
                   track={track}
                   music={track}
+                  quality={getQualityForTrack(track)}
                   onPlay={() => handlePlayTrack(track, tracks)}
                   onAddToPlaylist={handleOpenAddToPlaylist}
                 />

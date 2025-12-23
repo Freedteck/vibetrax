@@ -1,23 +1,8 @@
-import { useNetworkVariables } from "../config/networkConfig";
 import toast from "react-hot-toast";
 import { useMovementWallet } from "./useMovementWallet";
-import { getTransactionSubmitter } from "../utils/transactions";
 import { CONTRACT_ADDRESS } from "../config/movement";
 
 export const useMusicActions = () => {
-  const {
-    tunflowPackageId,
-    tunflowNFTRegistryId,
-    tunflowTokenId,
-    tunflowTreasuryId,
-    tunflowSubscriptionId,
-  } = useNetworkVariables(
-    "tunflowPackageId",
-    "tunflowNFTRegistryId",
-    "tunflowTokenId",
-    "tunflowTreasuryId",
-    "tunflowSubscriptionId"
-  );
   const { isConnected, signAndSubmitTransaction } = useMovementWallet();
 
   const voteForTrack = async (nftId, votersData) => {
@@ -34,16 +19,21 @@ export const useMusicActions = () => {
     try {
       const toastId = toast.loading("Processing Vote...");
 
-      // TODO: Implement Movement transaction for voting
-      // Use signAndSubmitTransaction from useMovementWallet
-      // Call CONTRACT_ADDRESS::vibetrax::vote_for_nft with nftId
+      // Note: The contract doesn't have a vote function, using like functionality
+      // This increments like_count on the NFT
+      const payload = {
+        data: {
+          function: `${CONTRACT_ADDRESS}::vibetrax::like_track`,
+          typeArguments: [],
+          functionArguments: [nftId],
+        },
+      };
 
-      toast.error("Vote function not yet implemented for Movement", {
-        id: toastId,
-      });
-      console.log("Vote parameters:", { nftId, CONTRACT_ADDRESS });
+      await signAndSubmitTransaction(payload);
+
+      toast.success("Vote successful!", { id: toastId });
     } catch (error) {
-      toast.error("An unexpected error occurred");
+      toast.error("Vote failed: " + (error.message || "Unknown error"));
       console.error(error);
     }
   };
@@ -57,17 +47,22 @@ export const useMusicActions = () => {
     try {
       const toastId = toast.loading("Processing purchase...");
 
-      // TODO: Implement Movement transaction for purchasing
-      // Use signAndSubmitTransaction from useMovementWallet
-      // Call CONTRACT_ADDRESS::vibetrax::purchase_and_reward
+      const payload = {
+        data: {
+          function: `${CONTRACT_ADDRESS}::vibetrax::purchase_music_nft`,
+          typeArguments: [],
+          functionArguments: [nftId, price],
+        },
+      };
 
-      toast.error("Purchase function not yet implemented for Movement", {
-        id: toastId,
-      });
-      console.log("Purchase parameters:", { nftId, price, CONTRACT_ADDRESS });
+      await signAndSubmitTransaction(payload);
+
+      toast.success("Purchase successful!", { id: toastId });
+      return true;
     } catch (error) {
-      toast.error("An unexpected error occurred");
+      toast.error("Purchase failed: " + (error.message || "Unknown error"));
       console.error(error.message);
+      return false;
     }
   };
 
@@ -80,16 +75,19 @@ export const useMusicActions = () => {
     try {
       const toastId = toast.loading("Processing...");
 
-      // TODO: Implement Movement transaction for toggle sale
-      // Use signAndSubmitTransaction from useMovementWallet
-      // Call CONTRACT_ADDRESS::vibetrax::toggle_for_sale
+      const payload = {
+        data: {
+          function: `${CONTRACT_ADDRESS}::vibetrax::toggle_for_sale`,
+          typeArguments: [],
+          functionArguments: [nftId],
+        },
+      };
 
-      toast.error("Toggle sale function not yet implemented for Movement", {
-        id: toastId,
-      });
-      console.log("Toggle sale parameters:", { nftId, CONTRACT_ADDRESS });
+      await signAndSubmitTransaction(payload);
+
+      toast.success("Updated successfully!", { id: toastId });
     } catch (error) {
-      toast.error("An unexpected error occurred");
+      toast.error("Update failed: " + (error.message || "Unknown error"));
       console.error(error.message);
     }
   };
@@ -101,22 +99,28 @@ export const useMusicActions = () => {
     }
 
     try {
-      const toastId = toast.loading("Processing...");
+      const toastId = toast.loading("Deleting track...");
 
-      // TODO: Implement Movement transaction for deleting track
-      // Use signAndSubmitTransaction from useMovementWallet
-      // Call CONTRACT_ADDRESS::vibetrax::delete_music_nft
+      const payload = {
+        data: {
+          function: `${CONTRACT_ADDRESS}::vibetrax::delete_nft`,
+          typeArguments: [],
+          functionArguments: [nftId],
+        },
+      };
 
-      toast.error("Delete function not yet implemented for Movement", {
-        id: toastId,
-      });
-      console.log("Delete parameters:", { nftId, CONTRACT_ADDRESS });
+      await signAndSubmitTransaction(payload);
+
+      toast.success("Track deleted!", { id: toastId });
+      return true;
     } catch (error) {
-      toast.error("An unexpected error occurred", error.message);
+      toast.error("Delete failed: " + (error.message || "Unknown error"));
+      console.error(error.message);
+      return false;
     }
   };
 
-  const subscribe = (setSubscriptionStatus) => {
+  const subscribe = async (setSubscriptionStatus) => {
     if (!isConnected) {
       toast.error("Please connect your wallet");
       setSubscriptionStatus("failed");
@@ -124,17 +128,116 @@ export const useMusicActions = () => {
     }
 
     setSubscriptionStatus("subscribing");
-    const toastId = toast.loading("Subscribing..");
+    const toastId = toast.loading("Subscribing...");
 
-    // TODO: Implement Movement transaction for subscription
-    // Use signAndSubmitTransaction from useMovementWallet
-    // Call CONTRACT_ADDRESS::vibetrax::subscribe
+    try {
+      const payload = {
+        data: {
+          function: `${CONTRACT_ADDRESS}::vibetrax::subscribe_with_move`,
+          typeArguments: [],
+          functionArguments: ["10000000"], // 0.01 MOVE in octas
+        },
+      };
 
-    toast.error("Subscribe function not yet implemented for Movement", {
-      id: toastId,
-    });
-    console.log("Subscribe parameters:", { CONTRACT_ADDRESS });
-    setSubscriptionStatus("failed");
+      await signAndSubmitTransaction(payload);
+
+      toast.success("Subscribed successfully!", { id: toastId });
+      setSubscriptionStatus("success");
+    } catch (error) {
+      toast.error("Subscription failed: " + (error.message || "Unknown error"));
+      console.error(error);
+      setSubscriptionStatus("failed");
+    }
+  };
+
+  const tipArtist = async (nftId, amount) => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet");
+      return false;
+    }
+
+    try {
+      const toastId = toast.loading("Sending tip...");
+
+      // Convert MOVE amount to octas (8 decimals)
+      const amountInOctas = Math.floor(amount * 100_000_000);
+
+      const payload = {
+        data: {
+          function: `${CONTRACT_ADDRESS}::vibetrax::tip_artist`,
+          typeArguments: [],
+          functionArguments: [nftId, amountInOctas.toString()],
+        },
+      };
+
+      await signAndSubmitTransaction(payload);
+
+      toast.success(`Tipped ${amount} MOVE successfully!`, { id: toastId });
+      return true;
+    } catch (error) {
+      toast.error("Tip failed: " + (error.message || "Unknown error"));
+      console.error(error);
+      return false;
+    }
+  };
+
+  const boostSong = async (nftId, amount) => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet");
+      return false;
+    }
+
+    try {
+      const toastId = toast.loading("Boosting song...");
+
+      // Convert MOVE amount to octas (8 decimals)
+      const amountInOctas = Math.floor(amount * 100_000_000);
+
+      const payload = {
+        data: {
+          function: `${CONTRACT_ADDRESS}::vibetrax::boost_song`,
+          typeArguments: [],
+          functionArguments: [nftId, amountInOctas.toString()],
+        },
+      };
+
+      await signAndSubmitTransaction(payload);
+
+      toast.success(`Boosted with ${amount} MOVE!`, { id: toastId });
+      return true;
+    } catch (error) {
+      toast.error("Boost failed: " + (error.message || "Unknown error"));
+      console.error(error);
+      return false;
+    }
+  };
+
+  const claimStreamingRewards = async (nftId) => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet");
+      return false;
+    }
+
+    try {
+      const toastId = toast.loading("Claiming rewards...");
+
+      const payload = {
+        data: {
+          function: `${CONTRACT_ADDRESS}::vibetrax::claim_streaming_rewards`,
+          typeArguments: [],
+          functionArguments: [nftId],
+        },
+      };
+
+      await signAndSubmitTransaction(payload);
+
+      toast.success("Rewards claimed successfully!", { id: toastId });
+      return true;
+    } catch (error) {
+      toast.error("Claim failed: " + (error.message || "Unknown error"));
+      console.error(error);
+      return false;
+    }
   };
 
   return {
@@ -143,5 +246,8 @@ export const useMusicActions = () => {
     purchaseTrack,
     deleteTrack,
     subscribe,
+    tipArtist,
+    boostSong,
+    claimStreamingRewards,
   };
 };

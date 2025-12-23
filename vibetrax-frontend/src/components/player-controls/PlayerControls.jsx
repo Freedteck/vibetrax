@@ -8,6 +8,23 @@ const PlayerControls = ({ songData, onDurationLoaded, onPlayStatusChange }) => {
   const subscriberData = useOutletContext();
   const audioRef = useRef(null);
 
+  // Normalize addresses for comparison
+  const normalizeAddress = (addr) => {
+    if (!addr) return "";
+    let normalized = addr.toLowerCase();
+    if (!normalized.startsWith("0x")) normalized = "0x" + normalized;
+    if (normalized.length < 66) {
+      normalized = "0x" + normalized.slice(2).padStart(64, "0");
+    }
+    return normalized;
+  };
+
+  const isPremium =
+    normalizeAddress(walletAddress) === normalizeAddress(songData?.artist) ||
+    normalizeAddress(walletAddress) === normalizeAddress(songData?.current_owner) ||
+    songData?.collaborators?.map(c => normalizeAddress(c))?.includes(normalizeAddress(walletAddress)) ||
+    (subscriberData?.subscriberData && subscriberData.subscriberData.is_active);
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -35,14 +52,7 @@ const PlayerControls = ({ songData, onDurationLoaded, onPlayStatusChange }) => {
         ref={audioRef}
         className={styles.audio}
         controls
-        src={
-          walletAddress === songData.fields.artist ||
-          walletAddress === songData.fields.current_owner ||
-          songData.fields.collaborators?.includes(walletAddress) ||
-          (subscriberData && subscriberData.length > 0)
-            ? songData.fields.high_quality_ipfs
-            : songData.fields.low_quality_ipfs
-        }
+        src={isPremium ? songData.high_quality_ipfs : songData.low_quality_ipfs}
       />
     </div>
   );

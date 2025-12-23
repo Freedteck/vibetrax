@@ -7,7 +7,8 @@ import styles from "./Root.module.css";
 import { Toaster } from "react-hot-toast";
 import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
 import { useMovementWallet } from "../../hooks/useMovementWallet";
-import { fetchViewFunction } from "../../utils/transactions";
+import { aptos } from "../../config/movement";
+import { MOVEMENT_CONTRACT_ADDRESS } from "../../config/constants";
 
 const Root = () => {
   const { walletAddress } = useMovementWallet();
@@ -24,12 +25,24 @@ const Root = () => {
       }
 
       try {
-        const subscription = await fetchViewFunction("get_user_subscription", [
-          walletAddress,
-        ]);
-        setSubscriberData(subscription);
+        // Query Subscriber resource directly from blockchain
+        const subscriberResource = await aptos.getAccountResource({
+          accountAddress: walletAddress,
+          resourceType: `${MOVEMENT_CONTRACT_ADDRESS}::vibetrax::Subscriber`,
+        });
+
+        if (subscriberResource) {
+          setSubscriberData({
+            is_active: subscriberResource.is_active,
+            subscription_start: parseInt(subscriberResource.subscription_start),
+            subscription_end: parseInt(subscriberResource.subscription_end),
+          });
+        } else {
+          setSubscriberData(null);
+        }
       } catch (error) {
-        console.error("Error fetching subscription:", error);
+        // User doesn't have Subscriber resource yet
+        console.log("No subscription found for user");
         setSubscriberData(null);
       }
     };
@@ -64,6 +77,7 @@ const Root = () => {
         playlist={playlist}
         onTrackChange={setCurrentTrack}
         onClose={handleClosePlayer}
+        subscriberData={subscriberData}
       />
     </div>
   );

@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNetworkVariable } from "../config/networkConfig";
 import { aptos, CONTRACT_ADDRESS } from "../config/movement";
 
 export const useMusicNfts = () => {
   const [musicNfts, setMusicNfts] = useState([]);
   const [isPending, setIsPending] = useState(true);
   const [isError, setIsError] = useState(false);
-  const tunflowPackageId = useNetworkVariable("tunflowPackageId");
 
   useEffect(() => {
     const fetchNFTs = async () => {
@@ -14,39 +12,113 @@ export const useMusicNfts = () => {
         setIsPending(true);
         setIsError(false);
 
-        // Use Movement's indexer to fetch events
-        // This queries the MusicNFTMinted events from your contract
-        try {
-          const events = await aptos.getAccountEventsByEventType({
-            accountAddress: CONTRACT_ADDRESS,
-            eventType: `${CONTRACT_ADDRESS}::vibetrax::MusicNFTMinted`,
-          });
+        // Fetch the NFTRegistry resource to get all NFT addresses
+        const registryResource = await aptos.getAccountResource({
+          accountAddress: CONTRACT_ADDRESS,
+          resourceType: `${CONTRACT_ADDRESS}::vibetrax::NFTRegistry`,
+        });
 
-          console.log("Fetched events:", events);
+        const nftAddresses = registryResource.nft_addresses || [];
+        console.log(`Found ${nftAddresses.length} NFTs in registry`);
 
-          // Extract NFT data from events
-          // Events should contain nft_id and other metadata
-          const nfts = events.map((event) => ({
-            id: { id: event.data.nft_id },
-            ...event.data,
-          }));
-
-          setMusicNfts(nfts);
-        } catch (eventError) {
-          // If no events found or event type doesn't exist yet
-          console.warn("No NFT events found:", eventError.message);
+        if (nftAddresses.length === 0) {
           setMusicNfts([]);
+          return;
         }
+
+        // Fetch each NFT's data from its resource account
+        const nftsData = await Promise.all(
+          nftAddresses.map(async (nftAddress) => {
+            try {
+              const nftResource = await aptos.getAccountResource({
+                accountAddress: nftAddress,
+                resourceType: `${CONTRACT_ADDRESS}::vibetrax::MusicNFT`,
+              });
+
+              console.log("Resource:", nftResource);
+
+              console.log("NFT:", {
+                id: { id: nftAddress }, // Use NFT address as ID
+                artist: nftResource.artist,
+                current_owner: nftResource.current_owner,
+                title: nftResource.title,
+                description: nftResource.description,
+                genre: nftResource.genre,
+                music_art: nftResource.music_art,
+                high_quality_ipfs: nftResource.high_quality_ipfs,
+                low_quality_ipfs: nftResource.low_quality_ipfs,
+                base_price: parseInt(nftResource.base_price),
+                current_price: parseInt(nftResource.current_price),
+                royalty_percentage: parseInt(nftResource.royalty_percentage),
+                streaming_count: parseInt(nftResource.streaming_count),
+                like_count: parseInt(nftResource.like_count),
+                tip_count: parseInt(nftResource.tip_count),
+                purchase_count: parseInt(nftResource.purchase_count),
+                boost_count: parseInt(nftResource.boost_count),
+                total_boost_amount: parseInt(nftResource.total_boost_amount),
+                collaborators: nftResource.collaborators,
+                collaborator_roles: nftResource.collaborator_roles,
+                collaborator_splits: nftResource.collaborator_splits.map((s) =>
+                  parseInt(s)
+                ),
+                status: nftResource.status.__variant__ || "Available",
+                creation_time: parseInt(nftResource.creation_time),
+              });
+
+              // Transform the data to match the expected format
+              return {
+                id: { id: nftAddress }, // Use NFT address as ID
+                artist: nftResource.artist,
+                current_owner: nftResource.current_owner,
+                title: nftResource.title,
+                description: nftResource.description,
+                genre: nftResource.genre,
+                music_art: nftResource.music_art,
+                high_quality_ipfs: nftResource.high_quality_ipfs,
+                low_quality_ipfs: nftResource.low_quality_ipfs,
+                base_price: parseInt(nftResource.base_price),
+                current_price: parseInt(nftResource.current_price),
+                royalty_percentage: parseInt(nftResource.royalty_percentage),
+                streaming_count: parseInt(nftResource.streaming_count),
+                like_count: parseInt(nftResource.like_count),
+                tip_count: parseInt(nftResource.tip_count),
+                purchase_count: parseInt(nftResource.purchase_count),
+                boost_count: parseInt(nftResource.boost_count),
+                total_boost_amount: parseInt(nftResource.total_boost_amount),
+                collaborators: nftResource.collaborators,
+                collaborator_roles: nftResource.collaborator_roles,
+                collaborator_splits: nftResource.collaborator_splits.map((s) =>
+                  parseInt(s)
+                ),
+                status: nftResource.status.__variant__ || "Available",
+                creation_time: parseInt(nftResource.creation_time),
+              };
+            } catch (err) {
+              console.warn(
+                `Failed to fetch NFT at ${nftAddress}:`,
+                err.message
+              );
+              return null;
+            }
+          })
+        );
+
+        // Filter out any failed fetches
+        const validNfts = nftsData.filter((nft) => nft !== null);
+        console.log(`Successfully fetched ${validNfts.length} NFTs`);
+
+        setMusicNfts(validNfts);
       } catch (error) {
         console.error("Error fetching NFTs:", error);
         setIsError(true);
+        setMusicNfts([]);
       } finally {
         setIsPending(false);
       }
     };
 
     fetchNFTs();
-  }, [tunflowPackageId]);
+  }, []);
 
   return {
     musicNfts,

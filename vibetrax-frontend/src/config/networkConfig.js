@@ -1,5 +1,4 @@
 // Movement blockchain configuration
-// This file maintains compatibility with IOTA variable names for easier migration
 import {
   TESTNET_TUNE_FLOW_PACKAGE_ID,
   TESTNET_TUNE_FLOW_NFT_REGISTRY_ID,

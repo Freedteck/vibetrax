@@ -14,10 +14,8 @@ import { useMusicActions } from "../../hooks/useMusicActions";
 import PremiumModal from "../../modals/premium-modal/PremiumModal";
 import { useMusicNfts } from "../../hooks/useMusicNfts";
 import MusicCard from "../../components/cards/music-card/MusicCard";
-import { useNetworkVariable } from "../../config/networkConfig";
 import SubscribeModal from "../../modals/subscribe-modal/SubscribeModal";
 import { useMovementWallet } from "../../hooks/useMovementWallet";
-import { fetchViewFunction } from "../../utils/transactions";
 import { aptos, CONTRACT_ADDRESS } from "../../config/movement";
 import toast from "react-hot-toast";
 
@@ -27,7 +25,6 @@ const MusicPlayer = () => {
   const { walletAddress } = useMovementWallet();
   const navigate = useNavigate();
   const { voteForTrack, purchaseTrack } = useMusicActions();
-  const tunflowPackageId = useNetworkVariable("tunflowPackageId");
 
   const [isOpen, setIsOpen] = useState(false);
   const [isSubcribeModalOpen, setIsSubcribeModalOpen] = useState(false);
@@ -47,22 +44,44 @@ const MusicPlayer = () => {
         setIsPending(true);
         setIsError(false);
 
-        // Fetch NFT data using view function
-        const nftData = await fetchViewFunction(
-          CONTRACT_ADDRESS,
-          "get_nft_details",
-          [],
-          [id]
-        );
+        // Fetch NFT resource directly
+        const nftResource = await aptos.getAccountResource({
+          accountAddress: id,
+          resourceType: `${CONTRACT_ADDRESS}::vibetrax::MusicNFT`,
+        });
 
-        if (nftData) {
-          setSongData({ fields: nftData });
+        if (nftResource) {
+          // Transform data to match expected format
+          setSongData({
+            id: { id },
+            artist: nftResource.artist,
+            current_owner: nftResource.current_owner,
+            title: nftResource.title,
+            description: nftResource.description,
+            genre: nftResource.genre,
+            music_art: nftResource.music_art,
+            high_quality_ipfs: nftResource.high_quality_ipfs,
+            low_quality_ipfs: nftResource.low_quality_ipfs,
+            base_price: parseInt(nftResource.base_price),
+            current_price: parseInt(nftResource.current_price),
+            royalty_percentage: parseInt(nftResource.royalty_percentage),
+            streaming_count: parseInt(nftResource.streaming_count),
+            like_count: parseInt(nftResource.like_count),
+            tip_count: parseInt(nftResource.tip_count),
+            purchase_count: parseInt(nftResource.purchase_count),
+            boost_count: parseInt(nftResource.boost_count),
+            collaborators: nftResource.collaborators,
+            collaborator_roles: nftResource.collaborator_roles,
+            collaborator_splits: nftResource.collaborator_splits.map((s) =>
+              parseInt(s)
+            ),
+            status: nftResource.status.__variant__ || "Available",
+            creation_time: parseInt(nftResource.creation_time),
+          });
         }
 
-        // Fetch voter events if wallet connected
+        // Initialize votersData as empty (voting status would need separate tracking)
         if (walletAddress) {
-          // TODO: Implement event fetching or voting status check
-          // For now, initialize as empty
           setVotersData([]);
         }
       } catch (error) {
@@ -75,32 +94,41 @@ const MusicPlayer = () => {
     fetchData();
   }, [id, walletAddress]);
 
+  // Normalize address for comparison
+  const normalizeAddress = (addr) => {
+    if (!addr) return "";
+    let normalized = addr.toLowerCase();
+    if (!normalized.startsWith("0x")) normalized = "0x" + normalized;
+    if (normalized.length < 66) {
+      normalized = "0x" + normalized.slice(2).padStart(64, "0");
+    }
+    return normalized;
+  };
+
   const artistMusics = musicNfts
     .filter(
       (music) =>
-        music.artist === songData?.fields?.artist && music?.id?.id !== id
+        normalizeAddress(music.artist) === normalizeAddress(songData?.artist) &&
+        music?.id?.id !== id
     )
     .slice(0, 6);
 
-  const forSale = songData?.fields?.for_sale === true;
+  const forSale = songData?.status === "Available";
 
   const isPremium =
-    walletAddress === songData?.fields?.current_owner ||
-    songData?.fields?.collaborators?.includes(walletAddress) ||
-    (subscriberData && subscriberData.length > 0);
+    normalizeAddress(walletAddress) === normalizeAddress(songData?.artist) ||
+    normalizeAddress(walletAddress) === normalizeAddress(songData?.current_owner) ||
+    songData?.collaborators
+      ?.map((c) => normalizeAddress(c))
+      ?.includes(normalizeAddress(walletAddress)) ||
+    (subscriberData && subscriberData.is_active);
 
   const hasVoted = votersData && votersData.length > 0;
 
   useEffect(() => {
     if (songData && musicNfts.length > 0) {
       // Auto-play when page loads
-      handlePlayTrack(
-        {
-          ...songData.fields,
-          id: { id },
-        },
-        musicNfts
-      );
+      handlePlayTrack(songData, musicNfts);
     }
   }, [id, songData, musicNfts.length]);
 
@@ -112,7 +140,7 @@ const MusicPlayer = () => {
   if (isPending) return <LoadingState />;
   if (isError || !songData) return <ErrorState />;
 
-  const track = songData.fields;
+  const track = songData;
 
   return (
     <main className={styles.nowPlaying}>
@@ -142,13 +170,7 @@ const MusicPlayer = () => {
               {track.genre || "Unknown Genre"}
             </span>
             <span className={styles.metaDot}>•</span>
-            <span className={styles.metaItem}>{track.vote_count} votes</span>
-            {track.is_album && (
-              <>
-                <span className={styles.metaDot}>•</span>
-                <span className={styles.metaItem}>Album</span>
-              </>
-            )}
+            <span className={styles.metaItem}>{track.like_count} likes</span>
           </div>
 
           {/* Action Buttons */}
@@ -168,7 +190,7 @@ const MusicPlayer = () => {
                 onClick={() => setIsOpen(true)}
               >
                 <FiShoppingCart />
-                Buy {track.price} IOTA
+                Buy {track.current_price / 100000000} MOVE
               </button>
             )}
 
@@ -196,12 +218,14 @@ const MusicPlayer = () => {
           <div className={styles.infoGrid}>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>Price</span>
-              <span className={styles.infoValue}>{track.price} IOTA</span>
+              <span className={styles.infoValue}>
+                {track.current_price / 100000000} MOVE
+              </span>
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>Royalty</span>
               <span className={styles.infoValue}>
-                {track.royalty_percentage}%
+                {track.royalty_percentage / 100}%
               </span>
             </div>
             <div className={styles.infoItem}>
@@ -233,7 +257,7 @@ const MusicPlayer = () => {
                     {track.collaborator_roles?.[index] || "Collaborator"}
                   </span>
                   <span className={styles.collabSplit}>
-                    {track.collaborator_splits?.[index]}%
+                    {track.collaborator_splits?.[index] / 100}%
                   </span>
                 </div>
               ))}
@@ -266,7 +290,7 @@ const MusicPlayer = () => {
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         songData={songData}
-        onPurchase={() => purchaseTrack(id, track.price)}
+        onPurchase={() => purchaseTrack(id, track.current_price)}
       />
 
       <SubscribeModal

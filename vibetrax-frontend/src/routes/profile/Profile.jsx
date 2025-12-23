@@ -53,16 +53,61 @@ const Profile = () => {
     fetchBalance();
   }, [address]);
 
-  const uploadedNfts = musicNfts.filter((music) => music.artist === address);
+  // Normalize address for comparison
+  const normalizeAddress = (addr) => {
+    if (!addr) return "";
+    let normalized = addr.toLowerCase();
+    if (!normalized.startsWith("0x")) normalized = "0x" + normalized;
+    if (normalized.length < 66) {
+      normalized = "0x" + normalized.slice(2).padStart(64, "0");
+    }
+    return normalized;
+  };
+
+  const uploadedNfts = musicNfts.filter(
+    (music) => normalizeAddress(music.artist) === normalizeAddress(address)
+  );
   const ownedNfts = musicNfts.filter(
-    (music) => music.current_owner === address && music.artist !== address
+    (music) =>
+      normalizeAddress(music.current_owner) === normalizeAddress(address) &&
+      normalizeAddress(music.artist) !== normalizeAddress(address)
   );
 
   const totalVotes = uploadedNfts.reduce(
-    (sum, track) => sum + (track.vote_count || 0),
+    (sum, track) => sum + (track.like_count || 0),
     0
   );
-  const isOwnProfile = walletAddress === address;
+  const isOwnProfile = normalizeAddress(walletAddress) === normalizeAddress(address);
+
+  const getQualityForTrack = (track) => {
+    if (!walletAddress) return "Standard";
+
+    // Normalize addresses: ensure 0x prefix and pad to 66 chars (0x + 64 hex chars)
+    const normalizeAddress = (addr) => {
+      if (!addr) return "";
+      let normalized = addr.toLowerCase();
+      if (!normalized.startsWith("0x")) normalized = "0x" + normalized;
+      // Pad with zeros after 0x to make it 66 chars total
+      if (normalized.length < 66) {
+        normalized = "0x" + normalized.slice(2).padStart(64, "0");
+      }
+      return normalized;
+    };
+
+    const normalizedWallet = normalizeAddress(walletAddress);
+    const normalizedArtist = normalizeAddress(track.artist);
+    const normalizedOwner = normalizeAddress(track.current_owner);
+    const normalizedCollaborators = track.collaborators?.map((c) =>
+      normalizeAddress(c)
+    );
+
+    const isPremium =
+      normalizedWallet === normalizedArtist ||
+      normalizedWallet === normalizedOwner ||
+      normalizedCollaborators?.includes(normalizedWallet) ||
+      (subscriberData && subscriberData.is_active);
+    return isPremium ? "Premium" : "Standard";
+  };
 
   if (isPending) return <LoadingState />;
   if (isError) return <ErrorState />;
@@ -96,7 +141,7 @@ const Profile = () => {
               </div>
               <div className={styles.stat}>
                 <span className={styles.statValue}>{totalVotes}</span>
-                <span className={styles.statLabel}>Total Votes</span>
+                <span className={styles.statLabel}>Total Likes</span>
               </div>
               {!balancePending &&
                 isOwnProfile &&
@@ -156,7 +201,7 @@ const Profile = () => {
                   <MusicCard
                     key={track.id.id}
                     track={track}
-                    quality="Premium"
+                    quality={getQualityForTrack(track)}
                     onPlay={(track) => handlePlayTrack(track, uploadedNfts)}
                   />
                 ))}
@@ -170,7 +215,7 @@ const Profile = () => {
                 <MusicCard
                   key={track.id.id}
                   track={track}
-                  quality="Premium"
+                  quality={getQualityForTrack(track)}
                   onPlay={(track) => handlePlayTrack(track, ownedNfts)}
                 />
               ))}

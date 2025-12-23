@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styles from "./StateStyles.module.css";
 import WalletModal from "../wallet/WalletModal";
+import Button from "../button/Button";
 
 export const UnconnectedState = () => {
   const [showWalletModal, setShowWalletModal] = useState(false);
@@ -11,12 +12,11 @@ export const UnconnectedState = () => {
       <p className={styles.stateSubMessage}>
         Please Connect your wallet to access this page
       </p>
-      <button
-        className={styles.connectButton}
+      <Button
+        btnClass="primary"
+        text={"Connect Wallet"}
         onClick={() => setShowWalletModal(true)}
-      >
-        Connect Wallet
-      </button>
+      />
 
       <WalletModal
         isOpen={showWalletModal}

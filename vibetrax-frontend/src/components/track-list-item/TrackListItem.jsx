@@ -37,14 +37,18 @@ const TrackListItem = ({
 
       <div className={styles.trackInfo}>
         <div className={styles.trackTitle}>{track.title}</div>
-        <div className={styles.trackArtist}>{track.artist_name}</div>
+        <div className={styles.trackArtist}>
+          {track.artist
+            ? `${track.artist.slice(0, 6)}...${track.artist.slice(-4)}`
+            : "Unknown"}
+        </div>
       </div>
 
-      <div className={styles.trackGenre}>{track.music_genre || "Unknown"}</div>
+      <div className={styles.trackGenre}>{track.genre || "Unknown"}</div>
 
       <div className={styles.trackVotes}>
         <FiHeart className={styles.voteIcon} />
-        <span>{track.vote_count || 0}</span>
+        <span>{track.like_count || 0}</span>
       </div>
 
       <div className={styles.trackActions}>

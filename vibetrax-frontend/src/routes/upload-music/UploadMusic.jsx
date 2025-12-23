@@ -80,9 +80,13 @@ const UploadMusic = () => {
           <div className={styles.noticeContent}>
             <h4>Gas Fee Required</h4>
             <p>
-              You need at least <strong>0.1 IOTA</strong> for transaction fees.{" "}
-              <a href="#" target="_blank" rel="noopener noreferrer">
-                Get Gas Fee
+              You need at least <strong>0.01 MOVE</strong> for transaction fees.{" "}
+              <a
+                href="https://faucet.movementnetwork.xyz/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Get Testnet MOVE
               </a>
             </p>
           </div>

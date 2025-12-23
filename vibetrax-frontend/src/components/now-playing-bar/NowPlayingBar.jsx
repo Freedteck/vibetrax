@@ -13,13 +13,16 @@ import {
 } from "react-icons/fi";
 import { MdShuffle, MdRepeat, MdRepeatOne } from "react-icons/md";
 import styles from "./NowPlayingBar.module.css";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
 
 const NowPlayingBar = ({
   currentTrack,
   playlist = [],
   onTrackChange,
   onClose,
+  subscriberData,
 }) => {
+  const { walletAddress } = useMovementWallet();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -33,11 +36,30 @@ const NowPlayingBar = ({
   const audioRef = useRef(null);
   const navigate = useNavigate();
 
+  // Normalize addresses for comparison
+  const normalizeAddress = (addr) => {
+    if (!addr) return "";
+    let normalized = addr.toLowerCase();
+    if (!normalized.startsWith("0x")) normalized = "0x" + normalized;
+    if (normalized.length < 66) {
+      normalized = "0x" + normalized.slice(2).padStart(64, "0");
+    }
+    return normalized;
+  };
+
+  // Check if user has premium access
+  const isPremium =
+    normalizeAddress(walletAddress) === normalizeAddress(currentTrack?.artist) ||
+    normalizeAddress(walletAddress) === normalizeAddress(currentTrack?.current_owner) ||
+    currentTrack?.collaborators?.map(c => normalizeAddress(c))?.includes(normalizeAddress(walletAddress)) ||
+    (subscriberData && subscriberData.is_active);
+
   useEffect(() => {
     if (audioRef.current && currentTrack) {
       setIsLoading(true);
-      audioRef.current.src =
-        currentTrack.high_quality_ipfs || currentTrack.low_quality_ipfs;
+      audioRef.current.src = isPremium
+        ? currentTrack.high_quality_ipfs
+        : currentTrack.low_quality_ipfs;
       audioRef.current.load();
       if (isPlaying) {
         audioRef.current.play().catch((err) => {

@@ -28,8 +28,9 @@ export const aptos = new Aptos(
 );
 
 // Your deployed contract address
+// This is YOUR account address from .movement/config.yaml where the contract was deployed
 export const CONTRACT_ADDRESS =
-  "0x88d5bf2a5368c3cf3283e952e70e510cb8ce6318cfd587f1164e549827c87596";
+  "0x0b4abe06065561f88bb89e82712d9a9c3523bc431553a51c8712d82eca5818ac";
 
 // Utility to convert Uint8Array to hex string
 export const toHex = (buffer) => {

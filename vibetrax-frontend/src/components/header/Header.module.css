@@ -87,6 +87,100 @@
   gap: 16px;
 }
 
+.walletInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.walletBadge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.privyBadge {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.nativeBadge {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.userProfile {
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userProfile:hover {
+  transform: scale(1.05);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--color-bg-secondary);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+  overflow: hidden;
+  z-index: 100;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownItem {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-primary);
+  font-size: 14px;
+}
+
+.dropdownItem:hover {
+  background: var(--color-bg-hover);
+}
+
+.disconnectItem {
+  color: #ef4444;
+}
+
+.disconnectItem:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.dropdownDivider {
+  height: 1px;
+  background: var(--color-border-light);
+  margin: 4px 0;
+}
+
 .connectButton button {
   background: var(--color-primary) !important;
   border-radius: 24px !important;
@@ -154,6 +248,11 @@
 
   .rightSection {
     gap: 12px;
+  }
+
+  .walletBadge {
+    font-size: 10px;
+    padding: 3px 8px;
   }
 }
 

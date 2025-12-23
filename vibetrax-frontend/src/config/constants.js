@@ -12,8 +12,9 @@ export const TESTNET_TUNE_FLOW_TREASURY_ID =
 
 // ===== MOVEMENT BLOCKCHAIN CONSTANTS =====
 // Deployed contract address on Movement Testnet (Bardock)
+// This is YOUR account address where the contract was deployed
 export const MOVEMENT_CONTRACT_ADDRESS =
-  "0x88d5bf2a5368c3cf3283e952e70e510cb8ce6318cfd587f1164e549827c87596";
+  "0x0b4abe06065561f88bb89e82712d9a9c3523bc431553a51c8712d82eca5818ac";
 
 // Platform configuration
 export const PLATFORM_TOKEN_NAME = "VibetraxToken";

@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { usePrivy, useLogin } from "@privy-io/react-auth";
+import { useCreateWallet } from "@privy-io/react-auth/extended-chains";
 import { getAptosWallets } from "@aptos-labs/wallet-standard";
 import { MOVEMENT_CONFIGS, CURRENT_NETWORK } from "../../config/movement";
 import "./WalletModal.css";
@@ -9,6 +11,7 @@ function WalletModal({ isOpen, onClose, children }) {
   const [isCreatingWallet, setIsCreatingWallet] = useState(false);
   const { wallets, connect } = useWallet();
   const { authenticated, user } = usePrivy();
+  const { createWallet } = useCreateWallet();
 
   // Check for Movement wallet
   const movementWallet = user?.linkedAccounts?.find(
@@ -71,23 +74,40 @@ function WalletModal({ isOpen, onClose, children }) {
     }
   };
 
-  const handleWalletCreation = async () => {
+  const handleWalletCreation = async (user) => {
     try {
       setIsCreatingWallet(true);
-      // Wallet creation is handled by Privy automatically after login
-      // Just close the modal
+      
+      // Check if user already has an Aptos/Movement wallet
+      const existingWallet = user?.linkedAccounts?.find(
+        (account) => account.type === "wallet" && account.chainType === "aptos"
+      );
+
+      if (existingWallet) {
+        console.log("Movement wallet already exists:", existingWallet.address);
+        onClose();
+        return existingWallet;
+      }
+
+      // Create a new Aptos/Movement wallet
+      console.log("Creating new Movement wallet for user...");
+      const wallet = await createWallet({ chainType: "aptos" });
+      
+      console.log("Movement wallet created successfully:", wallet.address);
       onClose();
+      return wallet;
     } catch (error) {
       console.error("Wallet creation error:", error);
+      throw error;
     } finally {
       setIsCreatingWallet(false);
     }
   };
 
   const { login } = useLogin({
-    onComplete: async () => {
+    onComplete: async ({ user }) => {
       try {
-        await handleWalletCreation();
+        await handleWalletCreation(user);
       } catch (error) {
         console.error("Error in login completion:", error);
         setIsCreatingWallet(false);
@@ -110,7 +130,8 @@ function WalletModal({ isOpen, onClose, children }) {
           disableSignup: false,
         });
       } else {
-        await handleWalletCreation();
+        // User is already authenticated, just create wallet
+        await handleWalletCreation(user);
       }
     } catch (error) {
       console.error("Privy login error:", error);
@@ -120,7 +141,7 @@ function WalletModal({ isOpen, onClose, children }) {
 
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <div className="wallet-modal-overlay" onClick={onClose}>
       <div
         className="wallet-modal-content"
@@ -234,6 +255,8 @@ function WalletModal({ isOpen, onClose, children }) {
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
 
 export default WalletModal;

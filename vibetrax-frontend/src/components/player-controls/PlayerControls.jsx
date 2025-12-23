@@ -21,8 +21,11 @@ const PlayerControls = ({ songData, onDurationLoaded, onPlayStatusChange }) => {
 
   const isPremium =
     normalizeAddress(walletAddress) === normalizeAddress(songData?.artist) ||
-    normalizeAddress(walletAddress) === normalizeAddress(songData?.current_owner) ||
-    songData?.collaborators?.map(c => normalizeAddress(c))?.includes(normalizeAddress(walletAddress)) ||
+    normalizeAddress(walletAddress) ===
+      normalizeAddress(songData?.current_owner) ||
+    songData?.collaborators
+      ?.map((c) => normalizeAddress(c))
+      ?.includes(normalizeAddress(walletAddress)) ||
     (subscriberData?.subscriberData && subscriberData.subscriberData.is_active);
 
   useEffect(() => {

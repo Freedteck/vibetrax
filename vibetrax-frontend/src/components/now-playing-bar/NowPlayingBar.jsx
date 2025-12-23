@@ -49,9 +49,13 @@ const NowPlayingBar = ({
 
   // Check if user has premium access
   const isPremium =
-    normalizeAddress(walletAddress) === normalizeAddress(currentTrack?.artist) ||
-    normalizeAddress(walletAddress) === normalizeAddress(currentTrack?.current_owner) ||
-    currentTrack?.collaborators?.map(c => normalizeAddress(c))?.includes(normalizeAddress(walletAddress)) ||
+    normalizeAddress(walletAddress) ===
+      normalizeAddress(currentTrack?.artist) ||
+    normalizeAddress(walletAddress) ===
+      normalizeAddress(currentTrack?.current_owner) ||
+    currentTrack?.collaborators
+      ?.map((c) => normalizeAddress(c))
+      ?.includes(normalizeAddress(walletAddress)) ||
     (subscriberData && subscriberData.is_active);
 
   useEffect(() => {

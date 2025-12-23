@@ -77,7 +77,8 @@ const Profile = () => {
     (sum, track) => sum + (track.like_count || 0),
     0
   );
-  const isOwnProfile = normalizeAddress(walletAddress) === normalizeAddress(address);
+  const isOwnProfile =
+    normalizeAddress(walletAddress) === normalizeAddress(address);
 
   const getQualityForTrack = (track) => {
     if (!walletAddress) return "Standard";

@@ -77,7 +77,7 @@ function WalletModal({ isOpen, onClose, children }) {
   const handleWalletCreation = async (user) => {
     try {
       setIsCreatingWallet(true);
-      
+
       // Check if user already has an Aptos/Movement wallet
       const existingWallet = user?.linkedAccounts?.find(
         (account) => account.type === "wallet" && account.chainType === "aptos"
@@ -92,7 +92,7 @@ function WalletModal({ isOpen, onClose, children }) {
       // Create a new Aptos/Movement wallet
       console.log("Creating new Movement wallet for user...");
       const wallet = await createWallet({ chainType: "aptos" });
-      
+
       console.log("Movement wallet created successfully:", wallet.address);
       onClose();
       return wallet;

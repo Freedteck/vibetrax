@@ -1,7 +1,12 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./Header.module.css";
 import { useState, useEffect, useRef } from "react";
-import { FiSearch, FiChevronLeft, FiChevronRight, FiLogOut } from "react-icons/fi";
+import {
+  FiSearch,
+  FiChevronLeft,
+  FiChevronRight,
+  FiLogOut,
+} from "react-icons/fi";
 import Jazzicon from "react-jazzicon";
 import { useMovementWallet } from "../../hooks/useMovementWallet";
 import { usePrivy } from "@privy-io/react-auth";
@@ -115,7 +120,11 @@ const Header = () => {
         ) : (
           <div className={styles.walletInfo} ref={dropdownRef}>
             {(isPrivyWallet || isNativeWallet) && (
-              <span className={`${styles.walletBadge} ${isPrivyWallet ? styles.privyBadge : styles.nativeBadge}`}>
+              <span
+                className={`${styles.walletBadge} ${
+                  isPrivyWallet ? styles.privyBadge : styles.nativeBadge
+                }`}
+              >
                 {isPrivyWallet ? "Privy" : "Native"}
               </span>
             )}
@@ -132,15 +141,18 @@ const Header = () => {
             {/* Dropdown Menu */}
             {showDropdown && (
               <div className={styles.dropdown}>
-                <div className={styles.dropdownItem} onClick={() => {
-                  navigate(`/profile/${walletAddress}`);
-                  setShowDropdown(false);
-                }}>
+                <div
+                  className={styles.dropdownItem}
+                  onClick={() => {
+                    navigate(`/profile/${walletAddress}`);
+                    setShowDropdown(false);
+                  }}
+                >
                   <span>View Profile</span>
                 </div>
                 <div className={styles.dropdownDivider}></div>
-                <div 
-                  className={`${styles.dropdownItem} ${styles.disconnectItem}`} 
+                <div
+                  className={`${styles.dropdownItem} ${styles.disconnectItem}`}
                   onClick={handleDisconnect}
                 >
                   <FiLogOut />

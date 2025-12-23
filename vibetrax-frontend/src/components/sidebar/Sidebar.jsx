@@ -1,5 +1,4 @@
 import { NavLink } from "react-router-dom";
-import { useCurrentAccount } from "@iota/dapp-kit";
 import { useState } from "react";
 import {
   FiHome,
@@ -12,10 +11,11 @@ import {
 import { MdLibraryMusic } from "react-icons/md";
 import vibetraxLogo from "../../assets/vibetraxlogo2.png";
 import SubscribeModal from "../../modals/subscribe-modal/SubscribeModal";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
 import styles from "./Sidebar.module.css";
 
 const Sidebar = () => {
-  const currentAccount = useCurrentAccount();
+  const { walletAddress } = useMovementWallet();
   const [showSubscribeModal, setShowSubscribeModal] = useState(false);
 
   const mainNav = [
@@ -55,7 +55,7 @@ const Sidebar = () => {
 
         {/* User Actions */}
         <nav className={styles.secondaryNav}>
-          {currentAccount?.address && (
+          {walletAddress && (
             <>
               <NavLink
                 to="/upload"
@@ -67,7 +67,7 @@ const Sidebar = () => {
                 <span>Upload Music</span>
               </NavLink>
               <NavLink
-                to={`/profile/${currentAccount.address}`}
+                to={`/profile/${walletAddress}`}
                 className={({ isActive }) =>
                   `${styles.navItem} ${isActive ? styles.active : ""}`
                 }

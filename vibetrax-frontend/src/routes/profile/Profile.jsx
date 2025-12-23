@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams, useOutletContext } from "react-router-dom";
 import { FiPlus, FiCopy, FiMusic, FiTrendingUp } from "react-icons/fi";
 import Button from "../../components/button/Button";
@@ -11,12 +11,15 @@ import { ErrorState } from "../../components/state/ErrorState";
 import { EmptyState } from "../../components/state/EmptyState";
 import Jazzicon from "react-jazzicon";
 import toast from "react-hot-toast";
-import { useCurrentAccount, useIotaClientQuery } from "@iota/dapp-kit";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
+import { aptos } from "../../config/movement";
 
 const Profile = () => {
   const [trackType, setTrackType] = useState("uploaded");
+  const [userWalletBalance, setUserWalletBalance] = useState(null);
+  const [balancePending, setBalancePending] = useState(true);
   const { address } = useParams();
-  const currentAccount = useCurrentAccount();
+  const { walletAddress } = useMovementWallet();
   const { subscriberData, handlePlayTrack } = useOutletContext();
   const { musicNfts, isPending, isError } = useMusicNfts();
   const navigate = useNavigate();
@@ -31,10 +34,22 @@ const Profile = () => {
     }
   };
 
-  const { data: userWalletBalance, isPending: balancePending } =
-    useIotaClientQuery("getBalance", {
-      owner: address,
-    });
+  // Fetch user balance
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (!address) return;
+      try {
+        setBalancePending(true);
+        const balance = await aptos.getAccountAPTAmount({ accountAddress: address });
+        setUserWalletBalance(balance);
+      } catch (error) {
+        console.error("Error fetching balance:", error);
+      } finally {
+        setBalancePending(false);
+      }
+    };
+    fetchBalance();
+  }, [address]);
 
   const uploadedNfts = musicNfts.filter((music) => music.artist === address);
   const ownedNfts = musicNfts.filter(
@@ -45,11 +60,11 @@ const Profile = () => {
     (sum, track) => sum + (track.vote_count || 0),
     0
   );
-  const isOwnProfile = currentAccount?.address === address;
+  const isOwnProfile = walletAddress === address;
 
   if (isPending) return <LoadingState />;
   if (isError) return <ErrorState />;
-  if (!currentAccount?.address && isOwnProfile) return <UnconnectedState />;
+  if (!walletAddress && isOwnProfile) return <UnconnectedState />;
 
   return (
     <main className={styles.profile}>
@@ -81,14 +96,12 @@ const Profile = () => {
                 <span className={styles.statValue}>{totalVotes}</span>
                 <span className={styles.statLabel}>Total Votes</span>
               </div>
-              {!balancePending && isOwnProfile && (
+              {!balancePending && isOwnProfile && userWalletBalance !== null && (
                 <div className={styles.stat}>
                   <span className={styles.statValue}>
-                    {(userWalletBalance?.totalBalance / 1000_000_000).toFixed(
-                      2
-                    )}
+                    {(userWalletBalance / 100_000_000).toFixed(2)}
                   </span>
-                  <span className={styles.statLabel}>IOTA Balance</span>
+                  <span className={styles.statLabel}>MOVE Balance</span>
                 </div>
               )}
             </div>

@@ -1,35 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Header from "../../components/header/Header";
 import Sidebar from "../../components/sidebar/Sidebar";
 import NowPlayingBar from "../../components/now-playing-bar/NowPlayingBar";
 import styles from "./Root.module.css";
-import { useCurrentAccount, useIotaClientQuery } from "@iota/dapp-kit";
 import { Toaster } from "react-hot-toast";
 import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
-import { useNetworkVariable } from "../../config/networkConfig";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
+import { fetchViewFunction } from "../../utils/transactions";
 
 const Root = () => {
-  const currentAccount = useCurrentAccount();
+  const { walletAddress } = useMovementWallet();
   const [currentTrack, setCurrentTrack] = useState(null);
   const [playlist, setPlaylist] = useState([]);
+  const [subscriberData, setSubscriberData] = useState(null);
 
-  const tunflowPackageId = useNetworkVariable("tunflowPackageId");
+  // Fetch subscription status when wallet connects
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      if (!walletAddress) {
+        setSubscriberData(null);
+        return;
+      }
 
-  const { data: subscriberData } = useIotaClientQuery(
-    "queryEvents",
-    {
-      query: {
-        MoveEventType: `${tunflowPackageId}::vibetrax::SubscriptionPurchased`,
-      },
-    },
-    {
-      select: (data) =>
-        data.data
-          .flatMap((x) => x.parsedJson)
-          .filter((y) => y.user === currentAccount?.address),
-    }
-  );
+      try {
+        const subscription = await fetchViewFunction("get_user_subscription", [walletAddress]);
+        setSubscriberData(subscription);
+      } catch (error) {
+        console.error("Error fetching subscription:", error);
+        setSubscriberData(null);
+      }
+    };
+
+    fetchSubscription();
+  }, [walletAddress]);
 
   const handlePlayTrack = (track, trackList = []) => {
     setCurrentTrack(track);

@@ -1,3 +1,4 @@
+// ===== LEGACY IOTA CONSTANTS (DEPRECATED) =====
 export const TESTNET_TUNE_FLOW_PACKAGE_ID =
   "0x667b1606b901d7a773427a21fb63b223455ed53a61171ad16b271adaa4f96f85";
 export const TESTNET_TUNE_FLOW_TOKEN_ID =
@@ -8,3 +9,17 @@ export const TESTNET_TUNE_FLOW_SUBSCRIPTION_ID =
   "0xc6b811f59f391cd8f889becceb51bd4de0a150a6035bc70427f9d289ed549b30";
 export const TESTNET_TUNE_FLOW_TREASURY_ID =
   "0x4f30de995f8bea59c633bb9e627dc409747a2800e3c8a6c17c4ae87763a45198";
+
+// ===== MOVEMENT BLOCKCHAIN CONSTANTS =====
+// Deployed contract address on Movement Testnet (Bardock)
+export const MOVEMENT_CONTRACT_ADDRESS =
+  "0x88d5bf2a5368c3cf3283e952e70e510cb8ce6318cfd587f1164e549827c87596";
+
+// Platform configuration
+export const PLATFORM_TOKEN_NAME = "VibetraxToken";
+export const PLATFORM_DECIMALS = 6; // Platform tokens have 6 decimals
+export const MOVE_DECIMALS = 8; // MOVE has 8 decimals
+
+// Subscription pricing (in smallest units)
+export const SUBSCRIPTION_PRICE_TOKENS = 100_000_000; // 100 tokens
+export const SUBSCRIPTION_PRICE_MOVE = 10_000_000; // 0.01 MOVE (8 decimals)

@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { PinataSDK } from "pinata";
 import { useMusicUpload } from "../../hooks/useMusicUpload";
 import { useParams } from "react-router-dom";
-import { useCurrentAccount, useIotaClientQuery } from "@iota/dapp-kit";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
 import { FiMusic, FiHeadphones, FiCheck, FiImage } from "react-icons/fi";
 // import { Tusky } from "@tusky-io/ts-sdk/web";
 
@@ -27,7 +27,7 @@ const Form = ({
   const [lowQualityFile, setLowQualityFile] = useState(null);
   const [forSale, setForSale] = useState(null);
   const [contributors, setContributors] = useState([]);
-  const currentAccount = useCurrentAccount();
+  const { walletAddress } = useMovementWallet();
   const { uploadMusic, updateMusic } = useMusicUpload();
   const { id } = useParams();
   // uploading to tusky

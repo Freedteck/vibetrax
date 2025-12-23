@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useOutletContext } from "react-router-dom";
 import styles from "./PlayerControls.module.css";
-import { useCurrentAccount } from "@iota/dapp-kit";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
 
 const PlayerControls = ({ songData, onDurationLoaded, onPlayStatusChange }) => {
-  const currentAccount = useCurrentAccount();
+  const { walletAddress } = useMovementWallet();
   const subscriberData = useOutletContext();
   const audioRef = useRef(null);
 
@@ -36,9 +36,9 @@ const PlayerControls = ({ songData, onDurationLoaded, onPlayStatusChange }) => {
         className={styles.audio}
         controls
         src={
-          currentAccount?.address === songData.fields.artist ||
-          currentAccount?.address === songData.fields.current_owner ||
-          songData.fields.collaborators.includes(currentAccount?.address) ||
+          walletAddress === songData.fields.artist ||
+          walletAddress === songData.fields.current_owner ||
+          songData.fields.collaborators?.includes(walletAddress) ||
           (subscriberData && subscriberData.length > 0)
             ? songData.fields.high_quality_ipfs
             : songData.fields.low_quality_ipfs

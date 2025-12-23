@@ -1,4 +1,4 @@
-import { useCurrentAccount } from "@iota/dapp-kit";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
 import styles from "./Contributors.module.css";
 import Jazzicon from "react-jazzicon";
 
@@ -11,14 +11,14 @@ const Contributors = ({
   price,
   royalty_percentage,
 }) => {
-  const currentAccount = useCurrentAccount();
+  const { walletAddress } = useMovementWallet();
   return (
     <section className={styles.contributors}>
       <h2 className={styles.sectionTitle}>Contributors</h2>
       <div className={styles.contributorsList}>
         {contributors?.map((contributor, index) => (
           <div key={index} className={styles.contributorCard}>
-            <Jazzicon diameter={50} seed={contributor} />
+            <Jazzicon diameter={50} seed={parseInt(contributor.slice(2, 10), 16)} />
             <div className={styles.contributorInfo}>
               <p>{roles[index]}</p>
               <Link
@@ -26,7 +26,7 @@ const Contributors = ({
                 className={styles.contributorName}
               >{`${contributor.slice(0, 5)}...${contributor.slice(-5)}`}</Link>
               {/* <p className={styles.contributorRole}>{contributor.role}</p> */}
-              {contributors.includes(currentAccount?.address) ? (
+              {contributors.includes(walletAddress) ? (
                 <p className={styles.contributorShare}>
                   {splits[index] / 100}% Shares of Royalty <br /> (
                   {((price * (royalty_percentage / 100)) / 100) *

@@ -1,8 +1,8 @@
-import { useIotaClient, useSignAndExecuteTransaction } from "@iota/dapp-kit";
+import { useMovementWallet } from "./useMovementWallet";
 import { useNetworkVariables } from "../config/networkConfig";
 import toast from "react-hot-toast";
-import { Transaction } from "@iota/iota-sdk/transactions";
 import { useNavigate } from "react-router-dom";
+import { CONTRACT_ADDRESS } from "../config/movement";
 
 export const useMusicUpload = () => {
   const navigate = useNavigate();
@@ -10,8 +10,7 @@ export const useMusicUpload = () => {
     "tunflowPackageId",
     "tunflowNFTRegistryId"
   );
-  const iotaClient = useIotaClient();
-  const { mutate: signAndExecute } = useSignAndExecuteTransaction();
+  const { isConnected, signAndSubmitTransaction } = useMovementWallet();
 
   const uploadMusic = async (
     toastId,
@@ -27,49 +26,25 @@ export const useMusicUpload = () => {
     collaboratorRoles,
     collaboratorSplits
   ) => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet", { id: toastId });
+      return false;
+    }
+
     try {
-      const tx = new Transaction();
-
-      tx.moveCall({
-        arguments: [
-          tx.object(tunflowNFTRegistryId),
-          tx.pure.string(title),
-          tx.pure.string(description),
-          tx.pure.string(genre),
-          tx.pure.string(imageUrl),
-          tx.pure.string(highQualityUrl),
-          tx.pure.string(lowQualityUrl),
-          tx.pure.u64(Number(price)),
-          tx.pure.u64(Number(royaltyPercentage * 100)),
-          tx.pure.vector(
-            "address",
-            collaborators.map((c) => c.address)
-          ),
-          tx.pure.vector("string", collaboratorRoles),
-          tx.pure.vector("u64", collaboratorSplits),
-        ],
-        target: `${tunflowPackageId}::vibetrax::mint_music_nft`,
+      // TODO: Implement Movement transaction for uploading music
+      // Use signAndSubmitTransaction from useMovementWallet
+      // Call CONTRACT_ADDRESS::vibetrax::mint_music_nft with all parameters
+      
+      toast.dismiss(toastId);
+      toast.error("Upload function not yet implemented for Movement");
+      console.log("Upload parameters:", { 
+        title, description, genre, imageUrl, highQualityUrl, lowQualityUrl,
+        price, royaltyPercentage, collaborators, collaboratorRoles, collaboratorSplits,
+        CONTRACT_ADDRESS 
       });
-
-      signAndExecute(
-        { transaction: tx },
-        {
-          onSuccess: async ({ digest }) => {
-            await iotaClient.waitForTransaction({ digest });
-            toast.dismiss(toastId);
-            toast.success("Music uploaded successfully!");
-            navigate("/discover");
-            return true;
-          },
-          onError: (error) => {
-            toast.dismiss(toastId);
-            toast.error(`Upload failed`);
-            console.error(error);
-
-            return false;
-          },
-        }
-      );
+      return false;
+      
     } catch (error) {
       toast.dismiss(toastId);
       toast.error("An unexpected error occurred, try again");
@@ -93,54 +68,29 @@ export const useMusicUpload = () => {
     collaboratorRoles,
     collaboratorSplits
   ) => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet", { id: toastId });
+      return false;
+    }
+
     try {
-      const tx = new Transaction();
-
-      tx.moveCall({
-        arguments: [
-          tx.object(id),
-          tx.pure.string(title),
-          tx.pure.string(description),
-          tx.pure.string(genre),
-          tx.pure.string(imageUrl),
-          tx.pure.string(highQualityUrl),
-          tx.pure.string(lowQualityUrl),
-          tx.pure.u64(Number(price)),
-          tx.pure.bool(forSale),
-          tx.pure.vector(
-            "address",
-            collaborators.map((c) => c.address)
-          ),
-          tx.pure.vector("string", collaboratorRoles),
-          tx.pure.vector("u64", collaboratorSplits),
-        ],
-        target: `${tunflowPackageId}::vibetrax::update_music_details`,
+      // TODO: Implement Movement transaction for updating music
+      // Use signAndSubmitTransaction from useMovementWallet
+      // Call CONTRACT_ADDRESS::vibetrax::update_music_nft
+      
+      toast.dismiss(toastId);
+      toast.error("Update function not yet implemented for Movement");
+      console.log("Update parameters:", { 
+        id, title, description, genre, imageUrl, highQualityUrl, lowQualityUrl,
+        price, forSale, collaborators, collaboratorRoles, collaboratorSplits,
+        CONTRACT_ADDRESS 
       });
-
-      signAndExecute(
-        { transaction: tx },
-        {
-          onSuccess: async ({ digest }) => {
-            await iotaClient.waitForTransaction({ digest });
-            toast.dismiss(toastId);
-            toast.success("Music details updated successfully!", {
-              id: toastId,
-            });
-            navigate("/discover");
-            return true;
-          },
-          onError: (error) => {
-            toast.dismiss(toastId);
-            toast.error(`Update failed`, { id: toastId });
-            console.error(error.message);
-            return false;
-          },
-        }
-      );
+      return false;
+      
     } catch (error) {
       toast.dismiss(toastId);
-      toast.error("An unexpected error occurred");
-      console.error(error.message);
+      toast.error("An unexpected error occurred, try again");
+      console.log("catch error", error);
       return false;
     }
   };

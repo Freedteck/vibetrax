@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import Button from "../button/Button";
 import styles from "./Banner.module.css";
-import { useCurrentAccount } from "@iota/dapp-kit";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
 
 const Banner = () => {
   const navigate = useNavigate();
-  const currentAccount = useCurrentAccount();
+  const { walletAddress } = useMovementWallet();
 
   return (
     <section className={styles.hero}>
@@ -23,11 +23,11 @@ const Banner = () => {
             btnClass={"primary"}
             onClick={() => navigate("/discover")}
           />
-          {currentAccount?.address && (
+          {walletAddress && (
             <Button
               text={"For Artists"}
               btnClass={"secondary"}
-              onClick={() => navigate(`/profile/${currentAccount.address}`)}
+              onClick={() => navigate(`/profile/${walletAddress}`)}
             />
           )}
         </div>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Button from "../button/Button";
 import styles from "./Preview.module.css";
-import { useCurrentAccount } from "@iota/dapp-kit";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
 
 const Preview = ({
   previewTitle,
@@ -11,7 +11,7 @@ const Preview = ({
   PreviewGenre,
 }) => {
   const [activeTab, setActiveTab] = useState("standard");
-  const currentAccount = useCurrentAccount();
+  const { walletAddress } = useMovementWallet();
 
   return (
     <>

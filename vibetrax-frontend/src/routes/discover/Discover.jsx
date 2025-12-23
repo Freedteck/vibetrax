@@ -11,7 +11,7 @@ import { LoadingState } from "../../components/state/LoadingState";
 import { ErrorState } from "../../components/state/ErrorState";
 import { EmptyState } from "../../components/state/EmptyState";
 import MusicCard from "../../components/cards/music-card/MusicCard";
-import { useCurrentAccount } from "@iota/dapp-kit";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
 
 const Discover = () => {
   const [searchParams] = useSearchParams();
@@ -19,7 +19,7 @@ const Discover = () => {
   const [activeGenre, setActiveGenre] = useState("All Genres");
   const [currentSlide, setCurrentSlide] = useState(0);
   const { subscriberData, handlePlayTrack } = useOutletContext();
-  const currentAccount = useCurrentAccount();
+  const { walletAddress } = useMovementWallet();
   const navigate = useNavigate();
   const carouselIntervalRef = useRef(null);
 

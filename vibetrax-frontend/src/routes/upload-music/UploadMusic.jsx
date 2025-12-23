@@ -2,7 +2,7 @@ import { useState } from "react";
 import Form from "../../components/form/Form";
 import Preview from "../../components/preview/Preview";
 import styles from "./UploadMusic.module.css";
-import { useCurrentAccount } from "@iota/dapp-kit";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
 import { UnconnectedState } from "../../components/state/UnconnectedState";
 import {
   FiUploadCloud,
@@ -19,14 +19,14 @@ const UploadMusic = () => {
   const [PreviewGenre, setPreviewGenre] = useState(null);
   const [highQuality, setHighQuality] = useState(null);
   const [lowQuality, setLowQuality] = useState(null);
-  const currentAccount = useCurrentAccount();
+  const { walletAddress } = useMovementWallet();
 
   const showPreview = (e) => {
     e.preventDefault();
     setPreviewClicked(!previewClicked);
   };
 
-  if (!currentAccount) {
+  if (!walletAddress) {
     return <UnconnectedState />;
   }
 

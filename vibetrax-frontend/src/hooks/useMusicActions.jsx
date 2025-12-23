@@ -1,11 +1,8 @@
 import { useNetworkVariables } from "../config/networkConfig";
 import toast from "react-hot-toast";
-import {
-  useCurrentAccount,
-  useIotaClient,
-  useSignAndExecuteTransaction,
-} from "@iota/dapp-kit";
-import { Transaction } from "@iota/iota-sdk/transactions";
+import { useMovementWallet } from "./useMovementWallet";
+import { getTransactionSubmitter } from "../utils/transactions";
+import { CONTRACT_ADDRESS } from "../config/movement";
 
 export const useMusicActions = () => {
   const {
@@ -21,49 +18,29 @@ export const useMusicActions = () => {
     "tunflowTreasuryId",
     "tunflowSubscriptionId"
   );
-  const iotaClient = useIotaClient();
-  const { mutate: signAndExecute } = useSignAndExecuteTransaction();
-  const currentAccount = useCurrentAccount();
+  const { isConnected, signAndSubmitTransaction } = useMovementWallet();
 
   const voteForTrack = async (nftId, votersData) => {
-    if (votersData.length > 0) {
+    if (votersData && votersData.length > 0) {
       toast.error("You already voted for this music");
       return;
     }
 
+    if (!isConnected) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+
     try {
-      const amountMist = BigInt(Math.floor(0.005 * 1_000_000_000));
-      const tx = new Transaction();
-      const [coin] = tx.splitCoins(tx.gas, [tx.pure("u64", amountMist)]);
-
-      tx.moveCall({
-        arguments: [tx.object(nftId), coin],
-        target: `${tunflowPackageId}::vibetrax::vote_for_nft`,
-      });
-
       const toastId = toast.loading("Processing Vote...");
-
-      signAndExecute(
-        { transaction: tx },
-        {
-          onSuccess: async ({ digest }) => {
-            const { effects } = await iotaClient.waitForTransaction({
-              digest,
-              options: { showEffects: true },
-            });
-            if (effects?.status?.status === "success") {
-              toast.success("vote recorded successful!", { id: toastId });
-            } else {
-              toast.error("voting failed, try again", { id: toastId });
-            }
-            window.location.reload();
-          },
-          onError: (error) => {
-            toast.error(`vote failed, try again`, { id: toastId });
-            console.error(error);
-          },
-        }
-      );
+      
+      // TODO: Implement Movement transaction for voting
+      // Use signAndSubmitTransaction from useMovementWallet
+      // Call CONTRACT_ADDRESS::vibetrax::vote_for_nft with nftId
+      
+      toast.error("Vote function not yet implemented for Movement", { id: toastId });
+      console.log("Vote parameters:", { nftId, CONTRACT_ADDRESS });
+      
     } catch (error) {
       toast.error("An unexpected error occurred");
       console.error(error);
@@ -71,44 +48,21 @@ export const useMusicActions = () => {
   };
 
   const purchaseTrack = async (nftId, price) => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+
     try {
-      const amountMist = BigInt(Math.floor(price * 1_000_000_000));
-      const tx = new Transaction();
-      const [coin] = tx.splitCoins(tx.gas, [tx.pure("u64", amountMist)]);
-
-      tx.moveCall({
-        arguments: [
-          tx.object(tunflowNFTRegistryId),
-          tx.object(nftId),
-          tx.object(tunflowTokenId),
-          coin,
-        ],
-        target: `${tunflowPackageId}::vibetrax::purchase_and_reward`,
-      });
-
       const toastId = toast.loading("Processing purchase...");
-
-      signAndExecute(
-        { transaction: tx },
-        {
-          onSuccess: async ({ digest }) => {
-            const { effects } = await iotaClient.waitForTransaction({
-              digest,
-              options: { showEffects: true },
-            });
-            if (effects?.status?.status === "success") {
-              toast.success("Purchase successful!", { id: toastId });
-            } else {
-              toast.error("Purchase failed", { id: toastId });
-            }
-            window.location.reload();
-          },
-          onError: (error) => {
-            toast.error(`Purchase failed, try again`, { id: toastId });
-            console.error(error);
-          },
-        }
-      );
+      
+      // TODO: Implement Movement transaction for purchasing
+      // Use signAndSubmitTransaction from useMovementWallet
+      // Call CONTRACT_ADDRESS::vibetrax::purchase_and_reward
+      
+      toast.error("Purchase function not yet implemented for Movement", { id: toastId });
+      console.log("Purchase parameters:", { nftId, price, CONTRACT_ADDRESS });
+      
     } catch (error) {
       toast.error("An unexpected error occurred");
       console.error(error.message);
@@ -116,38 +70,21 @@ export const useMusicActions = () => {
   };
 
   const toggleTrackForSale = async (nftId) => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+
     try {
-      const tx = new Transaction();
-      tx.moveCall({
-        arguments: [tx.object(nftId)],
-        target: `${tunflowPackageId}::vibetrax::toggle_for_sale`,
-      });
-
       const toastId = toast.loading("Processing...");
-
-      signAndExecute(
-        { transaction: tx },
-        {
-          onSuccess: async ({ digest }) => {
-            const { effects } = await iotaClient.waitForTransaction({
-              digest,
-              options: { showEffects: true },
-            });
-            if (effects?.status?.status === "success") {
-              toast.success("Music set for sale successfully", { id: toastId });
-            } else {
-              toast.error("Set music for sale failed", { id: toastId });
-            }
-            window.location.reload();
-          },
-          onError: (error) => {
-            toast.error(`Set music for sale failed`, {
-              id: toastId,
-            });
-            console.error(error.message);
-          },
-        }
-      );
+      
+      // TODO: Implement Movement transaction for toggle sale
+      // Use signAndSubmitTransaction from useMovementWallet
+      // Call CONTRACT_ADDRESS::vibetrax::toggle_for_sale
+      
+      toast.error("Toggle sale function not yet implemented for Movement", { id: toastId });
+      console.log("Toggle sale parameters:", { nftId, CONTRACT_ADDRESS });
+      
     } catch (error) {
       toast.error("An unexpected error occurred");
       console.error(error.message);
@@ -155,91 +92,43 @@ export const useMusicActions = () => {
   };
 
   const deleteTrack = async (nftId) => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+
     try {
-      const tx = new Transaction();
-      tx.moveCall({
-        arguments: [tx.object(tunflowNFTRegistryId), tx.object(nftId)],
-        target: `${tunflowPackageId}::vibetrax::delete_music_nft`,
-      });
-
       const toastId = toast.loading("Processing...");
-
-      signAndExecute(
-        { transaction: tx },
-        {
-          onSuccess: async ({ digest }) => {
-            const { effects } = await iotaClient.waitForTransaction({
-              digest,
-              options: { showEffects: true },
-            });
-            if (effects?.status?.status === "success") {
-              toast.success("Music deleted successfully", { id: toastId });
-            } else {
-              toast.error("Music deletion failed, try again", { id: toastId });
-            }
-            window.location.reload();
-          },
-          onError: (error) => {
-            toast.error(`Music deletion failed, try again.`, {
-              id: toastId,
-            });
-            console.error(error.message);
-          },
-        }
-      );
+      
+      // TODO: Implement Movement transaction for deleting track
+      // Use signAndSubmitTransaction from useMovementWallet
+      // Call CONTRACT_ADDRESS::vibetrax::delete_music_nft
+      
+      toast.error("Delete function not yet implemented for Movement", { id: toastId });
+      console.log("Delete parameters:", { nftId, CONTRACT_ADDRESS });
+      
     } catch (error) {
       toast.error("An unexpected error occurred", error.message);
     }
   };
 
   const subscribe = (setSubscriptionStatus) => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet");
+      setSubscriptionStatus("failed");
+      return;
+    }
+
     setSubscriptionStatus("subscribing");
-    const amountMist = BigInt(Math.floor(1 * 1_000_000_000));
-
-    const tx = new Transaction();
-    const [coin] = tx.splitCoins(tx.gas, [tx.pure("u64", amountMist)]);
-
-    tx.moveCall({
-      arguments: [
-        tx.object(tunflowSubscriptionId),
-        tx.object(tunflowTreasuryId),
-        tx.pure.address(currentAccount?.address),
-        coin,
-      ],
-      target: `${tunflowPackageId}::vibetrax::subscribe`,
-    });
-
     const toastId = toast.loading("Subscribing..");
-
-    signAndExecute(
-      {
-        transaction: tx,
-      },
-      {
-        onSuccess: async ({ digest }) => {
-          const { effects } = await iotaClient.waitForTransaction({
-            digest: digest,
-            options: {
-              showEffects: true,
-            },
-          });
-          if (effects?.status?.status === "success") {
-            setSubscriptionStatus("subscribed");
-            toast.success("subscription successful!", { id: toastId });
-            window.location.reload();
-          } else {
-            console.error("Subscription failed:", effects);
-            toast.error("Subscription failed", { id: toastId });
-            setSubscriptionStatus("failed");
-          }
-        },
-        onError: (error) => {
-          console.error("Subscription failed:", error);
-          toast.error(`Subscription failed, try again.`, { id: toastId });
-          setSubscriptionStatus("failed");
-        },
-      }
-    );
+    
+    // TODO: Implement Movement transaction for subscription
+    // Use signAndSubmitTransaction from useMovementWallet  
+    // Call CONTRACT_ADDRESS::vibetrax::subscribe
+    
+    toast.error("Subscribe function not yet implemented for Movement", { id: toastId });
+    console.log("Subscribe parameters:", { CONTRACT_ADDRESS });
+    setSubscriptionStatus("failed");
   };
 
   return {

@@ -1,12 +1,14 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./Header.module.css";
-import { ConnectButton, useCurrentAccount } from "@iota/dapp-kit";
 import { useState, useEffect } from "react";
 import { FiSearch, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import Jazzicon from "react-jazzicon";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
+import WalletModal from "../wallet/WalletModal";
 
 const Header = () => {
-  const currentAccount = useCurrentAccount();
+  const { walletAddress, disconnectWallet } = useMovementWallet();
+  const [showWalletModal, setShowWalletModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -60,16 +62,27 @@ const Header = () => {
 
       {/* Right Section */}
       <div className={styles.rightSection}>
-        <ConnectButton className={styles.connectButton} />
-        {currentAccount?.address && (
+        {!walletAddress ? (
+          <button 
+            className={styles.connectButton}
+            onClick={() => setShowWalletModal(true)}
+          >
+            Connect Wallet
+          </button>
+        ) : (
           <div
             className={styles.userProfile}
-            onClick={() => navigate(`/profile/${currentAccount.address}`)}
+            onClick={() => navigate(`/profile/${walletAddress}`)}
           >
-            <Jazzicon diameter={32} seed={currentAccount.address} />
+            <Jazzicon diameter={32} seed={parseInt(walletAddress.slice(2, 10), 16)} />
           </div>
         )}
       </div>
+      
+      <WalletModal 
+        isOpen={showWalletModal}
+        onClose={() => setShowWalletModal(false)}
+      />
     </header>
   );
 };

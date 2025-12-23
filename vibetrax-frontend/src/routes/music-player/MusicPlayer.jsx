@@ -16,13 +16,15 @@ import { useMusicNfts } from "../../hooks/useMusicNfts";
 import MusicCard from "../../components/cards/music-card/MusicCard";
 import { useNetworkVariable } from "../../config/networkConfig";
 import SubscribeModal from "../../modals/subscribe-modal/SubscribeModal";
-import { useCurrentAccount, useIotaClientQuery } from "@iota/dapp-kit";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
+import { fetchViewFunction } from "../../utils/transactions";
+import { aptos, CONTRACT_ADDRESS } from "../../config/movement";
 import toast from "react-hot-toast";
 
 const MusicPlayer = () => {
   const { id } = useParams();
   const { subscriberData, handlePlayTrack } = useOutletContext();
-  const currentAccount = useCurrentAccount();
+  const { walletAddress } = useMovementWallet();
   const navigate = useNavigate();
   const { voteForTrack, purchaseTrack } = useMusicActions();
   const tunflowPackageId = useNetworkVariable("tunflowPackageId");
@@ -30,33 +32,48 @@ const MusicPlayer = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubcribeModalOpen, setIsSubcribeModalOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-
-  const { data: votersData } = useIotaClientQuery(
-    "queryEvents",
-    {
-      query: {
-        MoveEventType: `${tunflowPackageId}::vibetrax::NFTVoted`,
-      },
-    },
-    {
-      select: (data) =>
-        data.data
-          .flatMap((x) => x.parsedJson)
-          .filter((y) => y.voter === currentAccount?.address && y.nft_id == id),
-    }
-  );
+  const [votersData, setVotersData] = useState([]);
+  const [songData, setSongData] = useState(null);
+  const [isPending, setIsPending] = useState(true);
+  const [isError, setIsError] = useState(false);
 
   const { musicNfts, isPending: artistMusicPending } = useMusicNfts();
 
-  const {
-    data: songData,
-    isPending,
-    isError,
-  } = useIotaClientQuery(
-    "getObject",
-    { id, options: { showContent: true } },
-    { select: (data) => data.data?.content }
-  );
+  // Fetch song data and voter data
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!id) return;
+      try {
+        setIsPending(true);
+        setIsError(false);
+        
+        // Fetch NFT data using view function
+        const nftData = await fetchViewFunction(
+          CONTRACT_ADDRESS,
+          "get_nft_details",
+          [],
+          [id]
+        );
+        
+        if (nftData) {
+          setSongData({ fields: nftData });
+        }
+
+        // Fetch voter events if wallet connected
+        if (walletAddress) {
+          // TODO: Implement event fetching or voting status check
+          // For now, initialize as empty
+          setVotersData([]);
+        }
+      } catch (error) {
+        console.error("Error fetching song data:", error);
+        setIsError(true);
+      } finally {
+        setIsPending(false);
+      }
+    };
+    fetchData();
+  }, [id, walletAddress]);
 
   const artistMusics = musicNfts
     .filter(
@@ -68,8 +85,8 @@ const MusicPlayer = () => {
   const forSale = songData?.fields?.for_sale === true;
 
   const isPremium =
-    currentAccount?.address === songData?.fields?.current_owner ||
-    songData?.fields?.collaborators.includes(currentAccount?.address) ||
+    walletAddress === songData?.fields?.current_owner ||
+    songData?.fields?.collaborators?.includes(walletAddress) ||
     (subscriberData && subscriberData.length > 0);
 
   const hasVoted = votersData && votersData.length > 0;

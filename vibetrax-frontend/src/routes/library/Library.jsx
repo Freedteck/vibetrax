@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useCurrentAccount } from "@iota/dapp-kit";
+import { useMovementWallet } from "../../hooks/useMovementWallet";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { useMusicNfts } from "../../hooks/useMusicNfts";
 import MusicCard from "../../components/cards/music-card/MusicCard";
@@ -23,7 +23,7 @@ import styles from "./Library.module.css";
 import toast from "react-hot-toast";
 
 const Library = () => {
-  const currentAccount = useCurrentAccount();
+  const { walletAddress } = useMovementWallet();
   const navigate = useNavigate();
   const { handlePlayTrack } = useOutletContext();
   const { musicNfts, isPending, isError } = useMusicNfts();
@@ -41,28 +41,28 @@ const Library = () => {
 
   // Load data from localStorage
   useEffect(() => {
-    if (currentAccount) {
+    if (walletAddress) {
       const storedPlaylists = localStorage.getItem(
-        `playlists_${currentAccount.address}`
+        `playlists_${walletAddress}`
       );
       const storedLiked = localStorage.getItem(
-        `liked_${currentAccount.address}`
+        `liked_${walletAddress}`
       );
       const storedRecent = localStorage.getItem(
-        `recent_${currentAccount.address}`
+        `recent_${walletAddress}`
       );
 
       if (storedPlaylists) setPlaylists(JSON.parse(storedPlaylists));
       if (storedLiked) setLikedSongs(JSON.parse(storedLiked));
       if (storedRecent) setRecentlyPlayed(JSON.parse(storedRecent));
     }
-  }, [currentAccount]);
+  }, [walletAddress]);
 
   // Save playlists to localStorage
   const savePlaylistsToStorage = (newPlaylists) => {
-    if (currentAccount) {
+    if (walletAddress) {
       localStorage.setItem(
-        `playlists_${currentAccount.address}`,
+        `playlists_${walletAddress}`,
         JSON.stringify(newPlaylists)
       );
     }

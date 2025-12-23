@@ -1,0 +1,17 @@
+[package]
+name = "vibetrax_movement"
+version = "1.0.0"
+authors = []
+edition = "2024"
+
+[addresses]
+vibetrax = "0x0b4abe06065561f88bb89e82712d9a9c3523bc431553a51c8712d82eca5818ac"
+
+[dev-addresses]
+
+[dependencies.AptosFramework]
+git = "https://github.com/movementlabsxyz/aptos-core.git"
+rev = "movement"
+subdir = "aptos-move/framework/aptos-framework"
+
+[dev-dependencies]

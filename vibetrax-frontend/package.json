@@ -10,8 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@aptos-labs/ts-sdk": "^5.2.0",
+    "@aptos-labs/wallet-adapter-react": "^7.2.7",
+    "@aptos-labs/wallet-standard": "^0.5.2",
     "@iota/dapp-kit": "^0.5.3",
     "@iota/iota-sdk": "^1.6.1",
+    "@privy-io/react-auth": "^3.9.1",
     "@tanstack/react-query": "^5.90.5",
     "lucide-react": "^0.546.0",
     "pinata": "^2.5.1",

@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { WalletModal } from "../wallet/WalletModal";
-import { getTransactionSubmitter, fetchViewFunction } from "../../utils/transactions";
+import {
+  getTransactionSubmitter,
+  fetchViewFunction,
+} from "../../utils/transactions";
 import { getAddressExplorerUrl } from "../../config/movement";
 import "./WalletDemo.css";
 
@@ -12,7 +15,8 @@ import "./WalletDemo.css";
  */
 export function WalletDemo() {
   const { authenticated, user, logout } = usePrivy();
-  const { account, connected, disconnect, signAndSubmitTransaction } = useWallet();
+  const { account, connected, disconnect, signAndSubmitTransaction } =
+    useWallet();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -116,7 +120,8 @@ export function WalletDemo() {
       <div className="wallet-demo-card">
         <h2>Wallet Integration Demo</h2>
         <p className="wallet-demo-description">
-          Example of Privy social login + native Aptos wallet integration with Movement blockchain
+          Example of Privy social login + native Aptos wallet integration with
+          Movement blockchain
         </p>
 
         {!isConnected ? (
@@ -128,7 +133,8 @@ export function WalletDemo() {
               Connect Wallet
             </button>
             <p className="wallet-demo-hint">
-              Connect with Privy (social login) or native Aptos wallet (Nightly, etc.)
+              Connect with Privy (social login) or native Aptos wallet (Nightly,
+              etc.)
             </p>
           </div>
         ) : (
@@ -136,7 +142,9 @@ export function WalletDemo() {
             <div className="wallet-info">
               <div className="wallet-info-row">
                 <span className="wallet-info-label">Wallet Type:</span>
-                <span className={`wallet-type-badge ${walletType.toLowerCase()}`}>
+                <span
+                  className={`wallet-type-badge ${walletType.toLowerCase()}`}
+                >
                   {walletType}
                 </span>
               </div>
@@ -155,7 +163,7 @@ export function WalletDemo() {
 
             <div className="wallet-actions">
               <h3>Demo Actions</h3>
-              
+
               <button
                 className="demo-btn demo-btn-action"
                 onClick={handleMintNFT}

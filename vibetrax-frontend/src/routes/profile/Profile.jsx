@@ -40,7 +40,9 @@ const Profile = () => {
       if (!address) return;
       try {
         setBalancePending(true);
-        const balance = await aptos.getAccountAPTAmount({ accountAddress: address });
+        const balance = await aptos.getAccountAPTAmount({
+          accountAddress: address,
+        });
         setUserWalletBalance(balance);
       } catch (error) {
         console.error("Error fetching balance:", error);
@@ -96,14 +98,16 @@ const Profile = () => {
                 <span className={styles.statValue}>{totalVotes}</span>
                 <span className={styles.statLabel}>Total Votes</span>
               </div>
-              {!balancePending && isOwnProfile && userWalletBalance !== null && (
-                <div className={styles.stat}>
-                  <span className={styles.statValue}>
-                    {(userWalletBalance / 100_000_000).toFixed(2)}
-                  </span>
-                  <span className={styles.statLabel}>MOVE Balance</span>
-                </div>
-              )}
+              {!balancePending &&
+                isOwnProfile &&
+                userWalletBalance !== null && (
+                  <div className={styles.stat}>
+                    <span className={styles.statValue}>
+                      {(userWalletBalance / 100_000_000).toFixed(2)}
+                    </span>
+                    <span className={styles.statLabel}>MOVE Balance</span>
+                  </div>
+                )}
             </div>
 
             {isOwnProfile && (

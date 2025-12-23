@@ -13,7 +13,7 @@ export const useMusicNfts = () => {
       try {
         setIsPending(true);
         setIsError(false);
-        
+
         // Use Movement's indexer to fetch events
         // This queries the MusicNFTMinted events from your contract
         try {
@@ -21,23 +21,22 @@ export const useMusicNfts = () => {
             accountAddress: CONTRACT_ADDRESS,
             eventType: `${CONTRACT_ADDRESS}::vibetrax::MusicNFTMinted`,
           });
-          
+
           console.log("Fetched events:", events);
-          
+
           // Extract NFT data from events
           // Events should contain nft_id and other metadata
-          const nfts = events.map(event => ({
+          const nfts = events.map((event) => ({
             id: { id: event.data.nft_id },
-            ...event.data
+            ...event.data,
           }));
-          
+
           setMusicNfts(nfts);
         } catch (eventError) {
           // If no events found or event type doesn't exist yet
           console.warn("No NFT events found:", eventError.message);
           setMusicNfts([]);
         }
-        
       } catch (error) {
         console.error("Error fetching NFTs:", error);
         setIsError(true);

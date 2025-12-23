@@ -14,12 +14,12 @@ createRoot(document.getElementById("root")).render(
     <QueryClientProvider client={queryClient}>
       <WalletProvider>
         <PrivyProvider
-          appId={import.meta.env.VITE_PRIVY_APP_ID || 'YOUR_PRIVY_APP_ID'}
+          appId={import.meta.env.VITE_PRIVY_APP_ID || "YOUR_PRIVY_APP_ID"}
           config={{
-            loginMethods: ['email', 'google', 'twitter', 'discord', 'github'],
+            loginMethods: ["email", "google", "twitter", "discord", "github"],
             appearance: {
-              theme: 'light',
-              accentColor: '#6366F1',
+              theme: "light",
+              accentColor: "#6366F1",
             },
           }}
         >

@@ -45,12 +45,8 @@ const Library = () => {
       const storedPlaylists = localStorage.getItem(
         `playlists_${walletAddress}`
       );
-      const storedLiked = localStorage.getItem(
-        `liked_${walletAddress}`
-      );
-      const storedRecent = localStorage.getItem(
-        `recent_${walletAddress}`
-      );
+      const storedLiked = localStorage.getItem(`liked_${walletAddress}`);
+      const storedRecent = localStorage.getItem(`recent_${walletAddress}`);
 
       if (storedPlaylists) setPlaylists(JSON.parse(storedPlaylists));
       if (storedLiked) setLikedSongs(JSON.parse(storedLiked));

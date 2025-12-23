@@ -35,16 +35,24 @@ export const useMusicUpload = () => {
       // TODO: Implement Movement transaction for uploading music
       // Use signAndSubmitTransaction from useMovementWallet
       // Call CONTRACT_ADDRESS::vibetrax::mint_music_nft with all parameters
-      
+
       toast.dismiss(toastId);
       toast.error("Upload function not yet implemented for Movement");
-      console.log("Upload parameters:", { 
-        title, description, genre, imageUrl, highQualityUrl, lowQualityUrl,
-        price, royaltyPercentage, collaborators, collaboratorRoles, collaboratorSplits,
-        CONTRACT_ADDRESS 
+      console.log("Upload parameters:", {
+        title,
+        description,
+        genre,
+        imageUrl,
+        highQualityUrl,
+        lowQualityUrl,
+        price,
+        royaltyPercentage,
+        collaborators,
+        collaboratorRoles,
+        collaboratorSplits,
+        CONTRACT_ADDRESS,
       });
       return false;
-      
     } catch (error) {
       toast.dismiss(toastId);
       toast.error("An unexpected error occurred, try again");
@@ -77,16 +85,25 @@ export const useMusicUpload = () => {
       // TODO: Implement Movement transaction for updating music
       // Use signAndSubmitTransaction from useMovementWallet
       // Call CONTRACT_ADDRESS::vibetrax::update_music_nft
-      
+
       toast.dismiss(toastId);
       toast.error("Update function not yet implemented for Movement");
-      console.log("Update parameters:", { 
-        id, title, description, genre, imageUrl, highQualityUrl, lowQualityUrl,
-        price, forSale, collaborators, collaboratorRoles, collaboratorSplits,
-        CONTRACT_ADDRESS 
+      console.log("Update parameters:", {
+        id,
+        title,
+        description,
+        genre,
+        imageUrl,
+        highQualityUrl,
+        lowQualityUrl,
+        price,
+        forSale,
+        collaborators,
+        collaboratorRoles,
+        collaboratorSplits,
+        CONTRACT_ADDRESS,
       });
       return false;
-      
     } catch (error) {
       toast.dismiss(toastId);
       toast.error("An unexpected error occurred, try again");

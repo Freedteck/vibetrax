@@ -63,7 +63,7 @@ const Header = () => {
       {/* Right Section */}
       <div className={styles.rightSection}>
         {!walletAddress ? (
-          <button 
+          <button
             className={styles.connectButton}
             onClick={() => setShowWalletModal(true)}
           >
@@ -74,12 +74,15 @@ const Header = () => {
             className={styles.userProfile}
             onClick={() => navigate(`/profile/${walletAddress}`)}
           >
-            <Jazzicon diameter={32} seed={parseInt(walletAddress.slice(2, 10), 16)} />
+            <Jazzicon
+              diameter={32}
+              seed={parseInt(walletAddress.slice(2, 10), 16)}
+            />
           </div>
         )}
       </div>
-      
-      <WalletModal 
+
+      <WalletModal
         isOpen={showWalletModal}
         onClose={() => setShowWalletModal(false)}
       />

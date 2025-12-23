@@ -24,7 +24,9 @@ const Root = () => {
       }
 
       try {
-        const subscription = await fetchViewFunction("get_user_subscription", [walletAddress]);
+        const subscription = await fetchViewFunction("get_user_subscription", [
+          walletAddress,
+        ]);
         setSubscriberData(subscription);
       } catch (error) {
         console.error("Error fetching subscription:", error);

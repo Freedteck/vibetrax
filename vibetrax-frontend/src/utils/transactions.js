@@ -3,8 +3,8 @@ import {
   Ed25519PublicKey,
   Ed25519Signature,
   generateSigningMessageForTransaction,
-} from '@aptos-labs/ts-sdk';
-import { aptos, CONTRACT_ADDRESS, toHex } from '../config/movement';
+} from "@aptos-labs/ts-sdk";
+import { aptos, CONTRACT_ADDRESS, toHex } from "../config/movement";
 
 /**
  * Submit a transaction using Privy wallet with signRawHash
@@ -23,10 +23,10 @@ export const submitPrivyTransaction = async (
   signRawHash
 ) => {
   try {
-    console.log(`[Privy Transaction] Starting ${functionName}:`, { 
-      functionName, 
-      walletAddress, 
-      args: functionArguments 
+    console.log(`[Privy Transaction] Starting ${functionName}:`, {
+      functionName,
+      walletAddress,
+      args: functionArguments,
     });
 
     // Build the transaction (user pays gas fees)
@@ -39,23 +39,25 @@ export const submitPrivyTransaction = async (
       },
     });
 
-    console.log('[Privy Transaction] Transaction built successfully');
+    console.log("[Privy Transaction] Transaction built successfully");
 
     // Generate signing message
     const message = generateSigningMessageForTransaction(rawTxn);
-    console.log('[Privy Transaction] Signing message generated');
+    console.log("[Privy Transaction] Signing message generated");
 
     // Sign with Privy wallet
     const { signature: rawSignature } = await signRawHash({
       address: walletAddress,
-      chainType: 'aptos',
+      chainType: "aptos",
       hash: `0x${toHex(message)}`,
     });
 
-    console.log('[Privy Transaction] Transaction signed successfully');
+    console.log("[Privy Transaction] Transaction signed successfully");
 
     // Clean public key (remove 0x prefix and any leading bytes)
-    let cleanPublicKey = publicKeyHex.startsWith('0x') ? publicKeyHex.slice(2) : publicKeyHex;
+    let cleanPublicKey = publicKeyHex.startsWith("0x")
+      ? publicKeyHex.slice(2)
+      : publicKeyHex;
 
     // If public key is 66 characters (33 bytes), remove the first byte (00 prefix)
     if (cleanPublicKey.length === 66) {
@@ -64,10 +66,12 @@ export const submitPrivyTransaction = async (
 
     const senderAuthenticator = new AccountAuthenticatorEd25519(
       new Ed25519PublicKey(cleanPublicKey),
-      new Ed25519Signature(rawSignature.startsWith('0x') ? rawSignature.slice(2) : rawSignature)
+      new Ed25519Signature(
+        rawSignature.startsWith("0x") ? rawSignature.slice(2) : rawSignature
+      )
     );
 
-    console.log('[Privy Transaction] Submitting transaction to blockchain');
+    console.log("[Privy Transaction] Submitting transaction to blockchain");
 
     // Submit the signed transaction
     const committedTransaction = await aptos.transaction.submit.simple({
@@ -75,7 +79,10 @@ export const submitPrivyTransaction = async (
       senderAuthenticator,
     });
 
-    console.log('[Privy Transaction] Transaction submitted:', committedTransaction.hash);
+    console.log(
+      "[Privy Transaction] Transaction submitted:",
+      committedTransaction.hash
+    );
 
     // Wait for confirmation
     const executed = await aptos.waitForTransaction({
@@ -83,10 +90,10 @@ export const submitPrivyTransaction = async (
     });
 
     if (!executed.success) {
-      throw new Error('Transaction failed');
+      throw new Error("Transaction failed");
     }
 
-    console.log('[Privy Transaction] Transaction confirmed successfully');
+    console.log("[Privy Transaction] Transaction confirmed successfully");
 
     return committedTransaction.hash;
   } catch (error) {
@@ -118,7 +125,7 @@ export const submitNativeTransaction = async (
       },
     });
 
-    console.log('Native wallet transaction response:', response);
+    console.log("Native wallet transaction response:", response);
 
     // Wait for transaction confirmation
     const executed = await aptos.waitForTransaction({
@@ -126,12 +133,15 @@ export const submitNativeTransaction = async (
     });
 
     if (!executed.success) {
-      throw new Error('Transaction failed');
+      throw new Error("Transaction failed");
     }
 
     return response.hash;
   } catch (error) {
-    console.error(`Error submitting ${functionName} with native wallet:`, error);
+    console.error(
+      `Error submitting ${functionName} with native wallet:`,
+      error
+    );
     throw error;
   }
 };
@@ -142,7 +152,10 @@ export const submitNativeTransaction = async (
  * @param {Array} functionArguments - Array of arguments for the function
  * @returns {Promise<any>} Function return value
  */
-export const fetchViewFunction = async (functionName, functionArguments = []) => {
+export const fetchViewFunction = async (
+  functionName,
+  functionArguments = []
+) => {
   try {
     const result = await aptos.view({
       payload: {
@@ -167,7 +180,7 @@ export const fetchViewFunction = async (functionName, functionArguments = []) =>
  */
 export const getWalletType = (privyUser, nativeAccount) => {
   const isPrivyWallet = !!privyUser?.linkedAccounts?.find(
-    (acc) => acc.chainType === 'aptos'
+    (acc) => acc.chainType === "aptos"
   );
   const isNativeWallet = !!nativeAccount && !isPrivyWallet;
 
@@ -188,15 +201,18 @@ export const getTransactionSubmitter = (
   signRawHash,
   signAndSubmitTransaction
 ) => {
-  const { isPrivyWallet, isNativeWallet } = getWalletType(privyUser, nativeAccount);
+  const { isPrivyWallet, isNativeWallet } = getWalletType(
+    privyUser,
+    nativeAccount
+  );
 
   if (isPrivyWallet) {
     const moveWallet = privyUser.linkedAccounts.find(
-      (acc) => acc.chainType === 'aptos'
+      (acc) => acc.chainType === "aptos"
     );
 
     if (!moveWallet) {
-      throw new Error('Privy wallet not found');
+      throw new Error("Privy wallet not found");
     }
 
     return {
@@ -225,5 +241,5 @@ export const getTransactionSubmitter = (
     };
   }
 
-  throw new Error('No wallet connected');
+  throw new Error("No wallet connected");
 };

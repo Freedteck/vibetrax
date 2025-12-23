@@ -29,7 +29,7 @@ export const useNetworkVariables = (...variableNames) => {
     tunflowSubscriptionId: TESTNET_TUNE_FLOW_SUBSCRIPTION_ID,
     tunflowTreasuryId: TESTNET_TUNE_FLOW_TREASURY_ID,
   };
-  
+
   return variableNames.reduce((acc, name) => {
     acc[name] = variables[name];
     return acc;

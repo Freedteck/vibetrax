@@ -12,7 +12,7 @@ export function WalletProvider({ children }) {
     network: Network.MAINNET,
     fullnode: MOVEMENT_CONFIGS[CURRENT_NETWORK].fullnode,
   });
-  
+
   return (
     <AptosWalletAdapterProvider
       autoConnect={true}

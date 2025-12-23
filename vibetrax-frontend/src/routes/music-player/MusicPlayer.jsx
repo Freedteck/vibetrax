@@ -46,7 +46,7 @@ const MusicPlayer = () => {
       try {
         setIsPending(true);
         setIsError(false);
-        
+
         // Fetch NFT data using view function
         const nftData = await fetchViewFunction(
           CONTRACT_ADDRESS,
@@ -54,7 +54,7 @@ const MusicPlayer = () => {
           [],
           [id]
         );
-        
+
         if (nftData) {
           setSongData({ fields: nftData });
         }

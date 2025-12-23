@@ -8,7 +8,8 @@ import { useState, useEffect } from "react";
  */
 export function useMovementWallet() {
   const { authenticated, user, logout } = usePrivy();
-  const { account, connected, disconnect, signAndSubmitTransaction } = useWallet();
+  const { account, connected, disconnect, signAndSubmitTransaction } =
+    useWallet();
   const [walletAddress, setWalletAddress] = useState("");
 
   // Note: signRawHash should be implemented using useSignRawHash hook from Privy

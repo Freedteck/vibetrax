@@ -33,14 +33,15 @@ export const useMusicActions = () => {
 
     try {
       const toastId = toast.loading("Processing Vote...");
-      
+
       // TODO: Implement Movement transaction for voting
       // Use signAndSubmitTransaction from useMovementWallet
       // Call CONTRACT_ADDRESS::vibetrax::vote_for_nft with nftId
-      
-      toast.error("Vote function not yet implemented for Movement", { id: toastId });
+
+      toast.error("Vote function not yet implemented for Movement", {
+        id: toastId,
+      });
       console.log("Vote parameters:", { nftId, CONTRACT_ADDRESS });
-      
     } catch (error) {
       toast.error("An unexpected error occurred");
       console.error(error);
@@ -55,14 +56,15 @@ export const useMusicActions = () => {
 
     try {
       const toastId = toast.loading("Processing purchase...");
-      
+
       // TODO: Implement Movement transaction for purchasing
       // Use signAndSubmitTransaction from useMovementWallet
       // Call CONTRACT_ADDRESS::vibetrax::purchase_and_reward
-      
-      toast.error("Purchase function not yet implemented for Movement", { id: toastId });
+
+      toast.error("Purchase function not yet implemented for Movement", {
+        id: toastId,
+      });
       console.log("Purchase parameters:", { nftId, price, CONTRACT_ADDRESS });
-      
     } catch (error) {
       toast.error("An unexpected error occurred");
       console.error(error.message);
@@ -77,14 +79,15 @@ export const useMusicActions = () => {
 
     try {
       const toastId = toast.loading("Processing...");
-      
+
       // TODO: Implement Movement transaction for toggle sale
       // Use signAndSubmitTransaction from useMovementWallet
       // Call CONTRACT_ADDRESS::vibetrax::toggle_for_sale
-      
-      toast.error("Toggle sale function not yet implemented for Movement", { id: toastId });
+
+      toast.error("Toggle sale function not yet implemented for Movement", {
+        id: toastId,
+      });
       console.log("Toggle sale parameters:", { nftId, CONTRACT_ADDRESS });
-      
     } catch (error) {
       toast.error("An unexpected error occurred");
       console.error(error.message);
@@ -99,14 +102,15 @@ export const useMusicActions = () => {
 
     try {
       const toastId = toast.loading("Processing...");
-      
+
       // TODO: Implement Movement transaction for deleting track
       // Use signAndSubmitTransaction from useMovementWallet
       // Call CONTRACT_ADDRESS::vibetrax::delete_music_nft
-      
-      toast.error("Delete function not yet implemented for Movement", { id: toastId });
+
+      toast.error("Delete function not yet implemented for Movement", {
+        id: toastId,
+      });
       console.log("Delete parameters:", { nftId, CONTRACT_ADDRESS });
-      
     } catch (error) {
       toast.error("An unexpected error occurred", error.message);
     }
@@ -121,12 +125,14 @@ export const useMusicActions = () => {
 
     setSubscriptionStatus("subscribing");
     const toastId = toast.loading("Subscribing..");
-    
+
     // TODO: Implement Movement transaction for subscription
-    // Use signAndSubmitTransaction from useMovementWallet  
+    // Use signAndSubmitTransaction from useMovementWallet
     // Call CONTRACT_ADDRESS::vibetrax::subscribe
-    
-    toast.error("Subscribe function not yet implemented for Movement", { id: toastId });
+
+    toast.error("Subscribe function not yet implemented for Movement", {
+      id: toastId,
+    });
     console.log("Subscribe parameters:", { CONTRACT_ADDRESS });
     setSubscriptionStatus("failed");
   };

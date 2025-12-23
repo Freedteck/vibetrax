@@ -18,7 +18,10 @@ const Contributors = ({
       <div className={styles.contributorsList}>
         {contributors?.map((contributor, index) => (
           <div key={index} className={styles.contributorCard}>
-            <Jazzicon diameter={50} seed={parseInt(contributor.slice(2, 10), 16)} />
+            <Jazzicon
+              diameter={50}
+              seed={parseInt(contributor.slice(2, 10), 16)}
+            />
             <div className={styles.contributorInfo}>
               <p>{roles[index]}</p>
               <Link

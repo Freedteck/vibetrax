@@ -12,22 +12,22 @@ export async function createMovementWallet(user, createWallet) {
   try {
     // Check if user already has an Aptos/Movement wallet
     const existingWallet = user?.linkedAccounts?.find(
-      (account) => account.type === 'wallet' && account.chainType === 'aptos'
+      (account) => account.type === "wallet" && account.chainType === "aptos"
     );
 
     if (existingWallet) {
-      console.log('Movement wallet already exists:', existingWallet.address);
+      console.log("Movement wallet already exists:", existingWallet.address);
       return existingWallet;
     }
 
     // Create a new Aptos/Movement wallet
-    console.log('Creating new Movement wallet for user...');
-    const wallet = await createWallet({ chainType: 'aptos' });
-    
-    console.log('Movement wallet created successfully:', wallet.address);
+    console.log("Creating new Movement wallet for user...");
+    const wallet = await createWallet({ chainType: "aptos" });
+
+    console.log("Movement wallet created successfully:", wallet.address);
     return wallet;
   } catch (error) {
-    console.error('Error creating Movement wallet:', error);
+    console.error("Error creating Movement wallet:", error);
     throw error;
   }
 }

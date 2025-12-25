@@ -25,7 +25,7 @@ export const useTokenBalance = () => {
         if (tokenResource && (tokenResource.data || tokenResource.vec)) {
           // TokenBalance is a positional struct: TokenBalance(balance)
           // API returns data with _0 property or vec array
-          const balance = tokenResource.data?._0 || tokenResource.vec?.[0] || 0;
+          const balance = tokenResource?._0 || tokenResource.vec?.[0] || 0;
           setTokenBalance(parseInt(balance));
         } else {
           setTokenBalance(0);

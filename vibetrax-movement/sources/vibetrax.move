@@ -73,8 +73,14 @@ module vibetrax::vibetrax {
     /// Platform token for rewards - using positional struct (Move 2.0)
     struct VibetraxToken(u64) has key;
 
-    /// User token balance - positional struct
+    /// User token balance - DEPRECATED: Use TokenBalances table instead
+    /// Kept for backward compatibility only
     struct TokenBalance(u64) has key;
+
+    /// Global token balances storage (all user balances in one place)
+    struct TokenBalances has key {
+        balances: SmartTable<address, u64>,
+    }
 
     /// Music NFT with dynamic pricing
     struct MusicNFT has key, store {
@@ -240,12 +246,27 @@ module vibetrax::vibetrax {
         move_to(admin, VibetraxToken(0));
         move_to(admin, Treasury(0));
         move_to(admin, BackendAuthority(backend_public_key));
+        move_to(admin, TokenBalances {
+            balances: smart_table::new(),
+        });
         
         move_to(admin, NFTRegistry {
             nft_addresses: vector::empty(),
             nfts_by_artist: smart_table::new(),
             nfts_by_genre: smart_table::new(),
         });
+    }
+
+    /// Initialize TokenBalances resource (for upgrading existing contracts)
+    public entry fun initialize_token_balances(admin: &signer) {
+        let admin_addr = signer::address_of(admin);
+        
+        // Only allow initialization if it doesn't exist yet
+        if (!exists<TokenBalances>(admin_addr)) {
+            move_to(admin, TokenBalances {
+                balances: smart_table::new(),
+            });
+        }
     }
 
     // ============================================================================
@@ -478,33 +499,34 @@ module vibetrax::vibetrax {
         tipper: &signer,
         nft_address: address,
         amount: u64,
-    ) acquires TokenBalance, MusicNFT {
+    ) acquires TokenBalances, MusicNFT {
         let tipper_addr = signer::address_of(tipper);
         
-        // Using bracket notation (Move 2.0)
-        assert!(exists<TokenBalance>(tipper_addr), EINSUFFICIENT_FUNDS);
-        let tipper_balance = &mut TokenBalance[tipper_addr];
+        let balances = &mut TokenBalances[@vibetrax];
         
-        let TokenBalance(balance) = tipper_balance; // Positional destructuring
-        assert!(*balance >= amount, EINSUFFICIENT_FUNDS);
+        // Ensure tipper exists in table
+        if (!smart_table::contains(&balances.balances, tipper_addr)) {
+            smart_table::add(&mut balances.balances, tipper_addr, 0);
+        };
+        
+        // Get tipper balance
+        let tipper_balance = smart_table::borrow_mut(&mut balances.balances, tipper_addr);
+        assert!(*tipper_balance >= amount, EINSUFFICIENT_FUNDS);
         
         let nft = &mut MusicNFT[nft_address];
         let artist = nft.artist;
         
-        // Deduct from tipper using compound assignment
-        *balance -= amount;
+        // Deduct from tipper
+        *tipper_balance -= amount;
         
-        // Add to artist
-        if (!exists<TokenBalance>(artist)) {
-            // Artist will receive tokens when they initialize their account
-            // For now, tokens are lost if artist hasn't initialized
-            // In production, use a proper token account initialization
-            abort EINSUFFICIENT_FUNDS
+        // Ensure artist exists in table
+        if (!smart_table::contains(&balances.balances, artist)) {
+            smart_table::add(&mut balances.balances, artist, 0);
         };
         
-        let artist_balance = &mut TokenBalance[artist];
-        let TokenBalance(artist_bal) = artist_balance;
-        *artist_bal += amount;
+        // Add to artist
+        let artist_balance = smart_table::borrow_mut(&mut balances.balances, artist);
+        *artist_balance += amount;
         
         // Update engagement
         nft.tip_count += 1;
@@ -535,7 +557,7 @@ module vibetrax::vibetrax {
         nonce: u64,
         signature: vector<u8>,
         nft_addresses: vector<address>,
-    ) acquires UserClaimInfo, BackendAuthority, TokenBalance, VibetraxToken, MusicNFT {
+    ) acquires UserClaimInfo, BackendAuthority, TokenBalances, VibetraxToken, MusicNFT {
         let user_addr = signer::address_of(user);
         let current_time = timestamp::now_seconds();
         
@@ -684,16 +706,21 @@ module vibetrax::vibetrax {
     }
 
     /// Purchase subscription with tokens (alternative)
-    public entry fun subscribe_with_tokens(user: &signer) acquires TokenBalance, VibetraxToken, Subscription {
+    public entry fun subscribe_with_tokens(user: &signer) acquires TokenBalances, VibetraxToken, Subscription {
         let user_addr = signer::address_of(user);
         
-        assert!(exists<TokenBalance>(user_addr), EINSUFFICIENT_TOKENS);
-        let user_balance = &mut TokenBalance[user_addr];
-        let TokenBalance(balance) = user_balance;
-        assert!(*balance >= SUBSCRIPTION_PRICE_TOKENS, EINSUFFICIENT_TOKENS);
+        let balances = &mut TokenBalances[@vibetrax];
+        
+        // Ensure user exists in table
+        if (!smart_table::contains(&balances.balances, user_addr)) {
+            smart_table::add(&mut balances.balances, user_addr, 0);
+        };
+        
+        let user_balance = smart_table::borrow_mut(&mut balances.balances, user_addr);
+        assert!(*user_balance >= SUBSCRIPTION_PRICE_TOKENS, EINSUFFICIENT_TOKENS);
         
         // Burn tokens
-        *balance -= SUBSCRIPTION_PRICE_TOKENS;
+        *user_balance -= SUBSCRIPTION_PRICE_TOKENS;
         let token = &mut VibetraxToken[@vibetrax];
         let VibetraxToken(supply) = token;
         *supply -= SUBSCRIPTION_PRICE_TOKENS; // Remove from supply
@@ -783,16 +810,17 @@ module vibetrax::vibetrax {
     }
 
     /// Mint tokens to user (package visibility)
-    package fun mint_tokens_to_user(user: address, amount: u64) acquires TokenBalance, VibetraxToken {
-        if (!exists<TokenBalance>(user)) {
-            // User must initialize their token balance first
-            // In production, auto-initialize or require explicit initialization
-            abort EINSUFFICIENT_FUNDS
+    package fun mint_tokens_to_user(user: address, amount: u64) acquires TokenBalances, VibetraxToken {
+        let balances = &mut TokenBalances[@vibetrax];
+        
+        // Ensure user exists in table
+        if (!smart_table::contains(&balances.balances, user)) {
+            smart_table::add(&mut balances.balances, user, 0);
         };
         
-        let balance = &mut TokenBalance[user];
-        let TokenBalance(bal) = balance;
-        *bal += amount;
+        // Add tokens to user
+        let balance = smart_table::borrow_mut(&mut balances.balances, user);
+        *balance += amount;
         
         let token = &mut VibetraxToken[@vibetrax];
         let VibetraxToken(supply) = token;
@@ -826,12 +854,20 @@ module vibetrax::vibetrax {
     }
 
     #[view]
-    public fun get_token_balance(user: address): u64 acquires TokenBalance {
-        if (!exists<TokenBalance>(user)) {
-            return 0
+    public fun get_token_balance(user: address): u64 acquires TokenBalances, TokenBalance {
+        // Check new system first (TokenBalances table)
+        let balances = &TokenBalances[@vibetrax];
+        if (smart_table::contains(&balances.balances, user)) {
+            return *smart_table::borrow(&balances.balances, user)
         };
-        let TokenBalance(balance) = &TokenBalance[user];
-        *balance
+        
+        // Fallback to old system for backward compatibility
+        if (exists<TokenBalance>(user)) {
+            let TokenBalance(balance) = &TokenBalance[user];
+            return *balance
+        };
+        
+        0
     }
 
     #[view]
@@ -921,17 +957,24 @@ module vibetrax::vibetrax {
         booster: &signer,
         nft_address: address,
         amount: u64,
-    ) acquires TokenBalance, VibetraxToken, MusicNFT {
+    ) acquires TokenBalances, VibetraxToken, MusicNFT {
         let booster_addr = signer::address_of(booster);
         
-        assert!(exists<TokenBalance>(booster_addr), EINSUFFICIENT_TOKENS);
-        let booster_balance = &mut TokenBalance[booster_addr];
-        let TokenBalance(balance) = booster_balance;
-        assert!(*balance >= amount, EINSUFFICIENT_TOKENS);
         assert!(amount > 0, EINSUFFICIENT_TOKENS);
         
+        let balances = &mut TokenBalances[@vibetrax];
+        
+        // Ensure booster exists in table
+        if (!smart_table::contains(&balances.balances, booster_addr)) {
+            smart_table::add(&mut balances.balances, booster_addr, 0);
+        };
+        
+        // Get booster balance
+        let booster_balance = smart_table::borrow_mut(&mut balances.balances, booster_addr);
+        assert!(*booster_balance >= amount, EINSUFFICIENT_TOKENS);
+        
         // Deduct tokens from booster
-        *balance -= amount;
+        *booster_balance -= amount;
         
         // Burn 50% of boost tokens (deflationary)
         let burn_amount = amount / 2;
@@ -946,15 +989,13 @@ module vibetrax::vibetrax {
         let nft = &mut MusicNFT[nft_address];
         let artist = nft.artist;
         
-        if (!exists<TokenBalance>(artist)) {
-            // Artist must have initialized their token balance
-            // Tokens are burned if artist hasn't initialized
-            abort EINSUFFICIENT_FUNDS
+        // Ensure artist exists in table
+        if (!smart_table::contains(&balances.balances, artist)) {
+            smart_table::add(&mut balances.balances, artist, 0);
         };
         
-        let artist_balance = &mut TokenBalance[artist];
-        let TokenBalance(artist_bal) = artist_balance;
-        *artist_bal += artist_amount;
+        let artist_balance = smart_table::borrow_mut(&mut balances.balances, artist);
+        *artist_balance += artist_amount;
         
         // Update NFT boost metrics
         nft.boost_count += 1;
@@ -1321,14 +1362,36 @@ module vibetrax::vibetrax {
     }
 
     // ============================================================================
-    // TOKEN PURCHASE & INITIALIZATION
+    // TOKEN PURCHASE
     // ============================================================================
 
-    /// Initialize user token balance (must be called before using tokens)
-    public entry fun initialize_token_balance(user: &signer) {
+    /// DEPRECATED: Initialize user token balance
+    /// This function is kept for backward compatibility but does nothing.
+    /// All token balances are now managed in the global TokenBalances table.
+    public entry fun initialize_token_balance(_user: &signer) {
+        // No-op: TokenBalances table auto-initializes on first use
+    }
+
+    /// Migrate tokens from old TokenBalance resource to new TokenBalances table
+    public entry fun migrate_token_balance(user: &signer) acquires TokenBalance, TokenBalances {
         let user_addr = signer::address_of(user);
+        
+        // Check if user has old TokenBalance
         if (!exists<TokenBalance>(user_addr)) {
-            move_to(user, TokenBalance(0));
+            return // Nothing to migrate
+        };
+        
+        // Get old balance
+        let TokenBalance(old_balance) = move_from<TokenBalance>(user_addr);
+        
+        // Add to new system
+        let balances = &mut TokenBalances[@vibetrax];
+        if (!smart_table::contains(&balances.balances, user_addr)) {
+            smart_table::add(&mut balances.balances, user_addr, old_balance);
+        } else {
+            // If already exists in new system, add to existing balance
+            let balance = smart_table::borrow_mut(&mut balances.balances, user_addr);
+            *balance += old_balance;
         };
     }
 
@@ -1337,15 +1400,10 @@ module vibetrax::vibetrax {
     public entry fun buy_tokens_with_move(
         buyer: &signer,
         move_amount: u64,
-    ) acquires TokenBalance, VibetraxToken, Treasury {
+    ) acquires TokenBalances, VibetraxToken, Treasury {
         let buyer_addr = signer::address_of(buyer);
         
         assert!(move_amount > 0, EINVALID_PRICE);
-        
-        // Initialize token balance if needed
-        if (!exists<TokenBalance>(buyer_addr)) {
-            move_to(buyer, TokenBalance(0));
-        };
         
         // Withdraw MOVE from buyer
         let payment = coin::withdraw<AptosCoin>(buyer, move_amount);
@@ -1359,10 +1417,16 @@ module vibetrax::vibetrax {
         // Calculate tokens: 1 MOVE (100_000_000 octas) = 1000 tokens
         let tokens_to_mint = (move_amount * 1000) / 100_000_000;
         
-        // Mint tokens to buyer
-        let user_balance = &mut TokenBalance[buyer_addr];
-        let TokenBalance(bal) = user_balance;
-        *bal += tokens_to_mint;
+        // Add tokens to buyer
+        let balances = &mut TokenBalances[@vibetrax];
+        
+        // Ensure buyer exists in table
+        if (!smart_table::contains(&balances.balances, buyer_addr)) {
+            smart_table::add(&mut balances.balances, buyer_addr, 0);
+        };
+        
+        let user_balance = smart_table::borrow_mut(&mut balances.balances, buyer_addr);
+        *user_balance += tokens_to_mint;
         
         // Increase total supply
         let token = &mut VibetraxToken[@vibetrax];

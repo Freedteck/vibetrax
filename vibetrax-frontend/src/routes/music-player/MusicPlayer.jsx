@@ -154,7 +154,7 @@ const MusicPlayer = () => {
     await toggleTrackForSale(id);
     setShowManageMenu(false);
     // Refresh track data
-    window.location.reload();
+    // window.location.reload();
   };
 
   const handleDelete = async () => {

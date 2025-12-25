@@ -86,9 +86,18 @@ export const useMusicActions = () => {
       await signAndSubmitTransaction(payload);
 
       toast.success("Updated successfully!", { id: toastId });
+      return true;
     } catch (error) {
-      toast.error("Update failed: " + (error.message || "Unknown error"));
-      console.error(error.message);
+      const errorMsg = error.message || error.toString() || "Unknown error";
+      console.error("Toggle for sale error:", error);
+      console.error("NFT ID:", nftId);
+      
+      if (errorMsg.includes("ENOT_AUTHORIZED") || errorMsg.includes("0x2")) {
+        toast.error("Not authorized: You must be the owner to toggle sale status");
+      } else {
+        toast.error("Update failed: " + errorMsg);
+      }
+      return false;
     }
   };
 
@@ -189,20 +198,18 @@ export const useMusicActions = () => {
     try {
       const toastId = toast.loading("Sending tip...");
 
-      // Convert MOVE amount to octas (8 decimals)
-      const amountInOctas = Math.floor(amount * 100_000_000);
-
+      // Amount is already in VIBE tokens (integer)
       const payload = {
         data: {
           function: `${CONTRACT_ADDRESS}::vibetrax::tip_artist`,
           typeArguments: [],
-          functionArguments: [nftId, amountInOctas.toString()],
+          functionArguments: [nftId, amount.toString()],
         },
       };
 
       await signAndSubmitTransaction(payload);
 
-      toast.success(`Tipped ${amount} MOVE successfully!`, { id: toastId });
+      toast.success(`Tipped ${amount} VIBE tokens successfully!`, { id: toastId });
       return true;
     } catch (error) {
       toast.error("Tip failed: " + (error.message || "Unknown error"));
@@ -220,23 +227,55 @@ export const useMusicActions = () => {
     try {
       const toastId = toast.loading("Boosting song...");
 
-      // Convert MOVE amount to octas (8 decimals)
-      const amountInOctas = Math.floor(amount * 100_000_000);
-
+      // Amount is already in VIBE tokens (integer)
       const payload = {
         data: {
           function: `${CONTRACT_ADDRESS}::vibetrax::boost_song`,
           typeArguments: [],
-          functionArguments: [nftId, amountInOctas.toString()],
+          functionArguments: [nftId, amount.toString()],
         },
       };
 
       await signAndSubmitTransaction(payload);
 
-      toast.success(`Boosted with ${amount} MOVE!`, { id: toastId });
+      toast.success(`Boosted with ${amount} VIBE tokens!`, { id: toastId });
       return true;
     } catch (error) {
       toast.error("Boost failed: " + (error.message || "Unknown error"));
+      console.error(error);
+      return false;
+    }
+  };
+
+  const buyTokens = async (moveAmount) => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet");
+      return false;
+    }
+
+    try {
+      const toastId = toast.loading("Purchasing VIBE tokens...");
+
+      // Convert MOVE amount to octas (8 decimals)
+      const moveInOctas = Math.floor(moveAmount * 100_000_000);
+      const vibeTokens = Math.floor(moveAmount * 1000);
+
+      const payload = {
+        data: {
+          function: `${CONTRACT_ADDRESS}::vibetrax::buy_tokens_with_move`,
+          typeArguments: [],
+          functionArguments: [moveInOctas.toString()],
+        },
+      };
+
+      await signAndSubmitTransaction(payload);
+
+      toast.success(`Purchased ${vibeTokens.toLocaleString()} VIBE tokens!`, {
+        id: toastId,
+      });
+      return true;
+    } catch (error) {
+      toast.error("Purchase failed: " + (error.message || "Unknown error"));
       console.error(error);
       return false;
     }
@@ -279,6 +318,7 @@ export const useMusicActions = () => {
     subscribeWithTokens,
     tipArtist,
     boostSong,
+    buyTokens,
     claimStreamingRewards,
   };
 };

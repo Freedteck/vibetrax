@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import styles from "./BoostSongModal.module.css";
 import Button from "../../components/button/Button";
 import { useMusicActions } from "../../hooks/useMusicActions";
+import { useTokenBalance } from "../../hooks/useTokenBalance";
+import BuyTokensModal from "../buy-tokens-modal/BuyTokensModal";
 import {
   FiX,
   FiZap,
@@ -10,6 +12,7 @@ import {
   FiAlertTriangle,
   FiTarget,
   FiAward,
+  FiShoppingBag,
 } from "react-icons/fi";
 
 const BoostSongModal = ({
@@ -21,9 +24,11 @@ const BoostSongModal = ({
 }) => {
   const [boostAmount, setBoostAmount] = useState("");
   const [boostStatus, setBoostStatus] = useState("idle");
+  const [showBuyTokens, setShowBuyTokens] = useState(false);
   const { boostSong } = useMusicActions();
+  const { tokenBalance } = useTokenBalance();
 
-  const presetAmounts = [1, 5, 10, 25, 50];
+  const presetAmounts = [10, 50, 100, 250, 500];
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -44,9 +49,14 @@ const BoostSongModal = ({
   if (!isOpen) return null;
 
   const handleBoost = async () => {
-    const amount = parseFloat(boostAmount);
+    const amount = parseInt(boostAmount);
     if (!amount || amount <= 0) {
       setBoostStatus("error");
+      return;
+    }
+
+    if (amount > tokenBalance) {
+      setBoostStatus("insufficient");
       return;
     }
 
@@ -97,13 +107,29 @@ const BoostSongModal = ({
           </div>
         </div>
 
+        <div className={styles.balanceDisplay}>
+          <FiZap className={styles.balanceIcon} />
+          <div>
+            <div className={styles.balanceLabel}>Your Balance</div>
+            <div className={styles.balanceAmount}>
+              {tokenBalance.toLocaleString()} VIBE
+            </div>
+          </div>
+          <button
+            className={styles.buyTokensBtn}
+            onClick={() => setShowBuyTokens(true)}
+          >
+            <FiShoppingBag /> Buy Tokens
+          </button>
+        </div>
+
         <div className={styles.inputSection}>
-          <label className={styles.inputLabel}>Boost Amount (MOVE)</label>
+          <label className={styles.inputLabel}>Boost Amount (VIBE Tokens)</label>
           <div className={styles.inputWrapper}>
             <FiZap className={styles.inputIcon} />
             <input
               type="number"
-              placeholder="0.0"
+              placeholder="0"
               value={boostAmount}
               onChange={(e) => setBoostAmount(e.target.value)}
               className={styles.input}
@@ -118,7 +144,7 @@ const BoostSongModal = ({
                 className={styles.presetBtn}
                 onClick={() => setBoostAmount(amount.toString())}
               >
-                {amount} MOVE
+                {amount} VIBE
               </button>
             ))}
           </div>
@@ -163,18 +189,24 @@ const BoostSongModal = ({
               boostStatus === "processing" ||
               boostStatus === "success" ||
               !boostAmount ||
-              parseFloat(boostAmount) <= 0
+              parseInt(boostAmount) <= 0 ||
+              parseInt(boostAmount) > tokenBalance
             }
             onClick={handleBoost}
             className={styles.primaryButton}
           />
 
+          {boostStatus === "insufficient" && (
+            <div className={styles.errorAlert}>
+              <FiAlertTriangle />
+              <span>Insufficient VIBE tokens. Buy more tokens to continue.</span>
+            </div>
+          )}
+
           {boostStatus === "error" && (
             <div className={styles.errorAlert}>
               <FiAlertTriangle />
-              <span>
-                Boost failed. Please check your balance and try again.
-              </span>
+              <span>Boost failed. Please try again.</span>
             </div>
           )}
 
@@ -188,6 +220,10 @@ const BoostSongModal = ({
           )}
         </div>
       </div>
+      <BuyTokensModal
+        isOpen={showBuyTokens}
+        onClose={() => setShowBuyTokens(false)}
+      />
     </div>
   );
 };

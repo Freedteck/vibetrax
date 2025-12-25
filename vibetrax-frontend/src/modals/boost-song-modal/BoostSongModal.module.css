@@ -170,6 +170,73 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
+.balanceDisplay {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: rgba(243, 156, 18, 0.1);
+  border: 1px solid rgba(243, 156, 18, 0.3);
+  border-radius: 12px;
+}
+
+.balanceIcon {
+  font-size: 1.5rem;
+  color: #f39c12;
+}
+
+.balanceLabel {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.balanceAmount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.buyTokensBtn {
+  margin-left: auto;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.buyTokensBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
+}
+
+.buyTokensInfo {
+  padding: 1rem;
+  background: rgba(243, 156, 18, 0.1);
+  border: 1px solid rgba(243, 156, 18, 0.2);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.buyTokensInfo p {
+  margin: 0.25rem 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+}
+
+.buyTokensInfo strong {
+  color: #f39c12;
+}
+
 .inputSection {
   display: flex;
   flex-direction: column;

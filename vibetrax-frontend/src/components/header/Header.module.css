@@ -175,6 +175,15 @@
   background: rgba(239, 68, 68, 0.1);
 }
 
+.buyTokensItem {
+  color: #9b59b6;
+  gap: 0.5rem;
+}
+
+.buyTokensItem:hover {
+  background: rgba(155, 89, 182, 0.1);
+}
+
 .tokenBalance {
   display: flex;
   align-items: center;

@@ -51,10 +51,6 @@ const SubscribeModal = ({ isOpen, onClose }) => {
       }
       setTimeout(() => {
         setSubscriptionStatus("subscribed");
-        // Reload page to refresh subscription status
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
       }, 1000);
     } catch {
       setSubscriptionStatus("failed");

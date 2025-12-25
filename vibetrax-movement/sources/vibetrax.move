@@ -1321,6 +1321,61 @@ module vibetrax::vibetrax {
     }
 
     // ============================================================================
+    // TOKEN PURCHASE & INITIALIZATION
+    // ============================================================================
+
+    /// Initialize user token balance (must be called before using tokens)
+    public entry fun initialize_token_balance(user: &signer) {
+        let user_addr = signer::address_of(user);
+        if (!exists<TokenBalance>(user_addr)) {
+            move_to(user, TokenBalance(0));
+        };
+    }
+
+    /// Purchase VIBE tokens with MOVE
+    /// Exchange rate: 1 MOVE = 1000 VIBE tokens
+    public entry fun buy_tokens_with_move(
+        buyer: &signer,
+        move_amount: u64,
+    ) acquires TokenBalance, VibetraxToken, Treasury {
+        let buyer_addr = signer::address_of(buyer);
+        
+        assert!(move_amount > 0, EINVALID_PRICE);
+        
+        // Initialize token balance if needed
+        if (!exists<TokenBalance>(buyer_addr)) {
+            move_to(buyer, TokenBalance(0));
+        };
+        
+        // Withdraw MOVE from buyer
+        let payment = coin::withdraw<AptosCoin>(buyer, move_amount);
+        
+        // Add to treasury
+        let treasury = &mut Treasury[@vibetrax];
+        let Treasury(balance) = treasury;
+        *balance += move_amount;
+        coin::deposit(@vibetrax, payment);
+        
+        // Calculate tokens: 1 MOVE (100_000_000 octas) = 1000 tokens
+        let tokens_to_mint = (move_amount * 1000) / 100_000_000;
+        
+        // Mint tokens to buyer
+        let user_balance = &mut TokenBalance[buyer_addr];
+        let TokenBalance(bal) = user_balance;
+        *bal += tokens_to_mint;
+        
+        // Increase total supply
+        let token = &mut VibetraxToken[@vibetrax];
+        let VibetraxToken(supply) = token;
+        *supply += tokens_to_mint;
+
+        event::emit(TokensMinted {
+            recipient: buyer_addr,
+            amount: tokens_to_mint,
+        });
+    }
+
+    // ============================================================================
     // ADMIN FUNCTIONS
     // ============================================================================
 

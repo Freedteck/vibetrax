@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import styles from "./TipArtistModal.module.css";
 import Button from "../../components/button/Button";
 import { useMusicActions } from "../../hooks/useMusicActions";
+import { useTokenBalance } from "../../hooks/useTokenBalance";
+import BuyTokensModal from "../buy-tokens-modal/BuyTokensModal";
 import {
   FiX,
   FiDollarSign,
@@ -10,6 +12,7 @@ import {
   FiAlertTriangle,
   FiZap,
   FiTrendingUp,
+  FiShoppingBag,
 } from "react-icons/fi";
 
 const TipArtistModal = ({
@@ -21,9 +24,11 @@ const TipArtistModal = ({
 }) => {
   const [tipAmount, setTipAmount] = useState("");
   const [tipStatus, setTipStatus] = useState("idle");
+  const [showBuyTokens, setShowBuyTokens] = useState(false);
   const { tipArtist } = useMusicActions();
+  const { tokenBalance } = useTokenBalance();
 
-  const presetAmounts = [0.1, 0.5, 1, 5, 10];
+  const presetAmounts = [10, 50, 100, 250, 500];
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -44,9 +49,14 @@ const TipArtistModal = ({
   if (!isOpen) return null;
 
   const handleTip = async () => {
-    const amount = parseFloat(tipAmount);
+    const amount = parseInt(tipAmount);
     if (!amount || amount <= 0) {
       setTipStatus("error");
+      return;
+    }
+
+    if (amount > tokenBalance) {
+      setTipStatus("insufficient");
       return;
     }
 
@@ -82,7 +92,7 @@ const TipArtistModal = ({
           </div>
           <h2>Support the Creator</h2>
           <p className={styles.subtitle}>
-            Send MOVE tokens directly to{" "}
+            Send VIBE tokens directly to{" "}
             <span className={styles.artistName}>
               {artistName ||
                 `${artistAddress?.slice(0, 6)}...${artistAddress?.slice(-4)}`}
@@ -90,17 +100,33 @@ const TipArtistModal = ({
           </p>
         </div>
 
+        <div className={styles.balanceDisplay}>
+          <FiZap className={styles.balanceIcon} />
+          <div>
+            <div className={styles.balanceLabel}>Your Balance</div>
+            <div className={styles.balanceAmount}>
+              {tokenBalance.toLocaleString()} VIBE
+            </div>
+          </div>
+          <button
+            className={styles.buyTokensBtn}
+            onClick={() => setShowBuyTokens(true)}
+          >
+            <FiShoppingBag /> Buy Tokens
+          </button>
+        </div>
+
         <div className={styles.inputSection}>
-          <label className={styles.inputLabel}>Tip Amount (MOVE)</label>
+          <label className={styles.inputLabel}>Tip Amount (VIBE Tokens)</label>
           <div className={styles.inputWrapper}>
-            <FiDollarSign className={styles.inputIcon} />
+            <FiZap className={styles.inputIcon} />
             <input
               type="number"
-              placeholder="0.0"
+              placeholder="0"
               value={tipAmount}
               onChange={(e) => setTipAmount(e.target.value)}
               className={styles.input}
-              step="0.1"
+              step="1"
               min="0"
             />
           </div>
@@ -111,7 +137,7 @@ const TipArtistModal = ({
                 className={styles.presetBtn}
                 onClick={() => setTipAmount(amount.toString())}
               >
-                {amount} MOVE
+                {amount} VIBE
               </button>
             ))}
           </div>
@@ -146,16 +172,26 @@ const TipArtistModal = ({
               tipStatus === "processing" ||
               tipStatus === "success" ||
               !tipAmount ||
-              parseFloat(tipAmount) <= 0
+              parseInt(tipAmount) <= 0 ||
+              parseInt(tipAmount) > tokenBalance
             }
             onClick={handleTip}
             className={styles.primaryButton}
           />
 
+          {tipStatus === "insufficient" && (
+            <div className={styles.errorAlert}>
+              <FiAlertTriangle />
+              <span>
+                Insufficient VIBE tokens. Buy more tokens to continue.
+              </span>
+            </div>
+          )}
+
           {tipStatus === "error" && (
             <div className={styles.errorAlert}>
               <FiAlertTriangle />
-              <span>Tip failed. Please check your balance and try again.</span>
+              <span>Tip failed. Please try again.</span>
             </div>
           )}
 
@@ -170,6 +206,10 @@ const TipArtistModal = ({
           )}
         </div>
       </div>
+      <BuyTokensModal
+        isOpen={showBuyTokens}
+        onClose={() => setShowBuyTokens(false)}
+      />
     </div>
   );
 };

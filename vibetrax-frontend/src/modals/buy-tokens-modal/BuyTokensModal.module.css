@@ -1,4 +1,4 @@
-/* Tip Artist Modal Styles */
+/* Buy Tokens Modal Styles */
 .overlay {
   position: fixed;
   top: 0;
@@ -29,14 +29,17 @@
   padding: 2.5rem;
   border-radius: 24px;
   position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
-  max-width: 500px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  max-width: 550px;
   width: 100%;
   transform: scale(0.95);
   animation: slideUp 0.3s ease-out forwards;
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 @keyframes slideUp {
@@ -80,18 +83,18 @@
   gap: 1rem;
 }
 
-.tipBadge {
+.buyBadge {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
   padding: 0.5rem 1.25rem;
   border-radius: 50px;
   font-size: 0.875rem;
   font-weight: 600;
   color: #fff;
   margin: 0 auto;
-  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+  box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
 }
 
 .badgeIcon {
@@ -114,11 +117,6 @@
   font-size: 1rem;
   margin: 0;
   line-height: 1.5;
-}
-
-.artistName {
-  color: #3498db;
-  font-weight: 600;
 }
 
 .balanceDisplay {
@@ -149,43 +147,54 @@
   color: #fff;
 }
 
-.buyTokensBtn {
-  margin-left: auto;
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-  border: none;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.exchangeRate {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0;
+}
+
+.rateCard {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1.5rem;
+  padding: 1.25rem 2rem;
+  background: rgba(155, 89, 182, 0.15);
+  border: 2px solid rgba(155, 89, 182, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(155, 89, 182, 0.2);
 }
 
-.buyTokensBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+.rateMoveAmount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
 }
 
-.buyTokensInfo {
-  padding: 1rem;
-  background: rgba(52, 152, 219, 0.1);
-  border: 1px solid rgba(52, 152, 219, 0.2);
-  border-radius: 8px;
-  text-align: center;
+.rateArrow {
+  font-size: 1.5rem;
+  color: #9b59b6;
+  animation: pulse 2s ease-in-out infinite;
 }
 
-.buyTokensInfo p {
-  margin: 0.25rem 0;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.875rem;
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
 }
 
-.buyTokensInfo strong {
-  color: #3498db;
+.rateTokenAmount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #9b59b6 0%, #3498db 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .inputSection {
@@ -212,13 +221,14 @@
   position: absolute;
   left: 1.25rem;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
   pointer-events: none;
 }
 
 .input {
   width: 100%;
-  padding: 1rem 1rem 1rem 3rem;
+  padding: 1rem 1rem 1rem 5rem;
   background: rgba(255, 255, 255, 0.05);
   border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -230,9 +240,9 @@
 }
 
 .input:focus {
-  border-color: #3498db;
+  border-color: #9b59b6;
   background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+  box-shadow: 0 0 0 4px rgba(155, 89, 182, 0.1);
 }
 
 .input::placeholder {
@@ -260,34 +270,100 @@
 }
 
 .presetBtn:hover {
-  background: rgba(52, 152, 219, 0.2);
-  border-color: #3498db;
-  color: #3498db;
+  background: rgba(155, 89, 182, 0.2);
+  border-color: #9b59b6;
+  color: #9b59b6;
   transform: translateY(-2px);
+}
+
+.previewSection {
+  padding: 1.5rem;
+  background: rgba(155, 89, 182, 0.1);
+  border: 2px solid rgba(155, 89, 182, 0.3);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.previewLabel {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.previewAmount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #9b59b6 0%, #3498db 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.previewIcon {
+  font-size: 2rem;
+  color: #9b59b6;
 }
 
 .benefitsSection {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
   padding: 1.5rem;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.benefitsTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.5rem 0;
+  text-align: center;
 }
 
 .benefitItem {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.875rem;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.benefitItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateX(4px);
 }
 
 .benefitIcon {
-  color: #e74c3c;
-  font-size: 1.125rem;
+  font-size: 1.5rem;
+  color: #9b59b6;
   flex-shrink: 0;
+}
+
+.benefitText {
+  flex: 1;
+}
+
+.benefitText strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.benefitText p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.4;
 }
 
 .ctaSection {
@@ -299,24 +375,20 @@
 .primaryButton {
   width: 100%;
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+  color: #fff;
   border: none;
   border-radius: 12px;
-  color: #fff;
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 20px rgba(231, 76, 60, 0.3);
+  box-shadow: 0 4px 20px rgba(155, 89, 182, 0.3);
 }
 
 .primaryButton:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(231, 76, 60, 0.4);
+  box-shadow: 0 6px 30px rgba(155, 89, 182, 0.4);
 }
 
 .primaryButton:disabled {
@@ -324,71 +396,73 @@
   cursor: not-allowed;
 }
 
-.errorAlert {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: rgba(231, 76, 60, 0.1);
-  border: 1px solid rgba(231, 76, 60, 0.3);
-  border-radius: 8px;
-  color: #e74c3c;
-  font-size: 0.875rem;
-  animation: shake 0.5s ease;
-}
-
+.errorAlert,
 .successAlert {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: rgba(46, 204, 113, 0.1);
-  border: 1px solid rgba(46, 204, 113, 0.3);
   border-radius: 8px;
-  color: #2ecc71;
   font-size: 0.875rem;
-  animation: slideDown 0.3s ease;
+  animation: slideIn 0.3s ease-out forwards;
 }
 
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-10px);
-  }
-  75% {
-    transform: translateX(10px);
-  }
-}
-
-@keyframes slideDown {
+@keyframes slideIn {
   from {
-    transform: translateY(-10px);
     opacity: 0;
+    transform: translateY(-10px);
   }
   to {
-    transform: translateY(0);
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
+.errorAlert {
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+  color: #e74c3c;
+}
+
+.successAlert {
+  background: rgba(46, 204, 113, 0.1);
+  border: 1px solid rgba(46, 204, 113, 0.3);
+  color: #2ecc71;
+}
+
+.errorAlert svg,
+.successAlert svg {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .content {
-    padding: 2rem;
+    padding: 2rem 1.5rem;
+    gap: 1.5rem;
   }
 
   .modalHeader h2 {
     font-size: 1.5rem;
   }
 
-  .presetButtons {
-    gap: 0.375rem;
+  .rateCard {
+    padding: 1rem 1.5rem;
+    gap: 1rem;
+  }
+
+  .rateMoveAmount,
+  .rateTokenAmount {
+    font-size: 1.25rem;
+  }
+
+  .previewAmount {
+    font-size: 1.5rem;
   }
 
   .presetBtn {
+    font-size: 0.813rem;
     padding: 0.625rem 0.75rem;
-    font-size: 0.8125rem;
   }
 }

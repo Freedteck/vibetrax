@@ -9,6 +9,7 @@ import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
 import { useMovementWallet } from "../../hooks/useMovementWallet";
 import { aptos } from "../../config/movement";
 import { MOVEMENT_CONTRACT_ADDRESS } from "../../config/constants";
+import { fetchAccountResourceWithFallback } from "../../utils/address";
 
 const Root = () => {
   const { walletAddress } = useMovementWallet();
@@ -26,11 +27,12 @@ const Root = () => {
       }
 
       try {
-        // Query Subscription resource directly from blockchain (positional struct)
-        const subscriptionResource = await aptos.getAccountResource({
-          accountAddress: walletAddress,
-          resourceType: `${MOVEMENT_CONTRACT_ADDRESS}::vibetrax::Subscription`,
-        });
+        // Use helper to fetch with address normalization fallback
+        const subscriptionResource = await fetchAccountResourceWithFallback(
+          aptos,
+          walletAddress,
+          `${MOVEMENT_CONTRACT_ADDRESS}::vibetrax::Subscription`
+        );
 
         if (subscriptionResource) {
           // Subscription is a positional struct: Subscription(expiry_time, is_active)
@@ -53,7 +55,7 @@ const Root = () => {
           setSubscriberData(null);
         }
       } catch (error) {
-        // User doesn't have Subscription resource yet
+        // User doesn't have Subscription resource yet - this is normal
         console.log("No subscription found for user", error);
         setSubscriberData(null);
       }

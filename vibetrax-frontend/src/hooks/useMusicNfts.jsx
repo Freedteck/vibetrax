@@ -19,7 +19,6 @@ export const useMusicNfts = () => {
         });
 
         const nftAddresses = registryResource.nft_addresses || [];
-        console.log(`Found ${nftAddresses.length} NFTs in registry`);
 
         if (nftAddresses.length === 0) {
           setMusicNfts([]);
@@ -33,36 +32,6 @@ export const useMusicNfts = () => {
               const nftResource = await aptos.getAccountResource({
                 accountAddress: nftAddress,
                 resourceType: `${CONTRACT_ADDRESS}::vibetrax::MusicNFT`,
-              });
-
-              console.log("Resource:", nftResource);
-
-              console.log("NFT:", {
-                id: { id: nftAddress }, // Use NFT address as ID
-                artist: nftResource.artist,
-                current_owner: nftResource.current_owner,
-                title: nftResource.title,
-                description: nftResource.description,
-                genre: nftResource.genre,
-                music_art: nftResource.music_art,
-                high_quality_ipfs: nftResource.high_quality_ipfs,
-                low_quality_ipfs: nftResource.low_quality_ipfs,
-                base_price: parseInt(nftResource.base_price),
-                current_price: parseInt(nftResource.current_price),
-                royalty_percentage: parseInt(nftResource.royalty_percentage),
-                streaming_count: parseInt(nftResource.streaming_count),
-                like_count: parseInt(nftResource.like_count),
-                tip_count: parseInt(nftResource.tip_count),
-                purchase_count: parseInt(nftResource.purchase_count),
-                boost_count: parseInt(nftResource.boost_count),
-                total_boost_amount: parseInt(nftResource.total_boost_amount),
-                collaborators: nftResource.collaborators,
-                collaborator_roles: nftResource.collaborator_roles,
-                collaborator_splits: nftResource.collaborator_splits.map((s) =>
-                  parseInt(s)
-                ),
-                status: nftResource.status.__variant__ || "Available",
-                creation_time: parseInt(nftResource.creation_time),
               });
 
               // Transform the data to match the expected format
@@ -105,7 +74,6 @@ export const useMusicNfts = () => {
 
         // Filter out any failed fetches
         const validNfts = nftsData.filter((nft) => nft !== null);
-        console.log(`Successfully fetched ${validNfts.length} NFTs`);
 
         setMusicNfts(validNfts);
       } catch (error) {

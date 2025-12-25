@@ -205,7 +205,7 @@ export const useMusicActions = () => {
         data: {
           function: `${CONTRACT_ADDRESS}::vibetrax::tip_artist`,
           typeArguments: [],
-          functionArguments: [nftId, amount.toString()],
+          functionArguments: [nftId, amount],
         },
       };
 
@@ -268,7 +268,7 @@ export const useMusicActions = () => {
         data: {
           function: `${CONTRACT_ADDRESS}::vibetrax::buy_tokens_with_move`,
           typeArguments: [],
-          functionArguments: [moveInOctas.toString()],
+          functionArguments: [moveInOctas],
         },
       };
 

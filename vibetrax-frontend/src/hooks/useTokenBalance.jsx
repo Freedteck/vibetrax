@@ -16,23 +16,21 @@ export const useTokenBalance = () => {
 
       try {
         setIsLoading(true);
-        // Try to fetch TokenBalance resource
-        const tokenResource = await aptos.getAccountResource({
-          accountAddress: walletAddress,
-          resourceType: `${CONTRACT_ADDRESS}::vibetrax::TokenBalance`,
+
+        // Use the view function to get token balance
+        const balance = await aptos.view({
+          payload: {
+            function: `${CONTRACT_ADDRESS}::vibetrax::get_token_balance`,
+            typeArguments: [],
+            functionArguments: [walletAddress],
+          },
         });
 
-        if (tokenResource && (tokenResource.data || tokenResource.vec)) {
-          // TokenBalance is a positional struct: TokenBalance(balance)
-          // API returns data with _0 property or vec array
-          const balance = tokenResource?._0 || tokenResource.vec?.[0] || 0;
-          setTokenBalance(parseInt(balance));
-        } else {
-          setTokenBalance(0);
-        }
+        // View function returns array with single u64 value
+        setTokenBalance(parseInt(balance[0]));
       } catch (error) {
-        // User doesn't have TokenBalance resource yet
-        console.log("No token balance found", error);
+        // User doesn't have tokens yet - this is normal
+        console.log("No token balance found:", error.message);
         setTokenBalance(0);
       } finally {
         setIsLoading(false);

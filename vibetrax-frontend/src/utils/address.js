@@ -41,3 +41,48 @@ export const shortenAddress = (addr, startChars = 6, endChars = 4) => {
     -endChars
   )}`;
 };
+
+/**
+ * Get both normalized and unnormalized versions of an address
+ * Movement/Aptos may store addresses without leading zeros
+ */
+export const getAddressVariants = (addr) => {
+  if (!addr) return [];
+
+  const normalized = normalizeAddress(addr);
+  const unnormalized = addr.replace(/^0x0+/, "0x") || "0x0";
+
+  // Return unique variants
+  return normalized === unnormalized
+    ? [normalized]
+    : [normalized, unnormalized];
+};
+
+/**
+ * Fetch account resource with address normalization fallback
+ * Tries both normalized (with leading zeros) and unnormalized versions
+ */
+export const fetchAccountResourceWithFallback = async (
+  aptos,
+  accountAddress,
+  resourceType
+) => {
+  const variants = getAddressVariants(accountAddress);
+
+  // Try each variant
+  for (const variant of variants) {
+    try {
+      const resource = await aptos.getAccountResource({
+        accountAddress: variant,
+        resourceType,
+      });
+      return resource;
+    } catch (error) {
+      // Continue to next variant
+      if (variant === variants[variants.length - 1]) {
+        // This was the last variant, throw the error
+        throw error;
+      }
+    }
+  }
+};

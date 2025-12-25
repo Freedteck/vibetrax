@@ -5,6 +5,8 @@ import {
   FiShare2,
   FiShoppingCart,
   FiMoreVertical,
+  FiDollarSign,
+  FiZap,
 } from "react-icons/fi";
 import { BsVinyl } from "react-icons/bs";
 import styles from "./MusicPlayer.module.css";
@@ -15,6 +17,8 @@ import PremiumModal from "../../modals/premium-modal/PremiumModal";
 import { useMusicNfts } from "../../hooks/useMusicNfts";
 import MusicCard from "../../components/cards/music-card/MusicCard";
 import SubscribeModal from "../../modals/subscribe-modal/SubscribeModal";
+import TipArtistModal from "../../modals/tip-artist-modal/TipArtistModal";
+import BoostSongModal from "../../modals/boost-song-modal/BoostSongModal";
 import { useMovementWallet } from "../../hooks/useMovementWallet";
 import { aptos, CONTRACT_ADDRESS } from "../../config/movement";
 import toast from "react-hot-toast";
@@ -24,17 +28,20 @@ const MusicPlayer = () => {
   const { subscriberData, handlePlayTrack } = useOutletContext();
   const { walletAddress } = useMovementWallet();
   const navigate = useNavigate();
-  const { voteForTrack, purchaseTrack } = useMusicActions();
+  const { voteForTrack, purchaseTrack, toggleTrackForSale, deleteTrack } =
+    useMusicActions();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isSubcribeModalOpen, setIsSubcribeModalOpen] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
+  const [isTipModalOpen, setIsTipModalOpen] = useState(false);
+  const [isBoostModalOpen, setIsBoostModalOpen] = useState(false);
+  const [showManageMenu, setShowManageMenu] = useState(false);
   const [votersData, setVotersData] = useState([]);
   const [songData, setSongData] = useState(null);
   const [isPending, setIsPending] = useState(true);
   const [isError, setIsError] = useState(false);
 
-  const { musicNfts, isPending: artistMusicPending } = useMusicNfts();
+  const { musicNfts } = useMusicNfts();
 
   // Fetch song data and voter data
   useEffect(() => {
@@ -115,6 +122,10 @@ const MusicPlayer = () => {
 
   const forSale = songData?.status === "Available";
 
+  const isOwner =
+    normalizeAddress(walletAddress) ===
+    normalizeAddress(songData?.current_owner);
+
   const isPremium =
     normalizeAddress(walletAddress) === normalizeAddress(songData?.artist) ||
     normalizeAddress(walletAddress) ===
@@ -131,11 +142,33 @@ const MusicPlayer = () => {
       // Auto-play when page loads
       handlePlayTrack(songData, musicNfts);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, songData, musicNfts.length]);
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     toast.success("Link copied to clipboard!");
+  };
+
+  const handleToggleForSale = async () => {
+    await toggleTrackForSale(id);
+    setShowManageMenu(false);
+    // Refresh track data
+    window.location.reload();
+  };
+
+  const handleDelete = async () => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this track? This action cannot be undone."
+      )
+    ) {
+      const success = await deleteTrack(id);
+      if (success) {
+        navigate(`/profile/${walletAddress}`);
+      }
+    }
+    setShowManageMenu(false);
   };
 
   if (isPending) return <LoadingState />;
@@ -185,7 +218,7 @@ const MusicPlayer = () => {
               {hasVoted ? "Voted" : "Vote"}
             </button>
 
-            {forSale && (
+            {forSale && !isOwner && (
               <button
                 className={styles.actionBtn}
                 onClick={() => setIsOpen(true)}
@@ -195,10 +228,62 @@ const MusicPlayer = () => {
               </button>
             )}
 
+            <button
+              className={styles.actionBtn}
+              onClick={() => setIsTipModalOpen(true)}
+            >
+              <FiDollarSign />
+              Tip Artist
+            </button>
+
+            <button
+              className={styles.actionBtn}
+              onClick={() => setIsBoostModalOpen(true)}
+            >
+              <FiZap />
+              Boost
+            </button>
+
             <button className={styles.actionBtn} onClick={handleShare}>
               <FiShare2 />
               Share
             </button>
+
+            {/* Owner Management Menu */}
+            {isOwner && (
+              <div className={styles.manageWrapper}>
+                <button
+                  className={`${styles.actionBtn} ${styles.manageBtn}`}
+                  onClick={() => setShowManageMenu(!showManageMenu)}
+                >
+                  <FiMoreVertical />
+                  Manage
+                </button>
+                {showManageMenu && (
+                  <div className={styles.manageMenu}>
+                    <button
+                      className={styles.manageItem}
+                      onClick={() => navigate(`/upload-music/${id}`)}
+                    >
+                      Edit Track
+                    </button>
+                    <button
+                      className={styles.manageItem}
+                      onClick={handleToggleForSale}
+                    >
+                      {forSale ? "Remove from Sale" : "List for Sale"}
+                    </button>
+                    <div className={styles.manageDivider}></div>
+                    <button
+                      className={`${styles.manageItem} ${styles.deleteItem}`}
+                      onClick={handleDelete}
+                    >
+                      Delete Track
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {!isPremium && (
               <button
@@ -297,6 +382,22 @@ const MusicPlayer = () => {
       <SubscribeModal
         isOpen={isSubcribeModalOpen}
         onClose={() => setIsSubcribeModalOpen(false)}
+      />
+
+      <TipArtistModal
+        isOpen={isTipModalOpen}
+        onClose={() => setIsTipModalOpen(false)}
+        nftId={id}
+        artistAddress={track.artist}
+        artistName={track.title}
+      />
+
+      <BoostSongModal
+        isOpen={isBoostModalOpen}
+        onClose={() => setIsBoostModalOpen(false)}
+        nftId={id}
+        songTitle={track.title}
+        currentBoostCount={track.boost_count}
       />
     </main>
   );

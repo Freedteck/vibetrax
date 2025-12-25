@@ -129,6 +129,69 @@
   color: var(--color-text-secondary);
 }
 
+.premiumActive {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.15),
+    rgba(255, 165, 0, 0.15)
+  );
+  border-radius: 8px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+  animation: premiumGlow 3s ease-in-out infinite;
+}
+
+@keyframes premiumGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+  }
+}
+
+.premiumBadge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.premiumIcon {
+  font-size: 24px;
+  color: #ffd700;
+}
+
+.checkIcon {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  font-size: 14px;
+  color: #2ecc71;
+  background: var(--color-bg-card);
+  border-radius: 50%;
+  padding: 2px;
+}
+
+.premiumText h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffd700;
+  margin-bottom: 2px;
+}
+
+.premiumText p {
+  font-size: 11px;
+  color: rgba(255, 215, 0, 0.8);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .sidebar {

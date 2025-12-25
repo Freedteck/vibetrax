@@ -7,6 +7,8 @@ import {
   FiUpload,
   FiHeart,
   FiRadio,
+  FiStar,
+  FiCheck,
 } from "react-icons/fi";
 import { MdLibraryMusic } from "react-icons/md";
 import vibetraxLogo from "../../assets/vibetraxlogo2.png";
@@ -14,9 +16,11 @@ import SubscribeModal from "../../modals/subscribe-modal/SubscribeModal";
 import { useMovementWallet } from "../../hooks/useMovementWallet";
 import styles from "./Sidebar.module.css";
 
-const Sidebar = () => {
+const Sidebar = ({ subscriberData }) => {
   const { walletAddress } = useMovementWallet();
   const [showSubscribeModal, setShowSubscribeModal] = useState(false);
+
+  const isPremium = subscriberData && subscriberData.is_active;
 
   const mainNav = [
     { to: "/", icon: FiHome, label: "Home" },
@@ -82,16 +86,29 @@ const Sidebar = () => {
 
       {/* Bottom Section */}
       <div className={styles.sidebarFooter}>
-        <div
-          className={styles.premiumPromo}
-          onClick={() => setShowSubscribeModal(true)}
-        >
-          <FiRadio className={styles.promoIcon} />
-          <div className={styles.promoText}>
-            <h4>Go Premium</h4>
-            <p>Ad-free music & more</p>
+        {isPremium ? (
+          <div className={styles.premiumActive}>
+            <div className={styles.premiumBadge}>
+              <FiStar className={styles.premiumIcon} />
+              <FiCheck className={styles.checkIcon} />
+            </div>
+            <div className={styles.premiumText}>
+              <h4>Premium Active</h4>
+              <p>Enjoying premium features</p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div
+            className={styles.premiumPromo}
+            onClick={() => setShowSubscribeModal(true)}
+          >
+            <FiRadio className={styles.promoIcon} />
+            <div className={styles.promoText}>
+              <h4>Go Premium</h4>
+              <p>Ad-free music & more</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Subscribe Modal */}

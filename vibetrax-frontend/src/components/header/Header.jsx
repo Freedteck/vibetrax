@@ -6,9 +6,12 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiLogOut,
+  FiZap,
+  FiStar,
 } from "react-icons/fi";
 import Jazzicon from "react-jazzicon";
 import { useMovementWallet } from "../../hooks/useMovementWallet";
+import { useTokenBalance } from "../../hooks/useTokenBalance";
 import { usePrivy } from "@privy-io/react-auth";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import WalletModal from "../wallet/WalletModal";
@@ -16,6 +19,7 @@ import Button from "../button/Button";
 
 const Header = () => {
   const { walletAddress, disconnectWallet } = useMovementWallet();
+  const { tokenBalance } = useTokenBalance();
   const { authenticated, logout: privyLogout } = usePrivy();
   const { connected, disconnect: nativeDisconnect } = useWallet();
   const [showWalletModal, setShowWalletModal] = useState(false);
@@ -119,6 +123,15 @@ const Header = () => {
           />
         ) : (
           <div className={styles.walletInfo} ref={dropdownRef}>
+            {/* Token Balance */}
+            <div className={styles.tokenBalance}>
+              <FiZap className={styles.tokenIcon} />
+              <span className={styles.tokenAmount}>
+                {tokenBalance.toLocaleString()}
+              </span>
+              <span className={styles.tokenLabel}>VIBE</span>
+            </div>
+
             {(isPrivyWallet || isNativeWallet) && (
               <span
                 className={`${styles.walletBadge} ${
@@ -141,6 +154,21 @@ const Header = () => {
             {/* Dropdown Menu */}
             {showDropdown && (
               <div className={styles.dropdown}>
+                <div className={styles.dropdownHeader}>
+                  <div className={styles.dropdownBalance}>
+                    <FiZap className={styles.dropdownTokenIcon} />
+                    <div>
+                      <div className={styles.dropdownTokenAmount}>
+                        {tokenBalance.toLocaleString()} VIBE
+                      </div>
+                      <div className={styles.dropdownTokenLabel}>
+                        Platform Tokens
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.dropdownDivider}></div>
                 <div
                   className={styles.dropdownItem}
                   onClick={() => {

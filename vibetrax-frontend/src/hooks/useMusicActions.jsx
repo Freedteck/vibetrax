@@ -135,13 +135,43 @@ export const useMusicActions = () => {
         data: {
           function: `${CONTRACT_ADDRESS}::vibetrax::subscribe_with_move`,
           typeArguments: [],
-          functionArguments: ["10000000"], // 0.01 MOVE in octas
+          functionArguments: ["10000000"], // 0.01 MOVE in octas (8 decimals)
         },
       };
 
       await signAndSubmitTransaction(payload);
 
       toast.success("Subscribed successfully!", { id: toastId });
+      setSubscriptionStatus("success");
+    } catch (error) {
+      toast.error("Subscription failed: " + (error.message || "Unknown error"));
+      console.error(error);
+      setSubscriptionStatus("failed");
+    }
+  };
+
+  const subscribeWithTokens = async (setSubscriptionStatus) => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet");
+      setSubscriptionStatus("failed");
+      return;
+    }
+
+    setSubscriptionStatus("subscribing");
+    const toastId = toast.loading("Subscribing with VIBE tokens...");
+
+    try {
+      const payload = {
+        data: {
+          function: `${CONTRACT_ADDRESS}::vibetrax::subscribe_with_tokens`,
+          typeArguments: [],
+          functionArguments: [],
+        },
+      };
+
+      await signAndSubmitTransaction(payload);
+
+      toast.success("Subscribed successfully with tokens!", { id: toastId });
       setSubscriptionStatus("success");
     } catch (error) {
       toast.error("Subscription failed: " + (error.message || "Unknown error"));
@@ -246,6 +276,7 @@ export const useMusicActions = () => {
     purchaseTrack,
     deleteTrack,
     subscribe,
+    subscribeWithTokens,
     tipArtist,
     boostSong,
     claimStreamingRewards,

@@ -1,4 +1,5 @@
 import { useMusicActions } from "../../hooks/useMusicActions";
+import { useTokenBalance } from "../../hooks/useTokenBalance";
 import React, { useState, useEffect } from "react";
 import styles from "./SubscribeModal.module.css";
 import Button from "../../components/button/Button";
@@ -13,11 +14,14 @@ import {
   FiZap,
   FiDownload,
   FiTrendingUp,
+  FiDollarSign,
 } from "react-icons/fi";
 
 const SubscribeModal = ({ isOpen, onClose }) => {
   const [subscriptionStatus, setSubscriptionStatus] = useState("idle");
-  const { subscribe } = useMusicActions();
+  const [paymentMethod, setPaymentMethod] = useState("move"); // 'move' or 'token'
+  const { subscribe, subscribeWithTokens } = useMusicActions();
+  const { tokenBalance } = useTokenBalance();
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -40,9 +44,17 @@ const SubscribeModal = ({ isOpen, onClose }) => {
   const handleSubscribe = async () => {
     setSubscriptionStatus("subscribing");
     try {
-      await subscribe(setSubscriptionStatus);
+      if (paymentMethod === "move") {
+        await subscribe(setSubscriptionStatus);
+      } else {
+        await subscribeWithTokens(setSubscriptionStatus);
+      }
       setTimeout(() => {
         setSubscriptionStatus("subscribed");
+        // Reload page to refresh subscription status
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       }, 1000);
     } catch {
       setSubscriptionStatus("failed");
@@ -67,15 +79,35 @@ const SubscribeModal = ({ isOpen, onClose }) => {
           </p>
         </div>
 
-        <div className={styles.priceShowcase}>
-          <div className={styles.priceCard}>
-            <span className={styles.priceLabel}>One-time</span>
-            <div className={styles.priceAmount}>
-              <span className={styles.currency}>MOVE</span>
-              <span className={styles.price}>1</span>
+        {/* Payment Method Selector */}
+        <div className={styles.paymentSelector}>
+          <button
+            className={`${styles.paymentOption} ${
+              paymentMethod === "move" ? styles.active : ""
+            }`}
+            onClick={() => setPaymentMethod("move")}
+          >
+            <FiDollarSign className={styles.paymentIcon} />
+            <div className={styles.paymentInfo}>
+              <span className={styles.paymentName}>Pay with MOVE</span>
+              <span className={styles.paymentPrice}>0.01 MOVE</span>
             </div>
-            <span className={styles.priceNote}>Lifetime access</span>
-          </div>
+          </button>
+          <button
+            className={`${styles.paymentOption} ${
+              paymentMethod === "token" ? styles.active : ""
+            }`}
+            onClick={() => setPaymentMethod("token")}
+            disabled={tokenBalance < 100}
+          >
+            <FiZap className={styles.paymentIcon} />
+            <div className={styles.paymentInfo}>
+              <span className={styles.paymentName}>Pay with VIBE</span>
+              <span className={styles.paymentPrice}>
+                100 VIBE {tokenBalance < 100 && "(Insufficient)"}
+              </span>
+            </div>
+          </button>
         </div>
 
         <div className={styles.benefitsList}>

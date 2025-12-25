@@ -175,10 +175,138 @@
   background: rgba(239, 68, 68, 0.1);
 }
 
+.tokenBalance {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(243, 156, 18, 0.1);
+  border: 1px solid rgba(243, 156, 18, 0.2);
+  border-radius: 20px;
+  margin-right: 12px;
+}
+
+.tokenIcon {
+  color: #f39c12;
+  font-size: 16px;
+}
+
+.tokenAmount {
+  font-weight: 700;
+  color: #f39c12;
+  font-size: 14px;
+}
+
+.tokenLabel {
+  font-size: 12px;
+  color: rgba(243, 156, 18, 0.8);
+  font-weight: 600;
+}
+
+.premiumBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.15),
+    rgba(255, 165, 0, 0.15)
+  );
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 20px;
+  margin-right: 12px;
+  animation: premiumPulse 3s ease-in-out infinite;
+}
+
+@keyframes premiumPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+  }
+}
+
+.premiumIcon {
+  color: #ffd700;
+  font-size: 16px;
+}
+
+.premiumLabel {
+  font-size: 12px;
+  color: #ffd700;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dropdownHeader {
+  padding: 12px 16px;
+  background: rgba(243, 156, 18, 0.05);
+  border-bottom: 1px solid rgba(243, 156, 18, 0.1);
+}
+
+.dropdownBalance {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dropdownTokenIcon {
+  color: #f39c12;
+  font-size: 20px;
+}
+
+.dropdownTokenAmount {
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-size: 15px;
+}
+
+.dropdownTokenLabel {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
 .dropdownDivider {
   height: 1px;
   background: var(--color-border-light);
   margin: 4px 0;
+}
+
+.dropdownPremium {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.1),
+    rgba(255, 193, 7, 0.1)
+  );
+  border-radius: 8px;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  margin: 4px 0;
+}
+
+.dropdownPremiumIcon {
+  font-size: 20px;
+  color: #ffd700;
+  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
+}
+
+.dropdownPremiumText {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffd700;
+}
+
+.dropdownPremiumExpiry {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 2px;
 }
 
 .connectButton button {

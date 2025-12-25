@@ -91,9 +91,11 @@ export const useMusicActions = () => {
       const errorMsg = error.message || error.toString() || "Unknown error";
       console.error("Toggle for sale error:", error);
       console.error("NFT ID:", nftId);
-      
+
       if (errorMsg.includes("ENOT_AUTHORIZED") || errorMsg.includes("0x2")) {
-        toast.error("Not authorized: You must be the owner to toggle sale status");
+        toast.error(
+          "Not authorized: You must be the owner to toggle sale status"
+        );
       } else {
         toast.error("Update failed: " + errorMsg);
       }
@@ -209,7 +211,9 @@ export const useMusicActions = () => {
 
       await signAndSubmitTransaction(payload);
 
-      toast.success(`Tipped ${amount} VIBE tokens successfully!`, { id: toastId });
+      toast.success(`Tipped ${amount} VIBE tokens successfully!`, {
+        id: toastId,
+      });
       return true;
     } catch (error) {
       toast.error("Tip failed: " + (error.message || "Unknown error"));

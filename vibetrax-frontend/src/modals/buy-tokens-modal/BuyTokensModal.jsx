@@ -194,7 +194,9 @@ const BuyTokensModal = ({ isOpen, onClose }) => {
           {buyStatus === "error" && (
             <div className={styles.errorAlert}>
               <FiAlertTriangle />
-              <span>Purchase failed. Please check your balance and try again.</span>
+              <span>
+                Purchase failed. Please check your balance and try again.
+              </span>
             </div>
           )}
 

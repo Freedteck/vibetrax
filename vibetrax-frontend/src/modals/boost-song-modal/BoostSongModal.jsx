@@ -124,7 +124,9 @@ const BoostSongModal = ({
         </div>
 
         <div className={styles.inputSection}>
-          <label className={styles.inputLabel}>Boost Amount (VIBE Tokens)</label>
+          <label className={styles.inputLabel}>
+            Boost Amount (VIBE Tokens)
+          </label>
           <div className={styles.inputWrapper}>
             <FiZap className={styles.inputIcon} />
             <input
@@ -199,7 +201,9 @@ const BoostSongModal = ({
           {boostStatus === "insufficient" && (
             <div className={styles.errorAlert}>
               <FiAlertTriangle />
-              <span>Insufficient VIBE tokens. Buy more tokens to continue.</span>
+              <span>
+                Insufficient VIBE tokens. Buy more tokens to continue.
+              </span>
             </div>
           )}
 

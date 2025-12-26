@@ -3,14 +3,20 @@ import styles from "./ClaimRewardsModal.module.css";
 import Button from "../../components/button/Button";
 import { useStreamTracking } from "../../hooks/useStreamTracking";
 import { useMusicActions } from "../../hooks/useMusicActions";
+import { useRewardsClaim } from "../../hooks/useRewardsClaim";
 
 const ClaimRewardsModal = ({ isOpen, onClose }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const { unclaimedRewards, markRewardsClaimed } = useStreamTracking();
   const { claimStreamingRewards } = useMusicActions();
+  const {
+    canClaim,
+    isLoading: isCheckingEligibility,
+    recheckEligibility,
+  } = useRewardsClaim();
 
   const handleClaim = async () => {
-    if (unclaimedRewards.tokensEarned === 0) return;
+    if (unclaimedRewards.tokensEarned === 0 || !canClaim) return;
 
     setIsProcessing(true);
     try {
@@ -24,6 +30,8 @@ const ClaimRewardsModal = ({ isOpen, onClose }) => {
       if (txHash) {
         // Mark as claimed in Supabase
         await markRewardsClaimed(txHash);
+        // Recheck eligibility after successful claim
+        await recheckEligibility();
         onClose();
       }
     } catch (error) {
@@ -81,6 +89,12 @@ const ClaimRewardsModal = ({ isOpen, onClose }) => {
               💡 You can claim rewards once per hour. Your engagement data is
               tracked off-chain and verified on-chain during claims.
             </p>
+            {!canClaim && (
+              <p style={{ color: "#ff6b6b", marginTop: "0.5rem" }}>
+                ⏱️ Please wait 1 hour since your last claim before claiming
+                again.
+              </p>
+            )}
           </div>
         </div>
 
@@ -90,9 +104,20 @@ const ClaimRewardsModal = ({ isOpen, onClose }) => {
           </Button>
           <Button
             onClick={handleClaim}
-            disabled={unclaimedRewards.tokensEarned === 0 || isProcessing}
+            disabled={
+              unclaimedRewards.tokensEarned === 0 ||
+              isProcessing ||
+              !canClaim ||
+              isCheckingEligibility
+            }
           >
-            {isProcessing ? "Claiming..." : "Claim Rewards"}
+            {isProcessing
+              ? "Claiming..."
+              : isCheckingEligibility
+              ? "Checking..."
+              : !canClaim
+              ? "Cooldown Active"
+              : "Claim Rewards"}
           </Button>
         </div>
       </div>

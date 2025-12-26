@@ -3,6 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import styles from "./PlayerControls.module.css";
 import { useMovementWallet } from "../../hooks/useMovementWallet";
 import { useStreamTracking } from "../../hooks/useStreamTracking";
+import { useHighQualityLink } from "../../hooks/useHighQualityLink";
 
 const PlayerControls = ({ songData, onDurationLoaded, onPlayStatusChange }) => {
   const { walletAddress } = useMovementWallet();
@@ -11,6 +12,9 @@ const PlayerControls = ({ songData, onDurationLoaded, onPlayStatusChange }) => {
   const { trackStream } = useStreamTracking();
   const [playStartTime, setPlayStartTime] = useState(null);
   const [hasTrackedStream, setHasTrackedStream] = useState(false);
+
+  // Get high-quality link from contract if user has access
+  const { highQualityLink } = useHighQualityLink(songData?.id?.id);
 
   // Normalize addresses for comparison
   const normalizeAddress = (addr) => {
@@ -97,14 +101,12 @@ const PlayerControls = ({ songData, onDurationLoaded, onPlayStatusChange }) => {
     setPlayStartTime(null);
   }, [songData?.id?.id]);
 
+  // Determine audio source - use contract's high-quality link if available, otherwise fallback
+  const audioSrc = highQualityLink || songData.low_quality_ipfs;
+
   return (
     <div className={styles.container}>
-      <audio
-        ref={audioRef}
-        className={styles.audio}
-        controls
-        src={isPremium ? songData.high_quality_ipfs : songData.low_quality_ipfs}
-      />
+      <audio ref={audioRef} className={styles.audio} controls src={audioSrc} />
     </div>
   );
 };

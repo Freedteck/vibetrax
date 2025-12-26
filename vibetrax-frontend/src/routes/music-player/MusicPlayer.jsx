@@ -105,6 +105,16 @@ const MusicPlayer = () => {
       }
     };
     fetchData();
+
+    // Listen for NFT refetch events (triggered after purchase, tip, boost, etc.)
+    const handleRefetch = () => {
+      fetchData();
+    };
+    window.addEventListener("refetchNfts", handleRefetch);
+
+    return () => {
+      window.removeEventListener("refetchNfts", handleRefetch);
+    };
   }, [id, walletAddress, checkHasLiked]);
 
   // Normalize address for comparison

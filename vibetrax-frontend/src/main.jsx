@@ -19,7 +19,7 @@ createRoot(document.getElementById("root")).render(
           config={{
             loginMethods: ["email", "google", "twitter", "discord", "github"],
             appearance: {
-              theme: "light",
+              theme: "dark",
               accentColor: "#6366F1",
             },
           }}

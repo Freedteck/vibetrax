@@ -20,6 +20,7 @@ import SubscribeModal from "../../modals/subscribe-modal/SubscribeModal";
 import TipArtistModal from "../../modals/tip-artist-modal/TipArtistModal";
 import BoostSongModal from "../../modals/boost-song-modal/BoostSongModal";
 import { useMovementWallet } from "../../hooks/useMovementWallet";
+import { useStreamTracking } from "../../hooks/useStreamTracking";
 import { aptos, CONTRACT_ADDRESS } from "../../config/movement";
 import toast from "react-hot-toast";
 
@@ -30,6 +31,12 @@ const MusicPlayer = () => {
   const navigate = useNavigate();
   const { voteForTrack, purchaseTrack, toggleTrackForSale, deleteTrack } =
     useMusicActions();
+  const {
+    trackLike,
+    removeLike,
+    hasLiked: checkHasLiked,
+  } = useStreamTracking();
+  const [hasLiked, setHasLiked] = useState(false);
 
   const [isOpen, setIsOpen] = useState(false);
   const [isSubcribeModalOpen, setIsSubcribeModalOpen] = useState(false);
@@ -90,6 +97,10 @@ const MusicPlayer = () => {
         // Initialize votersData as empty (voting status would need separate tracking)
         if (walletAddress) {
           setVotersData([]);
+
+          // Check if user has liked this track in Supabase
+          const liked = await checkHasLiked(id);
+          setHasLiked(liked);
         }
       } catch (error) {
         console.error("Error fetching song data:", error);
@@ -99,7 +110,7 @@ const MusicPlayer = () => {
       }
     };
     fetchData();
-  }, [id, walletAddress]);
+  }, [id, walletAddress, checkHasLiked]);
 
   // Normalize address for comparison
   const normalizeAddress = (addr) => {
@@ -210,12 +221,22 @@ const MusicPlayer = () => {
           {/* Action Buttons */}
           <div className={styles.actions}>
             <button
-              className={`${styles.actionBtn} ${hasVoted ? styles.voted : ""}`}
-              onClick={() => voteForTrack(id, votersData)}
-              disabled={hasVoted}
+              className={`${styles.actionBtn} ${
+                hasVoted || hasLiked ? styles.voted : ""
+              }`}
+              onClick={async () => {
+                // Track on blockchain
+                await voteForTrack(id, votersData);
+                // Track in Supabase
+                if (!hasLiked) {
+                  await trackLike(id);
+                  setHasLiked(true);
+                }
+              }}
+              disabled={hasVoted || hasLiked}
             >
               <FiHeart />
-              {hasVoted ? "Voted" : "Vote"}
+              {hasVoted || hasLiked ? "Voted" : "Vote"}
             </button>
 
             {forSale && !isOwner && (

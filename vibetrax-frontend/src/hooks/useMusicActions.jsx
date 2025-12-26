@@ -236,7 +236,7 @@ export const useMusicActions = () => {
         data: {
           function: `${CONTRACT_ADDRESS}::vibetrax::boost_song`,
           typeArguments: [],
-          functionArguments: [nftId, amount.toString()],
+          functionArguments: [nftId, amount],
         },
       };
 
@@ -285,7 +285,7 @@ export const useMusicActions = () => {
     }
   };
 
-  const claimStreamingRewards = async (nftId) => {
+  const claimStreamingRewards = async (streams, likes, nftAddresses) => {
     if (!isConnected) {
       toast.error("Please connect your wallet");
       return false;
@@ -298,14 +298,14 @@ export const useMusicActions = () => {
         data: {
           function: `${CONTRACT_ADDRESS}::vibetrax::claim_streaming_rewards`,
           typeArguments: [],
-          functionArguments: [nftId],
+          functionArguments: [streams, likes, nftAddresses],
         },
       };
 
-      await signAndSubmitTransaction(payload);
+      const response = await signAndSubmitTransaction(payload);
 
       toast.success("Rewards claimed successfully!", { id: toastId });
-      return true;
+      return response.hash || true;
     } catch (error) {
       toast.error("Claim failed: " + (error.message || "Unknown error"));
       console.error(error);

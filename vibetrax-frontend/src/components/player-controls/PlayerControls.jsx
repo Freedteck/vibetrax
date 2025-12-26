@@ -1,12 +1,16 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import styles from "./PlayerControls.module.css";
 import { useMovementWallet } from "../../hooks/useMovementWallet";
+import { useStreamTracking } from "../../hooks/useStreamTracking";
 
 const PlayerControls = ({ songData, onDurationLoaded, onPlayStatusChange }) => {
   const { walletAddress } = useMovementWallet();
   const subscriberData = useOutletContext();
   const audioRef = useRef(null);
+  const { trackStream } = useStreamTracking();
+  const [playStartTime, setPlayStartTime] = useState(null);
+  const [hasTrackedStream, setHasTrackedStream] = useState(false);
 
   // Normalize addresses for comparison
   const normalizeAddress = (addr) => {
@@ -32,22 +36,66 @@ const PlayerControls = ({ songData, onDurationLoaded, onPlayStatusChange }) => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const handlePlay = () => onPlayStatusChange(true);
-    const handlePause = () => onPlayStatusChange(false);
+    const handlePlay = () => {
+      onPlayStatusChange(true);
+      setPlayStartTime(Date.now());
+    };
+
+    const handlePause = () => {
+      onPlayStatusChange(false);
+      // Track stream if played for 30+ seconds
+      if (playStartTime && !hasTrackedStream) {
+        const duration = Math.floor((Date.now() - playStartTime) / 1000);
+        if (duration >= 30 && songData?.id?.id) {
+          trackStream(songData.id.id, duration);
+          setHasTrackedStream(true);
+        }
+      }
+      setPlayStartTime(null);
+    };
+
+    const handleEnded = () => {
+      onPlayStatusChange(false);
+      // Track full stream on song end
+      if (playStartTime && !hasTrackedStream && songData?.id?.id) {
+        const duration = Math.floor((Date.now() - playStartTime) / 1000);
+        if (duration >= 30) {
+          trackStream(songData.id.id, duration);
+          setHasTrackedStream(true);
+        }
+      }
+      setPlayStartTime(null);
+    };
+
     const handleLoadedMetadata = () => {
       onDurationLoaded(audio.duration);
     };
 
     audio.addEventListener("play", handlePlay);
     audio.addEventListener("pause", handlePause);
+    audio.addEventListener("ended", handleEnded);
     audio.addEventListener("loadedmetadata", handleLoadedMetadata);
 
     return () => {
       audio.removeEventListener("play", handlePlay);
       audio.removeEventListener("pause", handlePause);
+      audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
     };
-  }, [onDurationLoaded, onPlayStatusChange]);
+  }, [
+    onDurationLoaded,
+    onPlayStatusChange,
+    playStartTime,
+    hasTrackedStream,
+    songData,
+    trackStream,
+  ]);
+
+  // Reset tracking when song changes
+  useEffect(() => {
+    setHasTrackedStream(false);
+    setPlayStartTime(null);
+  }, [songData?.id?.id]);
 
   return (
     <div className={styles.container}>

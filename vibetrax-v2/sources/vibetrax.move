@@ -18,14 +18,11 @@ module vibetrax::vibetrax {
     const EINVALID_PRICE: u64 = 3;
     const EINVALID_ROYALTY: u64 = 4;
     const ENOT_FOR_SALE: u64 = 5;
-    const EINVALID_SIGNATURE: u64 = 6;
     const ESPAM_DETECTED: u64 = 7;
-    const EALREADY_CLAIMED: u64 = 8;
     const EINVALID_COLLABORATOR_SPLITS: u64 = 9;
     const ENO_REWARDS_TO_CLAIM: u64 = 10;
     const ENFT_NOT_FOUND: u64 = 11;
     const EINVALID_METADATA: u64 = 12;
-    const ESUBSCRIPTION_EXPIRED: u64 = 13;
     const EINSUFFICIENT_TOKENS: u64 = 14;
 
     // ============================================================================
@@ -69,14 +66,10 @@ module vibetrax::vibetrax {
     // STRUCT DEFINITIONS
     // ============================================================================
 
-    /// Platform token for rewards - using positional struct (Move 2.0)
+    /// Platform token for rewards
     struct VibetraxToken(u64) has key;
 
-    /// User token balance - DEPRECATED: Use TokenBalances table instead
-    /// Kept for backward compatibility only
-    struct TokenBalance(u64) has key;
-
-    /// Global token balances storage (all user balances in one place)
+    /// Global token balances storage
     struct TokenBalances has key {
         balances: SmartTable<address, u64>,
     }
@@ -102,10 +95,10 @@ module vibetrax::vibetrax {
         like_count: u64,
         tip_count: u64,
         purchase_count: u64,
-        boost_count: u64, // New: promotion boosts
-        total_boost_amount: u64, // Total tokens spent on boosts
+        boost_count: u64,
+        total_boost_amount: u64,
         
-        // Collaborators (separate from artist)
+        // Collaborators
         collaborators: vector<address>,
         collaborator_roles: vector<String>,
         collaborator_splits: vector<u64>,
@@ -122,7 +115,7 @@ module vibetrax::vibetrax {
         nfts_by_genre: SmartTable<String, vector<address>>,
     }
 
-    /// User claim tracking - positional for spam prevention
+    /// User claim tracking (anti-spam)
     struct UserClaimInfo has key {
         last_claim_time: u64,
         pending_streams: u64,
@@ -130,11 +123,11 @@ module vibetrax::vibetrax {
         nonce: u64,
     }
 
-    /// Subscription - positional struct
+    /// Subscription
     struct Subscription(u64, bool) has key; // (expiry_time, is_active)
 
     /// Treasury
-    struct Treasury(u64) has key; // balance
+    struct Treasury(u64) has key;
 
     // ============================================================================
     // EVENTS
@@ -190,15 +183,9 @@ module vibetrax::vibetrax {
     #[event]
     struct SubscriptionPurchased has drop, store {
         user: address,
-        payment_method: String, // "MOVE" or "TOKEN"
+        payment_method: String,
         amount: u64,
         expires_at: u64,
-    }
-
-    #[event]
-    struct SubscriptionRenewed has drop, store {
-        user: address,
-        new_expiry: u64,
     }
 
     #[event]
@@ -223,28 +210,17 @@ module vibetrax::vibetrax {
         updated_fields: String,
     }
 
-    #[event]
-    struct TreasuryWithdrawn has drop, store {
-        admin: address,
-        recipient: address,
-        amount: u64,
-    }
-
     // ============================================================================
     // INITIALIZATION
     // ============================================================================
 
     /// Initialize platform
     public entry fun initialize(admin: &signer) {
-        let _admin_addr = signer::address_of(admin);
-        
-        // Using positional struct syntax (Move 2.0)
         move_to(admin, VibetraxToken(0));
         move_to(admin, Treasury(0));
         move_to(admin, TokenBalances {
             balances: smart_table::new(),
         });
-        
         move_to(admin, NFTRegistry {
             nft_addresses: vector::empty(),
             nfts_by_artist: smart_table::new(),
@@ -252,20 +228,8 @@ module vibetrax::vibetrax {
         });
     }
 
-    /// Initialize TokenBalances resource (for upgrading existing contracts)
-    public entry fun initialize_token_balances(admin: &signer) {
-        let admin_addr = signer::address_of(admin);
-        
-        // Only allow initialization if it doesn't exist yet
-        if (!exists<TokenBalances>(admin_addr)) {
-            move_to(admin, TokenBalances {
-                balances: smart_table::new(),
-            });
-        }
-    }
-
     // ============================================================================
-    // MUSIC NFT FUNCTIONS (with Move 2.0 receiver style)
+    // MUSIC NFT FUNCTIONS
     // ============================================================================
 
     /// Mint new music NFT
@@ -290,7 +254,7 @@ module vibetrax::vibetrax {
         assert!(vector::length(&high_quality_ipfs) > 0, EINVALID_METADATA);
         assert!(vector::length(&low_quality_ipfs) > 0, EINVALID_METADATA);
         
-        // Validate collaborator splits using index notation (Move 2.0)
+        // Validate collaborator splits
         if (vector::length(&collaborators) > 0) {
             assert!(
                 vector::length(&collaborators) == vector::length(&collaborator_roles) &&
@@ -301,7 +265,7 @@ module vibetrax::vibetrax {
             let total_split = 0u64;
             let i = 0;
             while (i < vector::length(&collaborator_splits)) {
-                total_split += collaborator_splits[i]; // Index notation (Move 2.0)
+                total_split += collaborator_splits[i];
                 i += 1;
             };
             assert!(total_split == BASIS_POINTS, EINVALID_COLLABORATOR_SPLITS);
@@ -384,16 +348,13 @@ module vibetrax::vibetrax {
     ) acquires MusicNFT {
         let buyer_addr = signer::address_of(buyer);
         
-        // Register coin store if not already registered
         if (!coin::is_account_registered<AptosCoin>(buyer_addr)) {
             coin::register<AptosCoin>(buyer);
         };
         
-        // Using bracket notation for resource access (Move 2.0)
         assert!(exists<MusicNFT>(nft_address), ENFT_NOT_FOUND);
         let nft = &mut MusicNFT[nft_address];
         
-        // Check if for sale using receiver-style match (Move 2.0)
         match (&nft.status) {
             NFTStatus::Available => {},
             _ => abort ENOT_FOR_SALE,
@@ -401,7 +362,6 @@ module vibetrax::vibetrax {
         
         assert!(payment_amount >= nft.current_price, EINSUFFICIENT_FUNDS);
         
-        // Withdraw payment from buyer
         let payment = coin::withdraw<AptosCoin>(buyer, payment_amount);
 
         let seller = nft.current_owner;
@@ -416,7 +376,7 @@ module vibetrax::vibetrax {
             let i = 0;
             
             while (i < vector::length(&nft.collaborators)) {
-                let collaborator = nft.collaborators[i]; // Index notation
+                let collaborator = nft.collaborators[i];
                 let split_percentage = nft.collaborator_splits[i];
                 let collaborator_amount = (payment_amount * split_percentage) / BASIS_POINTS;
                 
@@ -425,7 +385,6 @@ module vibetrax::vibetrax {
                     coin::deposit(collaborator, collab_payment);
                     collaborator_total += collaborator_amount;
                     
-                    // Record payment using enum (Move 2.0)
                     vector::push_back(&mut nft.payment_history, PaymentEvent::Purchase {
                         buyer: buyer_addr,
                         seller: collaborator,
@@ -457,7 +416,6 @@ module vibetrax::vibetrax {
                 coin::deposit(artist, royalty_payment);
                 royalty_paid = royalty_amount;
                 
-                // Record royalty using enum
                 vector::push_back(&mut nft.payment_history, PaymentEvent::Royalty {
                     artist,
                     amount: royalty_amount,
@@ -472,13 +430,12 @@ module vibetrax::vibetrax {
             coin::destroy_zero(payment);
         };
         
-        // Update NFT state using compound assignments (Move 2.0)
+        // Update NFT state
         nft.current_owner = buyer_addr;
         nft.purchase_count += 1;
         nft.status = NFTStatus::Sold;
         
-        // Update price
-        nft.update_price_from_engagement(); // Receiver-style call
+        nft.update_price_from_engagement();
 
         event::emit(MusicNFTPurchased {
             nft_address,
@@ -489,7 +446,7 @@ module vibetrax::vibetrax {
         });
     }
 
-    /// Tip artist with tokens (receiver-style)
+    /// Tip artist with tokens
     public entry fun tip_artist(
         tipper: &signer,
         nft_address: address,
@@ -499,31 +456,25 @@ module vibetrax::vibetrax {
         
         let balances = &mut TokenBalances[@vibetrax];
         
-        // Ensure tipper exists in table
         if (!smart_table::contains(&balances.balances, tipper_addr)) {
             smart_table::add(&mut balances.balances, tipper_addr, 0);
         };
         
-        // Get tipper balance
         let tipper_balance = smart_table::borrow_mut(&mut balances.balances, tipper_addr);
         assert!(*tipper_balance >= amount, EINSUFFICIENT_FUNDS);
         
         let nft = &mut MusicNFT[nft_address];
         let artist = nft.artist;
         
-        // Deduct from tipper
         *tipper_balance -= amount;
         
-        // Ensure artist exists in table
         if (!smart_table::contains(&balances.balances, artist)) {
             smart_table::add(&mut balances.balances, artist, 0);
         };
         
-        // Add to artist
         let artist_balance = smart_table::borrow_mut(&mut balances.balances, artist);
         *artist_balance += amount;
         
-        // Update engagement
         nft.tip_count += 1;
         vector::push_back(&mut nft.payment_history, PaymentEvent::Tip {
             from: tipper_addr,
@@ -544,7 +495,7 @@ module vibetrax::vibetrax {
     // REWARDS & CLAIMS
     // ============================================================================
 
-    /// Claim streaming rewards (frontend tracks via Supabase, contract just mints)
+    /// Claim streaming rewards (Supabase tracks, contract mints)
     public entry fun claim_streaming_rewards(
         user: &signer,
         streams: u64,
@@ -554,7 +505,6 @@ module vibetrax::vibetrax {
         let user_addr = signer::address_of(user);
         let current_time = timestamp::now_seconds();
         
-        // Initialize claim info if needed
         if (!exists<UserClaimInfo>(user_addr)) {
             move_to(user, UserClaimInfo {
                 last_claim_time: 0,
@@ -566,17 +516,15 @@ module vibetrax::vibetrax {
         
         let claim_info = &mut UserClaimInfo[user_addr];
         
-        // Anti-spam check (minimum 1 hour between claims)
+        // Anti-spam: 1 hour minimum between claims
         assert!(
             current_time >= claim_info.last_claim_time + MIN_CLAIM_INTERVAL,
             ESPAM_DETECTED
         );
         
-        // Calculate rewards
         let tokens_earned = (streams * TOKEN_PER_STREAM) + (likes * TOKEN_PER_LIKE);
         assert!(tokens_earned > 0, ENO_REWARDS_TO_CLAIM);
         
-        // Mint tokens
         mint_tokens_to_user(user_addr, tokens_earned);
         
         // Update NFT engagement metrics on-chain
@@ -592,7 +540,6 @@ module vibetrax::vibetrax {
             i += 1;
         };
         
-        // Update claim info
         claim_info.last_claim_time = current_time;
         claim_info.nonce += 1;
         claim_info.pending_streams = 0;
@@ -607,10 +554,348 @@ module vibetrax::vibetrax {
     }
 
     // ============================================================================
-    // RECEIVER-STYLE HELPER FUNCTIONS (Move 2.0)
+    // SUBSCRIPTION FUNCTIONS
     // ============================================================================
 
-    /// Update NFT price from engagement (receiver-style)
+    /// Purchase subscription with MOVE
+    public entry fun subscribe_with_move(
+        user: &signer,
+        payment_amount: u64,
+    ) acquires Treasury, Subscription {
+        let user_addr = signer::address_of(user);
+        
+        assert!(payment_amount >= SUBSCRIPTION_PRICE_MOVE, EINSUFFICIENT_FUNDS);
+        
+        let payment = coin::withdraw<AptosCoin>(user, payment_amount);
+        
+        let treasury = &mut Treasury[@vibetrax];
+        let Treasury(balance) = treasury;
+        *balance += payment_amount;
+        coin::deposit(@vibetrax, payment);
+        
+        let expiry_time = timestamp::now_seconds() + SUBSCRIPTION_DURATION;
+        
+        if (exists<Subscription>(user_addr)) {
+            let sub = &mut Subscription[user_addr];
+            let Subscription(expiry, is_active) = sub;
+            *expiry = expiry_time;
+            *is_active = true;
+        } else {
+            move_to(user, Subscription(expiry_time, true));
+        };
+
+        event::emit(SubscriptionPurchased {
+            user: user_addr,
+            payment_method: string::utf8(b"MOVE"),
+            amount: payment_amount,
+            expires_at: expiry_time,
+        });
+    }
+
+    /// Purchase subscription with tokens
+    public entry fun subscribe_with_tokens(user: &signer) acquires TokenBalances, VibetraxToken, Subscription {
+        let user_addr = signer::address_of(user);
+        
+        let balances = &mut TokenBalances[@vibetrax];
+        
+        if (!smart_table::contains(&balances.balances, user_addr)) {
+            smart_table::add(&mut balances.balances, user_addr, 0);
+        };
+        
+        let user_balance = smart_table::borrow_mut(&mut balances.balances, user_addr);
+        assert!(*user_balance >= SUBSCRIPTION_PRICE_TOKENS, EINSUFFICIENT_TOKENS);
+        
+        *user_balance -= SUBSCRIPTION_PRICE_TOKENS;
+        let token = &mut VibetraxToken[@vibetrax];
+        let VibetraxToken(supply) = token;
+        *supply -= SUBSCRIPTION_PRICE_TOKENS;
+        
+        let expiry_time = timestamp::now_seconds() + SUBSCRIPTION_DURATION;
+        
+        if (exists<Subscription>(user_addr)) {
+            let sub = &mut Subscription[user_addr];
+            let Subscription(expiry, is_active) = sub;
+            *expiry = expiry_time;
+            *is_active = true;
+        } else {
+            move_to(user, Subscription(expiry_time, true));
+        };
+
+        event::emit(SubscriptionPurchased {
+            user: user_addr,
+            payment_method: string::utf8(b"TOKEN"),
+            amount: SUBSCRIPTION_PRICE_TOKENS,
+            expires_at: expiry_time,
+        });
+    }
+
+    // ============================================================================
+    // BOOST SYSTEM
+    // ============================================================================
+
+    /// Boost a song to increase visibility
+    public entry fun boost_song(
+        booster: &signer,
+        nft_address: address,
+        amount: u64,
+    ) acquires TokenBalances, VibetraxToken, MusicNFT {
+        let booster_addr = signer::address_of(booster);
+        
+        assert!(amount > 0, EINSUFFICIENT_TOKENS);
+        
+        let balances = &mut TokenBalances[@vibetrax];
+        
+        if (!smart_table::contains(&balances.balances, booster_addr)) {
+            smart_table::add(&mut balances.balances, booster_addr, 0);
+        };
+        
+        let booster_balance = smart_table::borrow_mut(&mut balances.balances, booster_addr);
+        assert!(*booster_balance >= amount, EINSUFFICIENT_TOKENS);
+        
+        *booster_balance -= amount;
+        
+        // Burn 50% (deflationary)
+        let burn_amount = amount / 2;
+        let artist_amount = amount - burn_amount;
+        
+        let token = &mut VibetraxToken[@vibetrax];
+        let VibetraxToken(supply) = token;
+        *supply -= burn_amount;
+        
+        // Give 50% to artist
+        let nft = &mut MusicNFT[nft_address];
+        let artist = nft.artist;
+        
+        if (!smart_table::contains(&balances.balances, artist)) {
+            smart_table::add(&mut balances.balances, artist, 0);
+        };
+        
+        let artist_balance = smart_table::borrow_mut(&mut balances.balances, artist);
+        *artist_balance += artist_amount;
+        
+        nft.boost_count += 1;
+        nft.total_boost_amount += amount;
+
+        event::emit(NFTBoosted {
+            nft_address,
+            booster: booster_addr,
+            amount,
+            new_boost_count: nft.boost_count,
+        });
+    }
+
+    // ============================================================================
+    // NFT MANAGEMENT
+    // ============================================================================
+
+    /// Toggle NFT for sale status
+    public entry fun toggle_for_sale(owner: &signer, nft_address: address) acquires MusicNFT {
+        let owner_addr = signer::address_of(owner);
+        let nft = &mut MusicNFT[nft_address];
+        assert!(nft.current_owner == owner_addr, ENOT_AUTHORIZED);
+        
+        nft.status = match (&nft.status) {
+            NFTStatus::Available => NFTStatus::Delisted,
+            _ => NFTStatus::Available,
+        };
+    }
+
+    /// Update NFT metadata (artist only)
+    public entry fun update_nft_metadata(
+        artist: &signer,
+        nft_address: address,
+        new_title: vector<u8>,
+        new_description: vector<u8>,
+        new_music_art: vector<u8>,
+    ) acquires MusicNFT {
+        let artist_addr = signer::address_of(artist);
+        let nft = &mut MusicNFT[nft_address];
+        
+        assert!(nft.artist == artist_addr, ENOT_AUTHORIZED);
+        
+        let updated_fields = string::utf8(b"");
+        
+        if (vector::length(&new_title) > 0) {
+            nft.title = string::utf8(new_title);
+            string::append(&mut updated_fields, string::utf8(b"title,"));
+        };
+        
+        if (vector::length(&new_description) > 0) {
+            nft.description = string::utf8(new_description);
+            string::append(&mut updated_fields, string::utf8(b"description,"));
+        };
+        
+        if (vector::length(&new_music_art) > 0) {
+            nft.music_art = string::utf8(new_music_art);
+            string::append(&mut updated_fields, string::utf8(b"art,"));
+        };
+
+        event::emit(NFTUpdated {
+            nft_address,
+            artist: artist_addr,
+            updated_fields,
+        });
+    }
+
+    /// Update NFT files (artist only)
+    public entry fun update_nft_files(
+        artist: &signer,
+        nft_address: address,
+        new_high_quality_ipfs: vector<u8>,
+        new_low_quality_ipfs: vector<u8>,
+    ) acquires MusicNFT {
+        let artist_addr = signer::address_of(artist);
+        let nft = &mut MusicNFT[nft_address];
+        
+        assert!(nft.artist == artist_addr, ENOT_AUTHORIZED);
+        
+        if (vector::length(&new_high_quality_ipfs) > 0) {
+            nft.high_quality_ipfs = string::utf8(new_high_quality_ipfs);
+        };
+        
+        if (vector::length(&new_low_quality_ipfs) > 0) {
+            nft.low_quality_ipfs = string::utf8(new_low_quality_ipfs);
+        };
+
+        event::emit(NFTUpdated {
+            nft_address,
+            artist: artist_addr,
+            updated_fields: string::utf8(b"ipfs_files"),
+        });
+    }
+
+    /// Delete NFT (artist only, must be unsold)
+    public entry fun delete_nft(
+        artist: &signer,
+        nft_address: address,
+    ) acquires MusicNFT, NFTRegistry {
+        let artist_addr = signer::address_of(artist);
+        
+        assert!(exists<MusicNFT>(nft_address), ENFT_NOT_FOUND);
+        let nft = move_from<MusicNFT>(nft_address);
+        
+        assert!(nft.artist == artist_addr, ENOT_AUTHORIZED);
+        assert!(nft.current_owner == artist_addr, ENOT_AUTHORIZED);
+        
+        let title = nft.title;
+        
+        // Remove from registry
+        let registry = &mut NFTRegistry[@vibetrax];
+        
+        let i = 0;
+        while (i < vector::length(&registry.nft_addresses)) {
+            if (registry.nft_addresses[i] == nft_address) {
+                vector::remove(&mut registry.nft_addresses, i);
+                break
+            };
+            i += 1;
+        };
+        
+        if (smart_table::contains(&registry.nfts_by_artist, artist_addr)) {
+            let artist_nfts = smart_table::borrow_mut(&mut registry.nfts_by_artist, artist_addr);
+            let i = 0;
+            while (i < vector::length(artist_nfts)) {
+                if (artist_nfts[i] == nft_address) {
+                    vector::remove(artist_nfts, i);
+                    break
+                };
+                i += 1;
+            };
+        };
+        
+        if (smart_table::contains(&registry.nfts_by_genre, nft.genre)) {
+            let genre_nfts = smart_table::borrow_mut(&mut registry.nfts_by_genre, nft.genre);
+            let i = 0;
+            while (i < vector::length(genre_nfts)) {
+                if (genre_nfts[i] == nft_address) {
+                    vector::remove(genre_nfts, i);
+                    break
+                };
+                i += 1;
+            };
+        };
+
+        event::emit(NFTDeleted {
+            nft_address,
+            artist: artist_addr,
+            title,
+        });
+        
+        // Destroy NFT
+        let MusicNFT {
+            artist: _,
+            current_owner: _,
+            title: _,
+            description: _,
+            genre: _,
+            music_art: _,
+            high_quality_ipfs: _,
+            low_quality_ipfs: _,
+            base_price: _,
+            current_price: _,
+            royalty_percentage: _,
+            streaming_count: _,
+            like_count: _,
+            tip_count: _,
+            purchase_count: _,
+            boost_count: _,
+            total_boost_amount: _,
+            collaborators: _,
+            collaborator_roles: _,
+            collaborator_splits: _,
+            status: _,
+            creation_time: _,
+            payment_history: _,
+        } = nft;
+    }
+
+    // ============================================================================
+    // TOKEN PURCHASE
+    // ============================================================================
+
+    /// Purchase VIBE tokens with MOVE (1 MOVE = 1000 VIBE)
+    public entry fun buy_tokens_with_move(
+        buyer: &signer,
+        move_amount: u64,
+    ) acquires TokenBalances, VibetraxToken, Treasury {
+        let buyer_addr = signer::address_of(buyer);
+        
+        assert!(move_amount > 0, EINVALID_PRICE);
+        
+        let payment = coin::withdraw<AptosCoin>(buyer, move_amount);
+        
+        let treasury = &mut Treasury[@vibetrax];
+        let Treasury(balance) = treasury;
+        *balance += move_amount;
+        coin::deposit(@vibetrax, payment);
+        
+        // 1 MOVE (100_000_000 octas) = 1000 tokens
+        let tokens_to_mint = (move_amount * 1000) / 100_000_000;
+        
+        let balances = &mut TokenBalances[@vibetrax];
+        
+        if (!smart_table::contains(&balances.balances, buyer_addr)) {
+            smart_table::add(&mut balances.balances, buyer_addr, 0);
+        };
+        
+        let user_balance = smart_table::borrow_mut(&mut balances.balances, buyer_addr);
+        *user_balance += tokens_to_mint;
+        
+        let token = &mut VibetraxToken[@vibetrax];
+        let VibetraxToken(supply) = token;
+        *supply += tokens_to_mint;
+
+        event::emit(TokensMinted {
+            recipient: buyer_addr,
+            amount: tokens_to_mint,
+        });
+    }
+
+    // ============================================================================
+    // HELPER FUNCTIONS
+    // ============================================================================
+
+    /// Update NFT price from engagement
     public fun update_price_from_engagement(self: &mut MusicNFT) {
         let old_price = self.current_price;
         
@@ -632,140 +917,14 @@ module vibetrax::vibetrax {
         };
     }
 
-    /// Get artist from NFT (receiver-style)
-    public fun get_artist(self: &MusicNFT): address {
-        self.artist
-    }
-
-    /// Get current price (receiver-style)
-    public fun get_current_price(self: &MusicNFT): u64 {
-        self.current_price
-    }
-
-    /// Check if NFT is for sale (receiver-style with pattern matching)
-    public fun is_for_sale(self: &MusicNFT): bool {
-        match (&self.status) {
-            NFTStatus::Available => true,
-            _ => false,
-        }
-    }
-
-    // ============================================================================
-    // SUBSCRIPTION FUNCTIONS
-    // ============================================================================
-
-    /// Purchase subscription with MOVE
-    public entry fun subscribe_with_move(
-        user: &signer,
-        payment_amount: u64,
-    ) acquires Treasury, Subscription {
-        let user_addr = signer::address_of(user);
-        
-        assert!(payment_amount >= SUBSCRIPTION_PRICE_MOVE, EINSUFFICIENT_FUNDS);
-        
-        // Withdraw payment from user
-        let payment = coin::withdraw<AptosCoin>(user, payment_amount);
-        
-        // Send payment to treasury
-        let treasury = &mut Treasury[@vibetrax];
-        let Treasury(balance) = treasury;
-        *balance += payment_amount;
-        coin::deposit(@vibetrax, payment);
-        
-        // Create or update subscription
-        let expiry_time = timestamp::now_seconds() + SUBSCRIPTION_DURATION;
-        
-        if (exists<Subscription>(user_addr)) {
-            let sub = &mut Subscription[user_addr];
-            let Subscription(expiry, is_active) = sub;
-            *expiry = expiry_time;
-            *is_active = true;
-        } else {
-            move_to(user, Subscription(expiry_time, true));
-        };
-
-        event::emit(SubscriptionPurchased {
-            user: user_addr,
-            payment_method: string::utf8(b"MOVE"),
-            amount: payment_amount,
-            expires_at: expiry_time,
-        });
-    }
-
-    /// Purchase subscription with tokens (alternative)
-    public entry fun subscribe_with_tokens(user: &signer) acquires TokenBalances, VibetraxToken, Subscription {
-        let user_addr = signer::address_of(user);
-        
-        let balances = &mut TokenBalances[@vibetrax];
-        
-        // Ensure user exists in table
-        if (!smart_table::contains(&balances.balances, user_addr)) {
-            smart_table::add(&mut balances.balances, user_addr, 0);
-        };
-        
-        let user_balance = smart_table::borrow_mut(&mut balances.balances, user_addr);
-        assert!(*user_balance >= SUBSCRIPTION_PRICE_TOKENS, EINSUFFICIENT_TOKENS);
-        
-        // Burn tokens
-        *user_balance -= SUBSCRIPTION_PRICE_TOKENS;
-        let token = &mut VibetraxToken[@vibetrax];
-        let VibetraxToken(supply) = token;
-        *supply -= SUBSCRIPTION_PRICE_TOKENS; // Remove from supply
-        
-        // Create or update subscription
-        let expiry_time = timestamp::now_seconds() + SUBSCRIPTION_DURATION;
-        
-        if (exists<Subscription>(user_addr)) {
-            let sub = &mut Subscription[user_addr];
-            let Subscription(expiry, is_active) = sub;
-            *expiry = expiry_time;
-            *is_active = true;
-        } else {
-            move_to(user, Subscription(expiry_time, true));
-        };
-
-        event::emit(SubscriptionPurchased {
-            user: user_addr,
-            payment_method: string::utf8(b"TOKEN"),
-            amount: SUBSCRIPTION_PRICE_TOKENS,
-            expires_at: expiry_time,
-        });
-    }
-
-    /// Check if user has premium access (subscription or ownership)
-    public fun has_premium_access(nft_address: address, user: address): bool acquires MusicNFT, Subscription {
-        let nft = &MusicNFT[nft_address];
-        
-        // Owner always has access
-        if (nft.current_owner == user) {
-            return true
-        };
-        
-        // Check subscription
-        if (exists<Subscription>(user)) {
-            let Subscription(expiry, is_active) = &Subscription[user];
-            if (*is_active && *expiry > timestamp::now_seconds()) {
-                return true
-            };
-        };
-        
-        false
-    }
-
-    // ============================================================================
-    // PACKAGE-LEVEL HELPER FUNCTIONS (Move 2.0)
-    // ============================================================================
-
-    /// Mint tokens to user (package visibility)
+    /// Mint tokens to user
     package fun mint_tokens_to_user(user: address, amount: u64) acquires TokenBalances, VibetraxToken {
         let balances = &mut TokenBalances[@vibetrax];
         
-        // Ensure user exists in table
         if (!smart_table::contains(&balances.balances, user)) {
             smart_table::add(&mut balances.balances, user, 0);
         };
         
-        // Add tokens to user
         let balance = smart_table::borrow_mut(&mut balances.balances, user);
         *balance += amount;
         
@@ -780,8 +939,17 @@ module vibetrax::vibetrax {
     }
 
     // ============================================================================
-    // VIEW FUNCTIONS (receiver-style)
+    // VIEW FUNCTIONS
     // ============================================================================
+
+    #[view]
+    public fun get_token_balance(user: address): u64 acquires TokenBalances {
+        let balances = &TokenBalances[@vibetrax];
+        if (smart_table::contains(&balances.balances, user)) {
+            return *smart_table::borrow(&balances.balances, user)
+        };
+        0
+    }
 
     #[view]
     public fun get_nft_details(nft_address: address): (
@@ -789,32 +957,18 @@ module vibetrax::vibetrax {
     ) acquires MusicNFT {
         let nft = &MusicNFT[nft_address];
         (
-            nft.get_artist(),
+            nft.artist,
             nft.current_owner,
             nft.title,
             nft.base_price,
-            nft.get_current_price(),
+            nft.current_price,
             nft.streaming_count,
             nft.like_count,
-            nft.is_for_sale(),
+            match (&nft.status) {
+                NFTStatus::Available => true,
+                _ => false,
+            },
         )
-    }
-
-    #[view]
-    public fun get_token_balance(user: address): u64 acquires TokenBalances, TokenBalance {
-        // Check new system first (TokenBalances table)
-        let balances = &TokenBalances[@vibetrax];
-        if (smart_table::contains(&balances.balances, user)) {
-            return *smart_table::borrow(&balances.balances, user)
-        };
-        
-        // Fallback to old system for backward compatibility
-        if (exists<TokenBalance>(user)) {
-            let TokenBalance(balance) = &TokenBalance[user];
-            return *balance
-        };
-        
-        0
     }
 
     #[view]
@@ -890,82 +1044,10 @@ module vibetrax::vibetrax {
     }
 
     #[view]
-    public fun get_treasury_balance(): u64 acquires Treasury {
-        let Treasury(balance) = &Treasury[@vibetrax];
-        *balance
-    }
-
-    // ============================================================================
-    // BOOST/PROMOTION SYSTEM
-    // ============================================================================
-
-    /// Boost a song to increase visibility
-    public entry fun boost_song(
-        booster: &signer,
-        nft_address: address,
-        amount: u64,
-    ) acquires TokenBalances, VibetraxToken, MusicNFT {
-        let booster_addr = signer::address_of(booster);
-        
-        assert!(amount > 0, EINSUFFICIENT_TOKENS);
-        
-        let balances = &mut TokenBalances[@vibetrax];
-        
-        // Ensure booster exists in table
-        if (!smart_table::contains(&balances.balances, booster_addr)) {
-            smart_table::add(&mut balances.balances, booster_addr, 0);
-        };
-        
-        // Get booster balance
-        let booster_balance = smart_table::borrow_mut(&mut balances.balances, booster_addr);
-        assert!(*booster_balance >= amount, EINSUFFICIENT_TOKENS);
-        
-        // Deduct tokens from booster
-        *booster_balance -= amount;
-        
-        // Burn 50% of boost tokens (deflationary)
-        let burn_amount = amount / 2;
-        let artist_amount = amount - burn_amount;
-        
-        // Reduce total supply
-        let token = &mut VibetraxToken[@vibetrax];
-        let VibetraxToken(supply) = token;
-        *supply -= burn_amount;
-        
-        // Give 50% to artist
-        let nft = &mut MusicNFT[nft_address];
-        let artist = nft.artist;
-        
-        // Ensure artist exists in table
-        if (!smart_table::contains(&balances.balances, artist)) {
-            smart_table::add(&mut balances.balances, artist, 0);
-        };
-        
-        let artist_balance = smart_table::borrow_mut(&mut balances.balances, artist);
-        *artist_balance += artist_amount;
-        
-        // Update NFT boost metrics
-        nft.boost_count += 1;
-        nft.total_boost_amount += amount;
-
-        event::emit(NFTBoosted {
-            nft_address,
-            booster: booster_addr,
-            amount,
-            new_boost_count: nft.boost_count,
-        });
-    }
-
-    // ============================================================================
-    // DISCOVERY FUNCTIONS
-    // ============================================================================
-
-    #[view]
     public fun get_trending_nfts(limit: u64): vector<address> acquires NFTRegistry, MusicNFT {
         let registry = &NFTRegistry[@vibetrax];
         let all_nfts = registry.nft_addresses;
         
-        // Calculate engagement scores - use parallel arrays
         let addresses = vector::empty<address>();
         let scores = vector::empty<u64>();
         let i = 0;
@@ -974,7 +1056,7 @@ module vibetrax::vibetrax {
             let nft_addr = all_nfts[i];
             if (exists<MusicNFT>(nft_addr)) {
                 let nft = &MusicNFT[nft_addr];
-                // Engagement score: streams + (likes * 2) + (boosts * 10) + (purchases * 20)
+                // Score: streams + (likes * 2) + (boosts * 10) + (purchases * 20)
                 let score = nft.streaming_count + 
                            (nft.like_count * 2) + 
                            (nft.total_boost_amount * 10) + 
@@ -985,18 +1067,16 @@ module vibetrax::vibetrax {
             i += 1;
         };
         
-        // Simple bubble sort (descending by score) - sort both arrays in parallel
+        // Bubble sort descending
         let len = vector::length(&scores);
         let i = 0;
         while (i < len) {
             let j = 0;
             while (j < len - i - 1) {
                 if (scores[j] < scores[j + 1]) {
-                    // Swap scores
                     let temp_score = scores[j];
                     scores[j] = scores[j + 1];
                     scores[j + 1] = temp_score;
-                    // Swap addresses
                     let temp_addr = addresses[j];
                     addresses[j] = addresses[j + 1];
                     addresses[j + 1] = temp_addr;
@@ -1006,7 +1086,6 @@ module vibetrax::vibetrax {
             i += 1;
         };
         
-        // Extract top addresses
         let result = vector::empty<address>();
         let i = 0;
         let max = if (limit < len) { limit } else { len };
@@ -1037,18 +1116,16 @@ module vibetrax::vibetrax {
             i += 1;
         };
         
-        // Sort by creation time (descending - newest first)
+        // Sort by time descending
         let len = vector::length(&times);
         let i = 0;
         while (i < len) {
             let j = 0;
             while (j < len - i - 1) {
                 if (times[j] < times[j + 1]) {
-                    // Swap times
                     let temp_time = times[j];
                     times[j] = times[j + 1];
                     times[j + 1] = temp_time;
-                    // Swap addresses
                     let temp_addr = addresses[j];
                     addresses[j] = addresses[j + 1];
                     addresses[j + 1] = temp_addr;
@@ -1088,18 +1165,16 @@ module vibetrax::vibetrax {
             i += 1;
         };
         
-        // Sort by streams (descending)
+        // Sort by streams descending
         let len = vector::length(&streams);
         let i = 0;
         while (i < len) {
             let j = 0;
             while (j < len - i - 1) {
                 if (streams[j] < streams[j + 1]) {
-                    // Swap streams
                     let temp_stream = streams[j];
                     streams[j] = streams[j + 1];
                     streams[j + 1] = temp_stream;
-                    // Swap addresses
                     let temp_addr = addresses[j];
                     addresses[j] = addresses[j + 1];
                     addresses[j + 1] = temp_addr;
@@ -1118,296 +1193,5 @@ module vibetrax::vibetrax {
         };
         
         result
-    }
-
-    // ============================================================================
-    // NFT UPDATE & DELETION
-    // ============================================================================
-
-    /// Update NFT metadata (artist only)
-    public entry fun update_nft_metadata(
-        artist: &signer,
-        nft_address: address,
-        new_title: vector<u8>,
-        new_description: vector<u8>,
-        new_music_art: vector<u8>,
-    ) acquires MusicNFT {
-        let artist_addr = signer::address_of(artist);
-        let nft = &mut MusicNFT[nft_address];
-        
-        assert!(nft.artist == artist_addr, ENOT_AUTHORIZED);
-        
-        let updated_fields = string::utf8(b"");
-        
-        if (vector::length(&new_title) > 0) {
-            nft.title = string::utf8(new_title);
-            string::append(&mut updated_fields, string::utf8(b"title,"));
-        };
-        
-        if (vector::length(&new_description) > 0) {
-            nft.description = string::utf8(new_description);
-            string::append(&mut updated_fields, string::utf8(b"description,"));
-        };
-        
-        if (vector::length(&new_music_art) > 0) {
-            nft.music_art = string::utf8(new_music_art);
-            string::append(&mut updated_fields, string::utf8(b"art,"));
-        };
-
-        event::emit(NFTUpdated {
-            nft_address,
-            artist: artist_addr,
-            updated_fields,
-        });
-    }
-
-    /// Update NFT files (artist only)
-    public entry fun update_nft_files(
-        artist: &signer,
-        nft_address: address,
-        new_high_quality_ipfs: vector<u8>,
-        new_low_quality_ipfs: vector<u8>,
-    ) acquires MusicNFT {
-        let artist_addr = signer::address_of(artist);
-        let nft = &mut MusicNFT[nft_address];
-        
-        assert!(nft.artist == artist_addr, ENOT_AUTHORIZED);
-        
-        if (vector::length(&new_high_quality_ipfs) > 0) {
-            nft.high_quality_ipfs = string::utf8(new_high_quality_ipfs);
-        };
-        
-        if (vector::length(&new_low_quality_ipfs) > 0) {
-            nft.low_quality_ipfs = string::utf8(new_low_quality_ipfs);
-        };
-
-        event::emit(NFTUpdated {
-            nft_address,
-            artist: artist_addr,
-            updated_fields: string::utf8(b"ipfs_files"),
-        });
-    }
-
-    /// Delete NFT (artist only, must be current owner)
-    public entry fun delete_nft(
-        artist: &signer,
-        nft_address: address,
-    ) acquires MusicNFT, NFTRegistry {
-        let artist_addr = signer::address_of(artist);
-        
-        assert!(exists<MusicNFT>(nft_address), ENFT_NOT_FOUND);
-        let nft = move_from<MusicNFT>(nft_address);
-        
-        // Artist must be current owner (unsold)
-        assert!(nft.artist == artist_addr, ENOT_AUTHORIZED);
-        assert!(nft.current_owner == artist_addr, ENOT_AUTHORIZED);
-        
-        let title = nft.title;
-        
-        // Remove from registry
-        let registry = &mut NFTRegistry[@vibetrax];
-        
-        // Remove from all_nfts
-        let i = 0;
-        while (i < vector::length(&registry.nft_addresses)) {
-            if (registry.nft_addresses[i] == nft_address) {
-                vector::remove(&mut registry.nft_addresses, i);
-                break
-            };
-            i += 1;
-        };
-        
-        // Remove from artist's NFTs
-        if (smart_table::contains(&registry.nfts_by_artist, artist_addr)) {
-            let artist_nfts = smart_table::borrow_mut(&mut registry.nfts_by_artist, artist_addr);
-            let i = 0;
-            while (i < vector::length(artist_nfts)) {
-                if (artist_nfts[i] == nft_address) {
-                    vector::remove(artist_nfts, i);
-                    break
-                };
-                i += 1;
-            };
-        };
-        
-        // Remove from genre NFTs
-        if (smart_table::contains(&registry.nfts_by_genre, nft.genre)) {
-            let genre_nfts = smart_table::borrow_mut(&mut registry.nfts_by_genre, nft.genre);
-            let i = 0;
-            while (i < vector::length(genre_nfts)) {
-                if (genre_nfts[i] == nft_address) {
-                    vector::remove(genre_nfts, i);
-                    break
-                };
-                i += 1;
-            };
-        };
-
-        event::emit(NFTDeleted {
-            nft_address,
-            artist: artist_addr,
-            title,
-        });
-        
-        // Destroy NFT
-        let MusicNFT {
-            artist: _,
-            current_owner: _,
-            title: _,
-            description: _,
-            genre: _,
-            music_art: _,
-            high_quality_ipfs: _,
-            low_quality_ipfs: _,
-            base_price: _,
-            current_price: _,
-            royalty_percentage: _,
-            streaming_count: _,
-            like_count: _,
-            tip_count: _,
-            purchase_count: _,
-            boost_count: _,
-            total_boost_amount: _,
-            collaborators: _,
-            collaborator_roles: _,
-            collaborator_splits: _,
-            status: _,
-            creation_time: _,
-            payment_history: _,
-        } = nft;
-    }
-
-    // ============================================================================
-    // TREASURY MANAGEMENT
-    // ============================================================================
-
-    /// Withdraw from treasury (admin only)
-    public entry fun withdraw_from_treasury(
-        admin: &signer,
-        recipient: address,
-        amount: u64,
-    ) acquires Treasury {
-        let admin_addr = signer::address_of(admin);
-        // Simple admin check - in production, use proper access control
-        assert!(admin_addr == @vibetrax, ENOT_AUTHORIZED);
-        
-        let treasury = &mut Treasury[@vibetrax];
-        let Treasury(balance) = treasury;
-        assert!(*balance >= amount, EINSUFFICIENT_FUNDS);
-        
-        *balance -= amount;
-        
-        // Transfer MOVE coins to recipient
-        let withdrawal = coin::withdraw<AptosCoin>(admin, amount);
-        coin::deposit(recipient, withdrawal);
-
-        event::emit(TreasuryWithdrawn {
-            admin: admin_addr,
-            recipient,
-            amount,
-        });
-    }
-
-    // ============================================================================
-    // TOKEN PURCHASE
-    // ============================================================================
-
-    /// DEPRECATED: Initialize user token balance
-    /// This function is kept for backward compatibility but does nothing.
-    /// All token balances are now managed in the global TokenBalances table.
-    public entry fun initialize_token_balance(_user: &signer) {
-        // No-op: TokenBalances table auto-initializes on first use
-    }
-
-    /// Migrate tokens from old TokenBalance resource to new TokenBalances table
-    public entry fun migrate_token_balance(user: &signer) acquires TokenBalance, TokenBalances {
-        let user_addr = signer::address_of(user);
-        
-        // Check if user has old TokenBalance
-        if (!exists<TokenBalance>(user_addr)) {
-            return // Nothing to migrate
-        };
-        
-        // Get old balance
-        let TokenBalance(old_balance) = move_from<TokenBalance>(user_addr);
-        
-        // Add to new system
-        let balances = &mut TokenBalances[@vibetrax];
-        if (!smart_table::contains(&balances.balances, user_addr)) {
-            smart_table::add(&mut balances.balances, user_addr, old_balance);
-        } else {
-            // If already exists in new system, add to existing balance
-            let balance = smart_table::borrow_mut(&mut balances.balances, user_addr);
-            *balance += old_balance;
-        };
-    }
-
-    /// Purchase VIBE tokens with MOVE
-    /// Exchange rate: 1 MOVE = 1000 VIBE tokens
-    public entry fun buy_tokens_with_move(
-        buyer: &signer,
-        move_amount: u64,
-    ) acquires TokenBalances, VibetraxToken, Treasury {
-        let buyer_addr = signer::address_of(buyer);
-        
-        assert!(move_amount > 0, EINVALID_PRICE);
-        
-        // Withdraw MOVE from buyer
-        let payment = coin::withdraw<AptosCoin>(buyer, move_amount);
-        
-        // Add to treasury
-        let treasury = &mut Treasury[@vibetrax];
-        let Treasury(balance) = treasury;
-        *balance += move_amount;
-        coin::deposit(@vibetrax, payment);
-        
-        // Calculate tokens: 1 MOVE (100_000_000 octas) = 1000 tokens
-        let tokens_to_mint = (move_amount * 1000) / 100_000_000;
-        
-        // Add tokens to buyer
-        let balances = &mut TokenBalances[@vibetrax];
-        
-        // Ensure buyer exists in table
-        if (!smart_table::contains(&balances.balances, buyer_addr)) {
-            smart_table::add(&mut balances.balances, buyer_addr, 0);
-        };
-        
-        let user_balance = smart_table::borrow_mut(&mut balances.balances, buyer_addr);
-        *user_balance += tokens_to_mint;
-        
-        // Increase total supply
-        let token = &mut VibetraxToken[@vibetrax];
-        let VibetraxToken(supply) = token;
-        *supply += tokens_to_mint;
-
-        event::emit(TokensMinted {
-            recipient: buyer_addr,
-            amount: tokens_to_mint,
-        });
-    }
-
-    // ============================================================================
-    // ADMIN FUNCTIONS
-    // ============================================================================
-
-    public entry fun toggle_for_sale(owner: &signer, nft_address: address) acquires MusicNFT {
-        let owner_addr = signer::address_of(owner);
-        let nft = &mut MusicNFT[nft_address];
-        assert!(nft.current_owner == owner_addr, ENOT_AUTHORIZED);
-        
-        // Toggle status using pattern matching
-        nft.status = match (&nft.status) {
-            NFTStatus::Available => NFTStatus::Delisted,
-            _ => NFTStatus::Available,
-        };
-    }
-
-    public entry fun update_base_price(owner: &signer, nft_address: address, new_price: u64) acquires MusicNFT {
-        let owner_addr = signer::address_of(owner);
-        let nft = &mut MusicNFT[nft_address];
-        assert!(nft.current_owner == owner_addr, ENOT_AUTHORIZED);
-        assert!(new_price > 0, EINVALID_PRICE);
-        nft.base_price = new_price;
-        nft.update_price_from_engagement();
     }
 }

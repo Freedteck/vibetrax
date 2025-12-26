@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Header from "../../components/header/Header";
 import Sidebar from "../../components/sidebar/Sidebar";
@@ -6,18 +5,11 @@ import NowPlayingBar from "../../components/now-playing-bar/NowPlayingBar";
 import styles from "./Root.module.css";
 import { Toaster } from "react-hot-toast";
 import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
-import { useMovementWallet } from "../../hooks/useMovementWallet";
-import { useSubscriptionStatus } from "../../hooks/useSubscriptionStatus";
-import { aptos } from "../../config/movement";
-import { MOVEMENT_CONTRACT_ADDRESS } from "../../config/constants";
-import { fetchAccountResourceWithFallback } from "../../utils/address";
+import { useAppContext } from "../../hooks/useAppContext";
 
 const Root = () => {
-  const { walletAddress } = useMovementWallet();
-  const { isSubscribed, isLoading: isLoadingSubscription } =
-    useSubscriptionStatus();
-  const [currentTrack, setCurrentTrack] = useState(null);
-  const [playlist, setPlaylist] = useState([]);
+  const { isSubscribed, currentTrack, playlist, setCurrentTrack, setPlaylist } =
+    useAppContext();
 
   // Create subscriberData object for backward compatibility
   const subscriberData = isSubscribed ? { is_active: true } : null;
@@ -35,7 +27,37 @@ const Root = () => {
   return (
     <div className={styles.root}>
       <ScrollToTop />
-      <Toaster position="top-center" />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: "#1a1a1a",
+            color: "#fff",
+            border: "1px solid #333",
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: "#10b981",
+              secondary: "#fff",
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: "#ef4444",
+              secondary: "#fff",
+            },
+          },
+          loading: {
+            iconTheme: {
+              primary: "#6366f1",
+              secondary: "#fff",
+            },
+          },
+        }}
+      />
 
       <Sidebar subscriberData={subscriberData} />
       <Header />

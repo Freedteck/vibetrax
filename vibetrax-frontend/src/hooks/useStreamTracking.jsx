@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../config/supabase";
 import { useMovementWallet } from "./useMovementWallet";
 
@@ -12,86 +12,98 @@ export const useStreamTracking = () => {
   });
 
   // Track a stream (minimum 30 seconds)
-  const trackStream = async (nftAddress, duration) => {
-    if (!walletAddress || duration < 30) return;
+  const trackStream = useCallback(
+    async (nftAddress, duration) => {
+      if (!walletAddress || duration < 30) return;
 
-    try {
-      const { error } = await supabase.from("streams").insert({
-        user_address: walletAddress,
-        nft_address: nftAddress,
-        stream_duration: duration,
-        claimed: false,
-      });
+      try {
+        const { error } = await supabase.from("streams").insert({
+          user_address: walletAddress,
+          nft_address: nftAddress,
+          stream_duration: duration,
+          claimed: false,
+        });
 
-      if (error) console.error("Error tracking stream:", error);
-    } catch (err) {
-      console.error("Error tracking stream:", err);
-    }
-  };
+        if (error) console.error("Error tracking stream:", error);
+      } catch (err) {
+        console.error("Error tracking stream:", err);
+      }
+    },
+    [walletAddress]
+  );
 
   // Track a like
-  const trackLike = async (nftAddress) => {
-    if (!walletAddress) return;
+  const trackLike = useCallback(
+    async (nftAddress) => {
+      if (!walletAddress) return;
 
-    try {
-      const { error } = await supabase.from("likes").insert({
-        user_address: walletAddress,
-        nft_address: nftAddress,
-        claimed: false,
-      });
+      try {
+        const { error } = await supabase.from("likes").insert({
+          user_address: walletAddress,
+          nft_address: nftAddress,
+          claimed: false,
+        });
 
-      if (error && error.code !== "23505") {
-        // Ignore unique constraint violation
-        console.error("Error tracking like:", error);
+        if (error && error.code !== "23505") {
+          // Ignore unique constraint violation
+          console.error("Error tracking like:", error);
+        }
+      } catch (err) {
+        console.error("Error tracking like:", err);
       }
-    } catch (err) {
-      console.error("Error tracking like:", err);
-    }
-  };
+    },
+    [walletAddress]
+  );
 
   // Remove a like
-  const removeLike = async (nftAddress) => {
-    if (!walletAddress) return;
+  const removeLike = useCallback(
+    async (nftAddress) => {
+      if (!walletAddress) return;
 
-    try {
-      const { error } = await supabase
-        .from("likes")
-        .delete()
-        .eq("user_address", walletAddress)
-        .eq("nft_address", nftAddress);
+      try {
+        const { error } = await supabase
+          .from("likes")
+          .delete()
+          .eq("user_address", walletAddress)
+          .eq("nft_address", nftAddress);
 
-      if (error) console.error("Error removing like:", error);
-    } catch (err) {
-      console.error("Error removing like:", err);
-    }
-  };
+        if (error) console.error("Error removing like:", error);
+      } catch (err) {
+        console.error("Error removing like:", err);
+      }
+    },
+    [walletAddress]
+  );
 
   // Check if user has liked a track
-  const hasLiked = async (nftAddress) => {
-    if (!walletAddress) return false;
+  const hasLiked = useCallback(
+    async (nftAddress) => {
+      if (!walletAddress) return false;
 
-    try {
-      const { data, error } = await supabase
-        .from("likes")
-        .select("id")
-        .eq("user_address", walletAddress)
-        .eq("nft_address", nftAddress)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from("likes")
+          .select("id")
+          .eq("user_address", walletAddress)
+          .eq("nft_address", nftAddress)
+          .single();
 
-      if (error && error.code !== "PGRST116") {
-        // Ignore "no rows" error
-        console.error("Error checking like:", error);
+        if (error && error.code !== "PGRST116") {
+          // Ignore "no rows" error
+          console.error("Error checking like:", error);
+        }
+
+        return !!data;
+      } catch (err) {
+        console.error("Error checking like:", err);
+        return false;
       }
-
-      return !!data;
-    } catch (err) {
-      console.error("Error checking like:", err);
-      return false;
-    }
-  };
+    },
+    [walletAddress]
+  );
 
   // Get unclaimed rewards
-  const fetchUnclaimedRewards = async () => {
+  const fetchUnclaimedRewards = useCallback(async () => {
     if (!walletAddress) return;
 
     try {
@@ -133,46 +145,49 @@ export const useStreamTracking = () => {
     } catch (err) {
       console.error("Error fetching unclaimed rewards:", err);
     }
-  };
+  }, [walletAddress]);
 
   // Mark rewards as claimed after blockchain transaction
-  const markRewardsClaimed = async (transactionHash) => {
-    if (!walletAddress) return;
+  const markRewardsClaimed = useCallback(
+    async (transactionHash) => {
+      if (!walletAddress) return;
 
-    try {
-      // Mark streams as claimed
-      await supabase
-        .from("streams")
-        .update({ claimed: true })
-        .eq("user_address", walletAddress)
-        .eq("claimed", false);
+      try {
+        // Mark streams as claimed
+        await supabase
+          .from("streams")
+          .update({ claimed: true })
+          .eq("user_address", walletAddress)
+          .eq("claimed", false);
 
-      // Mark likes as claimed
-      await supabase
-        .from("likes")
-        .update({ claimed: true })
-        .eq("user_address", walletAddress)
-        .eq("claimed", false);
+        // Mark likes as claimed
+        await supabase
+          .from("likes")
+          .update({ claimed: true })
+          .eq("user_address", walletAddress)
+          .eq("claimed", false);
 
-      // Record the claim
-      await supabase.from("reward_claims").insert({
-        user_address: walletAddress,
-        streams_count: unclaimedRewards.streams,
-        likes_count: unclaimedRewards.likes,
-        tokens_earned: unclaimedRewards.tokensEarned,
-        transaction_hash: transactionHash,
-        status: "completed",
-      });
+        // Record the claim
+        await supabase.from("reward_claims").insert({
+          user_address: walletAddress,
+          streams_count: unclaimedRewards.streams,
+          likes_count: unclaimedRewards.likes,
+          tokens_earned: unclaimedRewards.tokensEarned,
+          transaction_hash: transactionHash,
+          status: "completed",
+        });
 
-      // Refresh unclaimed rewards
-      await fetchUnclaimedRewards();
-    } catch (err) {
-      console.error("Error marking rewards as claimed:", err);
-    }
-  };
+        // Refresh unclaimed rewards
+        await fetchUnclaimedRewards();
+      } catch (err) {
+        console.error("Error marking rewards as claimed:", err);
+      }
+    },
+    [walletAddress, unclaimedRewards, fetchUnclaimedRewards]
+  );
 
   // Get NFT stats
-  const getNftStats = async (nftAddress) => {
+  const getNftStats = useCallback(async (nftAddress) => {
     try {
       // Get total streams
       const { count: streamsCount } = await supabase
@@ -205,14 +220,14 @@ export const useStreamTracking = () => {
       console.error("Error getting NFT stats:", err);
       return { totalStreams: 0, totalLikes: 0, uniqueListeners: 0 };
     }
-  };
+  }, []);
 
   // Fetch unclaimed rewards on wallet change
   useEffect(() => {
     if (walletAddress) {
       fetchUnclaimedRewards();
     }
-  }, [walletAddress]);
+  }, [walletAddress, fetchUnclaimedRewards]);
 
   return {
     trackStream,

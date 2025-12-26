@@ -69,7 +69,7 @@ const SongDetails = ({ songData, isPremium, handleVote }) => {
             <span>{songData.streaming_count || 0} plays</span>
           </div>
           <div
-            title={"Upvote Music"}
+            title={"Like this track"}
             className={`${styles.metaItem} ${styles.vote}`}
             onClick={handleVote}
           >

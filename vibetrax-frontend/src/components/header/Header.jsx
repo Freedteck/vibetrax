@@ -12,7 +12,7 @@ import {
 } from "react-icons/fi";
 import Jazzicon from "react-jazzicon";
 import { useMovementWallet } from "../../hooks/useMovementWallet";
-import { useTokenBalance } from "../../hooks/useTokenBalance";
+import { useAppContext } from "../../hooks/useAppContext";
 import { usePrivy } from "@privy-io/react-auth";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import WalletModal from "../wallet/WalletModal";
@@ -21,7 +21,7 @@ import Button from "../button/Button";
 
 const Header = () => {
   const { walletAddress, disconnectWallet } = useMovementWallet();
-  const { tokenBalance } = useTokenBalance();
+  const { tokenBalance } = useAppContext();
   const { authenticated, logout: privyLogout } = usePrivy();
   const { connected, disconnect: nativeDisconnect } = useWallet();
   const [showWalletModal, setShowWalletModal] = useState(false);

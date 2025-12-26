@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./BuyTokensModal.module.css";
 import Button from "../../components/button/Button";
 import { useMusicActions } from "../../hooks/useMusicActions";
-import { useTokenBalance } from "../../hooks/useTokenBalance";
+import { useAppContext } from "../../hooks/useAppContext";
 import {
   FiX,
   FiZap,
@@ -19,7 +19,7 @@ const BuyTokensModal = ({ isOpen, onClose }) => {
   const [moveAmount, setMoveAmount] = useState("");
   const [buyStatus, setBuyStatus] = useState("idle");
   const { buyTokens } = useMusicActions();
-  const { tokenBalance } = useTokenBalance();
+  const { tokenBalance } = useAppContext();
 
   const presetAmounts = [1, 5, 10, 50, 100];
   const EXCHANGE_RATE = 1000;

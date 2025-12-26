@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { aptos, CONTRACT_ADDRESS } from "../config/movement";
 import { useMovementWallet } from "./useMovementWallet";
 
@@ -7,7 +7,7 @@ export const useRewardsClaim = () => {
   const [canClaim, setCanClaim] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const checkClaimEligibility = async () => {
+  const checkClaimEligibility = useCallback(async () => {
     if (!walletAddress) {
       setCanClaim(false);
       return;
@@ -34,11 +34,11 @@ export const useRewardsClaim = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [walletAddress]);
 
   useEffect(() => {
     checkClaimEligibility();
-  }, [walletAddress]);
+  }, [walletAddress, checkClaimEligibility]);
 
   return { canClaim, isLoading, recheckEligibility: checkClaimEligibility };
 };

@@ -29,13 +29,8 @@ const MusicPlayer = () => {
   const { subscriberData, handlePlayTrack } = useOutletContext();
   const { walletAddress } = useMovementWallet();
   const navigate = useNavigate();
-  const { voteForTrack, purchaseTrack, toggleTrackForSale, deleteTrack } =
-    useMusicActions();
-  const {
-    trackLike,
-    removeLike,
-    hasLiked: checkHasLiked,
-  } = useStreamTracking();
+  const { purchaseTrack, toggleTrackForSale, deleteTrack } = useMusicActions();
+  const { trackLike, hasLiked: checkHasLiked } = useStreamTracking();
   const [hasLiked, setHasLiked] = useState(false);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -225,8 +220,8 @@ const MusicPlayer = () => {
                 hasVoted || hasLiked ? styles.voted : ""
               }`}
               onClick={async () => {
-                // Track on blockchain
-                await voteForTrack(id, votersData);
+                // // Track on blockchain
+                // await voteForTrack(id, votersData);
                 // Track in Supabase
                 if (!hasLiked) {
                   await trackLike(id);
@@ -236,7 +231,7 @@ const MusicPlayer = () => {
               disabled={hasVoted || hasLiked}
             >
               <FiHeart />
-              {hasVoted || hasLiked ? "Voted" : "Vote"}
+              {hasVoted || hasLiked ? "Liked" : "Like"}
             </button>
 
             {forSale && !isOwner && (
@@ -284,7 +279,7 @@ const MusicPlayer = () => {
                   <div className={styles.manageMenu}>
                     <button
                       className={styles.manageItem}
-                      onClick={() => navigate(`/upload-music/${id}`)}
+                      onClick={() => navigate(`/upload/${id}`)}
                     >
                       Edit Track
                     </button>

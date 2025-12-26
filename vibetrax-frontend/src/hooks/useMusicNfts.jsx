@@ -5,6 +5,7 @@ export const useMusicNfts = () => {
   const [musicNfts, setMusicNfts] = useState([]);
   const [isPending, setIsPending] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
 
   useEffect(() => {
     const fetchNFTs = async () => {
@@ -86,7 +87,18 @@ export const useMusicNfts = () => {
     };
 
     fetchNFTs();
-  }, []);
+
+    // Listen for refetch events from context
+    const handleRefetch = () => {
+      setRefetchTrigger((prev) => prev + 1);
+    };
+
+    window.addEventListener("refetchNfts", handleRefetch);
+
+    return () => {
+      window.removeEventListener("refetchNfts", handleRefetch);
+    };
+  }, [refetchTrigger]);
 
   return {
     musicNfts,

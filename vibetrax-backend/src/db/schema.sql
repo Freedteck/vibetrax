@@ -52,3 +52,9 @@ CREATE INDEX IF NOT EXISTS idx_claims_status ON reward_claims(status);
 
 -- Note: RLS is disabled since we're using service role key for all operations
 -- This allows the backend to read/write freely without auth complexity
+
+/**
+ * IMPORTANT: We do NOT store music NFT metadata in Supabase
+ * NFT data is fetched directly from the blockchain using the contract's NFTRegistry
+ * Only engagement data (streams, likes, claims) is stored in Supabase
+ */

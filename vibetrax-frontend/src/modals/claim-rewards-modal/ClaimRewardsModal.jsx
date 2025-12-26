@@ -1,19 +1,19 @@
 import { useState } from "react";
 import styles from "./ClaimRewardsModal.module.css";
 import Button from "../../components/button/Button";
-import { useStreamTracking } from "../../hooks/useStreamTracking";
+import { useAppContext } from "../../hooks/useAppContext";
 import { useMusicActions } from "../../hooks/useMusicActions";
-import { useRewardsClaim } from "../../hooks/useRewardsClaim";
+import { useStreamTracking } from "../../hooks/useStreamTracking";
 
 const ClaimRewardsModal = ({ isOpen, onClose }) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const { unclaimedRewards, markRewardsClaimed } = useStreamTracking();
-  const { claimStreamingRewards } = useMusicActions();
   const {
-    canClaim,
-    isLoading: isCheckingEligibility,
-    recheckEligibility,
-  } = useRewardsClaim();
+    unclaimedRewards,
+    canClaimRewards: canClaim,
+    isLoadingRewards: isCheckingEligibility,
+  } = useAppContext();
+  const { markRewardsClaimed } = useStreamTracking();
+  const { claimStreamingRewards } = useMusicActions();
 
   const handleClaim = async () => {
     if (unclaimedRewards.tokensEarned === 0 || !canClaim) return;
@@ -30,8 +30,6 @@ const ClaimRewardsModal = ({ isOpen, onClose }) => {
       if (txHash) {
         // Mark as claimed in Supabase
         await markRewardsClaimed(txHash);
-        // Recheck eligibility after successful claim
-        await recheckEligibility();
         onClose();
       }
     } catch (error) {

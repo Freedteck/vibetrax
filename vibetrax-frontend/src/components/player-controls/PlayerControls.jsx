@@ -1,13 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { useOutletContext } from "react-router-dom";
 import styles from "./PlayerControls.module.css";
-import { useMovementWallet } from "../../hooks/useMovementWallet";
 import { useStreamTracking } from "../../hooks/useStreamTracking";
 import { useHighQualityLink } from "../../hooks/useHighQualityLink";
 
 const PlayerControls = ({ songData, onDurationLoaded, onPlayStatusChange }) => {
-  const { walletAddress } = useMovementWallet();
-  const subscriberData = useOutletContext();
   const audioRef = useRef(null);
   const { trackStream } = useStreamTracking();
   const [playStartTime, setPlayStartTime] = useState(null);
@@ -15,26 +11,6 @@ const PlayerControls = ({ songData, onDurationLoaded, onPlayStatusChange }) => {
 
   // Get high-quality link from contract if user has access
   const { highQualityLink } = useHighQualityLink(songData?.id?.id);
-
-  // Normalize addresses for comparison
-  const normalizeAddress = (addr) => {
-    if (!addr) return "";
-    let normalized = addr.toLowerCase();
-    if (!normalized.startsWith("0x")) normalized = "0x" + normalized;
-    if (normalized.length < 66) {
-      normalized = "0x" + normalized.slice(2).padStart(64, "0");
-    }
-    return normalized;
-  };
-
-  const isPremium =
-    normalizeAddress(walletAddress) === normalizeAddress(songData?.artist) ||
-    normalizeAddress(walletAddress) ===
-      normalizeAddress(songData?.current_owner) ||
-    songData?.collaborators
-      ?.map((c) => normalizeAddress(c))
-      ?.includes(normalizeAddress(walletAddress)) ||
-    (subscriberData?.subscriberData && subscriberData.subscriberData.is_active);
 
   useEffect(() => {
     const audio = audioRef.current;

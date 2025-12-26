@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./BoostSongModal.module.css";
 import Button from "../../components/button/Button";
 import { useMusicActions } from "../../hooks/useMusicActions";
-import { useTokenBalance } from "../../hooks/useTokenBalance";
+import { useAppContext } from "../../hooks/useAppContext";
 import BuyTokensModal from "../buy-tokens-modal/BuyTokensModal";
 import {
   FiX,
@@ -26,7 +26,7 @@ const BoostSongModal = ({
   const [boostStatus, setBoostStatus] = useState("idle");
   const [showBuyTokens, setShowBuyTokens] = useState(false);
   const { boostSong } = useMusicActions();
-  const { tokenBalance } = useTokenBalance();
+  const { tokenBalance } = useAppContext();
 
   const presetAmounts = [10, 50, 100, 250, 500];
 

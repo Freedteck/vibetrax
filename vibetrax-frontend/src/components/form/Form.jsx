@@ -228,24 +228,25 @@ const Form = ({
     pinataGateway: import.meta.env.VITE_PINATA_GATEWAY,
   });
 
-  const uploadMusicImageFile = async (e) => {
+  const uploadMusicImageFile = async (e, toastId) => {
     e.preventDefault();
     try {
+      toast.loading("Uploading image...", { id: toastId });
       const ImageUpload = await pinata.upload.public.file(imageFile);
       const imageCid = ImageUpload.cid;
 
+      toast.loading("Uploading high quality audio...", { id: toastId });
       const highQualityUpload = await pinata.upload.public.file(
         highQualityFile
       );
       const highQualityCid = highQualityUpload.cid;
 
+      toast.loading("Uploading standard quality audio...", { id: toastId });
       const lowQualityUpload = await pinata.upload.public.file(lowQualityFile);
       const lowQualityCid = lowQualityUpload.cid;
 
       console.log("files uploaded successfully");
-      toast.success("files uploaded successfully, creating transaction", {
-        duration: 5000,
-      });
+      toast.loading("Creating transaction...", { id: toastId });
 
       return {
         imageCid: imageCid,
@@ -254,9 +255,8 @@ const Form = ({
       };
     } catch (e) {
       console.error(e);
-      toast.error("failed to upload files", {
-        duration: 5000,
-      });
+      toast.error("Failed to upload files", { id: toastId });
+      return null;
     }
   };
 
@@ -271,9 +271,9 @@ const Form = ({
       return;
     }
 
-    const toastId = toast.loading("Uploading...");
+    const toastId = toast.loading("Preparing upload...");
 
-    const cIds = await uploadMusicImageFile(e);
+    const cIds = await uploadMusicImageFile(e, toastId);
     // const blobId = await uploadMusicImageFile(e);
 
     // if (!blobId) {
@@ -320,9 +320,9 @@ const Form = ({
       return;
     }
 
-    const toastId = toast.loading("Updating...");
+    const toastId = toast.loading("Preparing update...");
 
-    const cIds = await uploadMusicImageFile(e);
+    const cIds = await uploadMusicImageFile(e, toastId);
     // const blobId = await uploadMusicImageFile(e);
     // if (!blobId) {
     //   toast.dismiss(toastId);

@@ -1,5 +1,5 @@
 import { useMusicActions } from "../../hooks/useMusicActions";
-import { useTokenBalance } from "../../hooks/useTokenBalance";
+import { useAppContext } from "../../hooks/useAppContext";
 import React, { useState, useEffect } from "react";
 import styles from "./SubscribeModal.module.css";
 import Button from "../../components/button/Button";
@@ -21,7 +21,7 @@ const SubscribeModal = ({ isOpen, onClose }) => {
   const [subscriptionStatus, setSubscriptionStatus] = useState("idle");
   const [paymentMethod, setPaymentMethod] = useState("move"); // 'move' or 'token'
   const { subscribe, subscribeWithTokens } = useMusicActions();
-  const { tokenBalance } = useTokenBalance();
+  const { tokenBalance } = useAppContext();
 
   useEffect(() => {
     const handleEscape = (e) => {

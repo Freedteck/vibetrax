@@ -1,4 +1,4 @@
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, Link } from "react-router-dom";
 import MusicCard from "../../components/cards/music-card/MusicCard";
 import { useMusicNfts } from "../../hooks/useMusicNfts";
 import { LoadingState } from "../../components/state/LoadingState";
@@ -43,7 +43,7 @@ const Home = () => {
     return isPremium ? "Premium" : "Standard";
   };
 
-  if (isPending) return <LoadingState />;
+  if (isPending) return <LoadingState variant="cards" message="Loading featured tracks..." />;
   if (isError) return <ErrorState />;
   if (!musicNfts || musicNfts.length === 0) return <EmptyState />;
 
@@ -93,9 +93,9 @@ const Home = () => {
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Trending Now</h2>
-            <a href="/discover" className={styles.seeAll}>
+            <Link to="/discover" className={styles.seeAll}>
               See all
-            </a>
+            </Link>
           </div>
           <div className={styles.grid}>
             {trendingTracks.map((track) => (
@@ -115,9 +115,9 @@ const Home = () => {
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Recently Added</h2>
-            <a href="/discover" className={styles.seeAll}>
+            <Link to="/discover" className={styles.seeAll}>
               See all
-            </a>
+            </Link>
           </div>
           <div className={styles.grid}>
             {recentTracks.map((track) => (
@@ -137,9 +137,9 @@ const Home = () => {
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Popular Albums</h2>
-            <a href="/discover?filter=albums" className={styles.seeAll}>
+            <Link to="/discover?filter=albums" className={styles.seeAll}>
               See all
-            </a>
+            </Link>
           </div>
           <div className={styles.grid}>
             {albums.map((track) => (
@@ -159,15 +159,15 @@ const Home = () => {
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Popular Artists</h2>
-            <a href="/discover" className={styles.seeAll}>
+            <Link to="/discover" className={styles.seeAll}>
               See all
-            </a>
+            </Link>
           </div>
           <div className={styles.artistGrid}>
             {popularArtists.map((artist) => (
-              <a
+              <Link
                 key={artist.address}
-                href={`/profile/${artist.address}`}
+                to={`/profile/${artist.address}`}
                 className={styles.artistCard}
               >
                 <div className={styles.artistAvatar}>
@@ -181,7 +181,7 @@ const Home = () => {
                 <p className={styles.artistMeta}>
                   {artist.tracks.length} tracks • {artist.totalVotes} votes
                 </p>
-              </a>
+              </Link>
             ))}
           </div>
         </section>

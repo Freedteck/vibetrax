@@ -190,7 +190,7 @@ const MusicPlayer = () => {
     setShowManageMenu(false);
   };
 
-  if (isPending) return <LoadingState />;
+  if (isPending) return <LoadingState variant="player" message="Loading track..." />;
   if (isError || !songData) return <ErrorState />;
 
   const track = songData;

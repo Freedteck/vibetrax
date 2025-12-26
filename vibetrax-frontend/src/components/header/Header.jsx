@@ -10,6 +10,7 @@ import {
   FiZap,
   FiStar,
   FiShoppingBag,
+  FiGift,
 } from "react-icons/fi";
 import Jazzicon from "react-jazzicon";
 import { useMovementWallet } from "../../hooks/useMovementWallet";
@@ -18,15 +19,17 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import WalletModal from "../wallet/WalletModal";
 import BuyTokensModal from "../../modals/buy-tokens-modal/BuyTokensModal";
+import ClaimRewardsModal from "../../modals/claim-rewards-modal/ClaimRewardsModal";
 import Button from "../button/Button";
 
 const Header = () => {
   const { walletAddress, disconnectWallet } = useMovementWallet();
-  const { tokenBalance } = useAppContext();
+  const { tokenBalance, unclaimedRewards, canClaimRewards } = useAppContext();
   const { authenticated, logout: privyLogout } = usePrivy();
   const { connected, disconnect: nativeDisconnect } = useWallet();
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showBuyTokensModal, setShowBuyTokensModal] = useState(false);
+  const [showClaimModal, setShowClaimModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -183,6 +186,20 @@ const Header = () => {
                   <FiShoppingBag />
                   <span>Buy VIBE Tokens</span>
                 </div>
+                {canClaimRewards && unclaimedRewards.tokensEarned > 0 && (
+                  <div
+                    className={`${styles.dropdownItem} ${styles.claimRewardsItem}`}
+                    onClick={() => {
+                      setShowClaimModal(true);
+                      setShowDropdown(false);
+                    }}
+                  >
+                    <FiGift />
+                    <span>
+                      Claim {unclaimedRewards.tokensEarned} VIBE Rewards
+                    </span>
+                  </div>
+                )}
                 <div className={styles.dropdownDivider}></div>
                 <div
                   className={styles.dropdownItem}
@@ -215,6 +232,13 @@ const Header = () => {
         <BuyTokensModal
           isOpen={showBuyTokensModal}
           onClose={() => setShowBuyTokensModal(false)}
+        />,
+        document.body
+      )}
+      {createPortal(
+        <ClaimRewardsModal
+          isOpen={showClaimModal}
+          onClose={() => setShowClaimModal(false)}
         />,
         document.body
       )}

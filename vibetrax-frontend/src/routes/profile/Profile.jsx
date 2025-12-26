@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useOutletContext } from "react-router-dom";
-import { FiPlus, FiCopy, FiMusic, FiTrendingUp } from "react-icons/fi";
+import { FiPlus, FiCopy, FiMusic, FiTrendingUp, FiGift } from "react-icons/fi";
 import Button from "../../components/button/Button";
 import MusicCard from "../../components/cards/music-card/MusicCard";
+import ClaimRewardsModal from "../../modals/claim-rewards-modal/ClaimRewardsModal";
 import styles from "./Profile.module.css";
 import { useMusicNfts } from "../../hooks/useMusicNfts";
 import { LoadingState } from "../../components/state/LoadingState";
@@ -12,15 +13,18 @@ import { EmptyState } from "../../components/state/EmptyState";
 import Jazzicon from "react-jazzicon";
 import toast from "react-hot-toast";
 import { useMovementWallet } from "../../hooks/useMovementWallet";
+import { useAppContext } from "../../hooks/useAppContext";
 import { aptos } from "../../config/movement";
 
 const Profile = () => {
   const [trackType, setTrackType] = useState("uploaded");
   const [userWalletBalance, setUserWalletBalance] = useState(null);
   const [balancePending, setBalancePending] = useState(true);
+  const [showClaimModal, setShowClaimModal] = useState(false);;
   const { address } = useParams();
   const { walletAddress } = useMovementWallet();
   const { subscriberData, handlePlayTrack } = useOutletContext();
+  const { unclaimedRewards, canClaimRewards } = useAppContext();
   const { musicNfts, isPending, isError } = useMusicNfts();
   const navigate = useNavigate();
 
@@ -154,6 +158,26 @@ const Profile = () => {
                     <span className={styles.statLabel}>MOVE Balance</span>
                   </div>
                 )}
+              {isOwnProfile &&
+                canClaimRewards &&
+                unclaimedRewards.tokensEarned > 0 && (
+                  <div
+                    className={styles.claimStat}
+                    onClick={() => setShowClaimModal(true)}
+                  >
+                    <div className={styles.claimIconWrapper}>
+                      <FiGift />
+                    </div>
+                    <div className={styles.claimContent}>
+                      <span className={styles.claimValue}>
+                        {unclaimedRewards.tokensEarned}
+                      </span>
+                      <span className={styles.claimLabel}>
+                        Click to Claim
+                      </span>
+                    </div>
+                  </div>
+                )}
             </div>
 
             {isOwnProfile && (
@@ -226,6 +250,11 @@ const Profile = () => {
           )}
         </div>
       </section>
+
+      <ClaimRewardsModal
+        isOpen={showClaimModal}
+        onClose={() => setShowClaimModal(false)}
+      />
     </main>
   );
 };

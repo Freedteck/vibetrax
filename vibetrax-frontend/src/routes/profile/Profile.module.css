@@ -120,6 +120,65 @@
   font-size: 20px;
 }
 
+.claimStat {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.1), rgba(23, 163, 74, 0.05));
+  border: 1px solid rgba(29, 185, 84, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.2s ease;
+  min-width: 160px;
+}
+
+.claimStat:hover {
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.15), rgba(23, 163, 74, 0.1));
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(29, 185, 84, 0.2);
+}
+
+.claimIconWrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(29, 185, 84, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  font-size: 20px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.claimStat:hover .claimIconWrapper {
+  background: var(--color-primary);
+  color: white;
+}
+
+.claimContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.claimValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.claimLabel {
+  font-size: 12px;
+  color: var(--color-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 /* Music Section */
 .musicSection {
   padding: 32px;

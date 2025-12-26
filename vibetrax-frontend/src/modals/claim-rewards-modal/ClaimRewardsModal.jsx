@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { FiX, FiGift } from "react-icons/fi";
 import styles from "./ClaimRewardsModal.module.css";
-import Button from "../../components/button/Button";
 import { useAppContext } from "../../hooks/useAppContext";
 import { useMusicActions } from "../../hooks/useMusicActions";
 import { useStreamTracking } from "../../hooks/useStreamTracking";
@@ -97,10 +97,11 @@ const ClaimRewardsModal = ({ isOpen, onClose }) => {
         </div>
 
         <div className={styles.modalFooter}>
-          <Button variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
+          <button className={styles.cancelBtn} onClick={onClose}>
+            <FiX />
+          </button>
+          <button
+            className={styles.claimBtn}
             onClick={handleClaim}
             disabled={
               unclaimedRewards.tokensEarned === 0 ||
@@ -109,14 +110,8 @@ const ClaimRewardsModal = ({ isOpen, onClose }) => {
               isCheckingEligibility
             }
           >
-            {isProcessing
-              ? "Claiming..."
-              : isCheckingEligibility
-              ? "Checking..."
-              : !canClaim
-              ? "Cooldown Active"
-              : "Claim Rewards"}
-          </Button>
+            <FiGift />
+          </button>
         </div>
       </div>
     </div>

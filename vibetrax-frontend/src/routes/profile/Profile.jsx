@@ -20,7 +20,7 @@ const Profile = () => {
   const [trackType, setTrackType] = useState("uploaded");
   const [userWalletBalance, setUserWalletBalance] = useState(null);
   const [balancePending, setBalancePending] = useState(true);
-  const [showClaimModal, setShowClaimModal] = useState(false);;
+  const [showClaimModal, setShowClaimModal] = useState(false);
   const { address } = useParams();
   const { walletAddress } = useMovementWallet();
   const { subscriberData, handlePlayTrack } = useOutletContext();
@@ -172,9 +172,7 @@ const Profile = () => {
                       <span className={styles.claimValue}>
                         {unclaimedRewards.tokensEarned}
                       </span>
-                      <span className={styles.claimLabel}>
-                        Click to Claim
-                      </span>
+                      <span className={styles.claimLabel}>Click to Claim</span>
                     </div>
                   </div>
                 )}

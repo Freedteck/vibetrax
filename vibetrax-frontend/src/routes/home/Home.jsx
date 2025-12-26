@@ -43,7 +43,10 @@ const Home = () => {
     return isPremium ? "Premium" : "Standard";
   };
 
-  if (isPending) return <LoadingState variant="cards" message="Loading featured tracks..." />;
+  if (isPending)
+    return (
+      <LoadingState variant="cards" message="Loading featured tracks..." />
+    );
   if (isError) return <ErrorState />;
   if (!musicNfts || musicNfts.length === 0) return <EmptyState />;
 

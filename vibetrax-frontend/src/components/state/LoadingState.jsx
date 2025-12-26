@@ -1,8 +1,8 @@
 import styles from "./StateStyles.module.css";
 
-export const LoadingState = ({ 
+export const LoadingState = ({
   message = "Loading...",
-  variant = "default" // default, cards, player, minimal
+  variant = "default", // default, cards, player, minimal
 }) => {
   if (variant === "cards") {
     return (

@@ -114,7 +114,8 @@ const Profile = () => {
     return isPremium ? "Premium" : "Standard";
   };
 
-  if (isPending) return <LoadingState variant="cards" message="Loading profile..." />;
+  if (isPending)
+    return <LoadingState variant="cards" message="Loading profile..." />;
   if (isError) return <ErrorState />;
   if (!walletAddress && isOwnProfile) return <UnconnectedState />;
 

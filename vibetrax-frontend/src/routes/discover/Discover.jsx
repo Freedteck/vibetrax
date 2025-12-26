@@ -104,7 +104,8 @@ const Discover = () => {
     return tabMatch && genreMatch && searchMatch;
   });
 
-  if (isPending) return <LoadingState variant="cards" message="Discovering music..." />;
+  if (isPending)
+    return <LoadingState variant="cards" message="Discovering music..." />;
   if (isError) return <ErrorState />;
 
   return (

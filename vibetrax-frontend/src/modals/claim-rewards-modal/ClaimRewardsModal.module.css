@@ -1,31 +1,50 @@
 .modalOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modalContent {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, #16213e 0%, #0f1419 100%);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  border-radius: 20px;
   width: 90%;
-  max-width: 500px;
+  max-width: 520px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modalHeader {
-  padding: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -33,48 +52,53 @@
 
 .modalHeader h2 {
   margin: 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: #fff;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .closeBtn {
-  background: none;
+  background: rgba(255, 255, 255, 0.05);
   border: none;
-  color: #999;
-  font-size: 32px;
+  color: var(--color-text-secondary);
+  font-size: 24px;
   cursor: pointer;
   padding: 0;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .closeBtn:hover {
-  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-primary);
 }
 
 .modalBody {
-  padding: 24px;
+  padding: 28px;
 }
 
 .rewardsSummary {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
+  background: rgba(29, 185, 84, 0.08);
+  border: 1px solid rgba(29, 185, 84, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
 }
 
 .statItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .statItem:last-of-type {
@@ -82,14 +106,14 @@
 }
 
 .statLabel {
-  color: #999;
-  font-size: 14px;
+  color: var(--color-text-secondary);
+  font-size: 15px;
   font-weight: 500;
 }
 
 .statValue {
-  color: #fff;
-  font-size: 18px;
+  color: var(--color-text-primary);
+  font-size: 20px;
   font-weight: 600;
 }
 
@@ -97,61 +121,64 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 0 0;
-  margin-top: 12px;
-  border-top: 2px solid rgba(255, 255, 255, 0.1);
+  padding: 18px 0 0;
+  margin-top: 14px;
+  border-top: 2px solid rgba(29, 185, 84, 0.3);
 }
 
 .totalLabel {
-  color: #fff;
-  font-size: 16px;
+  color: var(--color-text-primary);
+  font-size: 17px;
   font-weight: 600;
 }
 
 .totalValue {
-  color: #00d4ff;
-  font-size: 28px;
+  color: var(--color-primary);
+  font-size: 32px;
   font-weight: 700;
 }
 
 .rewardsBreakdown {
-  background: rgba(0, 212, 255, 0.05);
-  border: 1px solid rgba(0, 212, 255, 0.2);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
+  background: rgba(29, 185, 84, 0.05);
+  border: 1px solid rgba(29, 185, 84, 0.15);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 18px;
 }
 
 .breakdownItem {
-  margin: 8px 0;
-  color: #ccc;
+  margin: 10px 0;
+  color: var(--color-text-secondary);
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .note {
   background: rgba(255, 193, 7, 0.1);
   border: 1px solid rgba(255, 193, 7, 0.3);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 12px;
+  padding: 14px 16px;
 }
 
 .note p {
   margin: 0;
-  color: #ffb700;
+  color: #ffc107;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .modalFooter {
-  padding: 20px 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 24px 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   gap: 12px;
   justify-content: flex-end;
 }
 
 .modalFooter button {
-  min-width: 120px;
+  min-width: 130px;
 }
 
 @media (max-width: 768px) {

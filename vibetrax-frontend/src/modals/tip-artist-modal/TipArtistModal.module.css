@@ -1,18 +1,14 @@
 /* Tip Artist Modal Styles */
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0, 0, 0, 0.85);
   z-index: 1000;
   display: flex;
   justify-content: center;
   align-items: center;
   backdrop-filter: blur(10px);
-  animation: fadeIn 0.2s ease-out forwards;
-  padding: 1rem;
+  animation: fadeIn 0.2s ease;
 }
 
 @keyframes fadeIn {
@@ -25,51 +21,61 @@
 }
 
 .content {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  padding: 2.5rem;
+  background: linear-gradient(135deg, #16213e 0%, #0f1419 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
-  position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  width: 90%;
   max-width: 500px;
-  width: 100%;
-  transform: scale(0.95);
-  animation: slideUp 0.3s ease-out forwards;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
+  position: relative;
+  padding: 2.5rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
 }
 
 @keyframes slideUp {
   from {
-    transform: scale(0.95) translateY(20px);
     opacity: 0;
+    transform: translateY(20px) scale(0.95);
   }
   to {
-    transform: scale(1) translateY(0);
     opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
 .closeButton {
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
+  top: 1.25rem;
+  right: 1.25rem;
   width: 40px;
   height: 40px;
   border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: var(--color-text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-size: 20px;
+  transition: all 0.2s ease;
   z-index: 10;
 }
 
 .closeButton:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--color-text-primary);
   transform: rotate(90deg);
 }
 
@@ -84,14 +90,14 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #17a34a 100%);
   padding: 0.5rem 1.25rem;
   border-radius: 50px;
   font-size: 0.875rem;
   font-weight: 600;
   color: #fff;
   margin: 0 auto;
-  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+  box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
 }
 
 .badgeIcon {
@@ -117,7 +123,7 @@
 }
 
 .artistName {
-  color: #3498db;
+  color: var(--color-primary);
   font-weight: 600;
 }
 
@@ -126,14 +132,14 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  background: rgba(52, 152, 219, 0.1);
-  border: 1px solid rgba(52, 152, 219, 0.3);
+  background: rgba(29, 185, 84, 0.1);
+  border: 1px solid rgba(29, 185, 84, 0.3);
   border-radius: 12px;
 }
 
 .balanceIcon {
   font-size: 1.5rem;
-  color: #3498db;
+  color: var(--color-primary);
 }
 
 .balanceLabel {
@@ -152,7 +158,7 @@
 .buyTokensBtn {
   margin-left: auto;
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #17a34a 100%);
   border: none;
   border-radius: 8px;
   color: #fff;
@@ -167,13 +173,13 @@
 
 .buyTokensBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+  box-shadow: 0 4px 12px rgba(29, 185, 84, 0.4);
 }
 
 .buyTokensInfo {
   padding: 1rem;
-  background: rgba(52, 152, 219, 0.1);
-  border: 1px solid rgba(52, 152, 219, 0.2);
+  background: rgba(29, 185, 84, 0.1);
+  border: 1px solid rgba(29, 185, 84, 0.2);
   border-radius: 8px;
   text-align: center;
 }
@@ -185,7 +191,7 @@
 }
 
 .buyTokensInfo strong {
-  color: #3498db;
+  color: var(--color-primary);
 }
 
 .inputSection {
@@ -230,9 +236,9 @@
 }
 
 .input:focus {
-  border-color: #3498db;
+  border-color: var(--color-primary);
   background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+  box-shadow: 0 0 0 4px rgba(29, 185, 84, 0.1);
 }
 
 .input::placeholder {
@@ -260,9 +266,9 @@
 }
 
 .presetBtn:hover {
-  background: rgba(52, 152, 219, 0.2);
-  border-color: #3498db;
-  color: #3498db;
+  background: rgba(29, 185, 84, 0.2);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
   transform: translateY(-2px);
 }
 
@@ -285,7 +291,7 @@
 }
 
 .benefitIcon {
-  color: #e74c3c;
+  color: var(--color-primary);
   font-size: 1.125rem;
   flex-shrink: 0;
 }
@@ -299,7 +305,7 @@
 .primaryButton {
   width: 100%;
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #17a34a 100%);
   border: none;
   border-radius: 12px;
   color: #fff;
@@ -311,12 +317,12 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 20px rgba(231, 76, 60, 0.3);
+  box-shadow: 0 4px 20px rgba(29, 185, 84, 0.3);
 }
 
 .primaryButton:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(231, 76, 60, 0.4);
+  box-shadow: 0 6px 25px rgba(29, 185, 84, 0.4);
 }
 
 .primaryButton:disabled {

@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { createPortal } from "react-dom";
 import styles from "./Header.module.css";
 import { useState, useEffect, useRef } from "react";
 import {
@@ -165,7 +166,7 @@ const Header = () => {
                         {tokenBalance.toLocaleString()} VIBE
                       </div>
                       <div className={styles.dropdownTokenLabel}>
-                        Platform Tokens
+                        VIBE Tokens
                       </div>
                     </div>
                   </div>
@@ -210,10 +211,13 @@ const Header = () => {
         isOpen={showWalletModal}
         onClose={() => setShowWalletModal(false)}
       />
-      <BuyTokensModal
-        isOpen={showBuyTokensModal}
-        onClose={() => setShowBuyTokensModal(false)}
-      />
+      {createPortal(
+        <BuyTokensModal
+          isOpen={showBuyTokensModal}
+          onClose={() => setShowBuyTokensModal(false)}
+        />,
+        document.body
+      )}
     </header>
   );
 };

@@ -1,27 +1,25 @@
-audio{
+audio {
   width: 100%;
-  
 }
 
-.audio::-webkit-media-controls-enclosure{
-  background-color: var(--color-bg-primary)
+.audio::-webkit-media-controls-enclosure {
+  background-color: var(--color-bg-primary);
 }
 
-audio::-webkit-media-controls-play-button,    
+audio::-webkit-media-controls-play-button,
 audio::-webkit-media-controls-current-time-display,
 audio::-webkit-media-controls-time-remaining-display,
 audio::-webkit-media-controls-timeline,
 audio::-webkit-media-controls-mute-button,
 audio::-webkit-media-controls-volume-slider {
-   filter: invert(1);
- }
- 
- 
- /* audio::-webkit-media-controls-return-to-realtime-button{
+  filter: invert(1);
+}
+
+/* audio::-webkit-media-controls-return-to-realtime-button{
    filter: invert(1);
  } */
 
- /* .audio::-webkit-media-controls-panel{
+/* .audio::-webkit-media-controls-panel{
   background: var(--color-bg-primary);
 }
 .audio::-webkit-media-controls-play-button{
@@ -34,11 +32,9 @@ audio::-webkit-media-controls-volume-slider {
   border-radius: 50%;
 } */
 
-
 .container {
   width: 100%;
   margin-top: 30px;
-  
 }
 
 .progressWrapper {
@@ -60,7 +56,7 @@ audio::-webkit-media-controls-volume-slider {
   
 } */
 
-.buttons{
+.buttons {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -94,7 +90,13 @@ audio::-webkit-media-controls-volume-slider {
   width: 75px;
   height: 75px;
   border-radius: 50%;
-  background-color: #6366f1;
+  background-color: var(--color-primary);
+  transition: all 0.2s ease;
+}
+
+.playPause:hover {
+  background-color: var(--color-primary-dark);
+  transform: scale(1.05);
 }
 
 .duration {
@@ -118,7 +120,7 @@ audio::-webkit-media-controls-volume-slider {
   --seek-before-color: #0b5791;
   --knobby: #6366f1;
   --selectedKnobby: #26c6da;
-  
+
   appearance: none;
   background: var(--bar-bg);
   border-radius: 10px;
@@ -154,7 +156,7 @@ audio::-webkit-media-controls-volume-slider {
 
 /* progress bar for chrome and safari */
 .progress::before {
-  content: '';
+  content: "";
   background: var(--seek-before-color);
   background-color: var(--seek-before-color);
   height: 100%;

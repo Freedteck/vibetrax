@@ -132,6 +132,9 @@ const MusicPlayer = () => {
     normalizeAddress(walletAddress) ===
     normalizeAddress(songData?.current_owner);
 
+  const isArtist =
+    normalizeAddress(walletAddress) === normalizeAddress(songData?.artist);
+
   const isPremium =
     normalizeAddress(walletAddress) === normalizeAddress(songData?.artist) ||
     normalizeAddress(walletAddress) ===
@@ -215,26 +218,28 @@ const MusicPlayer = () => {
 
           {/* Action Buttons */}
           <div className={styles.actions}>
-            <button
-              className={`${styles.actionBtn} ${
-                hasVoted || hasLiked ? styles.voted : ""
-              }`}
-              onClick={async () => {
-                // // Track on blockchain
-                // await voteForTrack(id, votersData);
-                // Track in Supabase
-                if (!hasLiked) {
-                  await trackLike(id);
-                  setHasLiked(true);
-                }
-              }}
-              disabled={hasVoted || hasLiked}
-            >
-              <FiHeart />
-              {hasVoted || hasLiked ? "Liked" : "Like"}
-            </button>
+            {walletAddress && !isOwner && (
+              <button
+                className={`${styles.actionBtn} ${
+                  hasVoted || hasLiked ? styles.voted : ""
+                }`}
+                onClick={async () => {
+                  // // Track on blockchain
+                  // await voteForTrack(id, votersData);
+                  // Track in Supabase
+                  if (!hasLiked) {
+                    await trackLike(id);
+                    setHasLiked(true);
+                  }
+                }}
+                disabled={hasVoted || hasLiked}
+              >
+                <FiHeart />
+                {hasVoted || hasLiked ? "Liked" : "Like"}
+              </button>
+            )}
 
-            {forSale && !isOwner && (
+            {walletAddress && forSale && !isOwner && (
               <button
                 className={styles.actionBtn}
                 onClick={() => setIsOpen(true)}
@@ -244,21 +249,25 @@ const MusicPlayer = () => {
               </button>
             )}
 
-            <button
-              className={styles.actionBtn}
-              onClick={() => setIsTipModalOpen(true)}
-            >
-              <FiDollarSign />
-              Tip Artist
-            </button>
+            {walletAddress && !isOwner && (
+              <button
+                className={styles.actionBtn}
+                onClick={() => setIsTipModalOpen(true)}
+              >
+                <FiDollarSign />
+                Tip Artist
+              </button>
+            )}
 
-            <button
-              className={styles.actionBtn}
-              onClick={() => setIsBoostModalOpen(true)}
-            >
-              <FiZap />
-              Boost
-            </button>
+            {walletAddress && isOwner && isArtist && (
+              <button
+                className={styles.actionBtn}
+                onClick={() => setIsBoostModalOpen(true)}
+              >
+                <FiZap />
+                Boost
+              </button>
+            )}
 
             <button className={styles.actionBtn} onClick={handleShare}>
               <FiShare2 />
@@ -266,7 +275,7 @@ const MusicPlayer = () => {
             </button>
 
             {/* Owner Management Menu */}
-            {isOwner && (
+            {walletAddress && isOwner && (
               <div className={styles.manageWrapper}>
                 <button
                   className={`${styles.actionBtn} ${styles.manageBtn}`}
@@ -277,25 +286,31 @@ const MusicPlayer = () => {
                 </button>
                 {showManageMenu && (
                   <div className={styles.manageMenu}>
-                    <button
-                      className={styles.manageItem}
-                      onClick={() => navigate(`/upload/${id}`)}
-                    >
-                      Edit Track
-                    </button>
+                    {isArtist && (
+                      <button
+                        className={styles.manageItem}
+                        onClick={() => navigate(`/upload/${id}`)}
+                      >
+                        Edit Track
+                      </button>
+                    )}
                     <button
                       className={styles.manageItem}
                       onClick={handleToggleForSale}
                     >
                       {forSale ? "Remove from Sale" : "List for Sale"}
                     </button>
-                    <div className={styles.manageDivider}></div>
-                    <button
-                      className={`${styles.manageItem} ${styles.deleteItem}`}
-                      onClick={handleDelete}
-                    >
-                      Delete Track
-                    </button>
+                    {isArtist && (
+                      <>
+                        <div className={styles.manageDivider}></div>
+                        <button
+                          className={`${styles.manageItem} ${styles.deleteItem}`}
+                          onClick={handleDelete}
+                        >
+                          Delete Track
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>

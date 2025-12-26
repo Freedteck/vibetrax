@@ -49,9 +49,14 @@ const SubscribeModal = ({ isOpen, onClose }) => {
       } else {
         await subscribeWithTokens(setSubscriptionStatus);
       }
+      setSubscriptionStatus("subscribed");
+
+      // Close modal after showing success message
       setTimeout(() => {
-        setSubscriptionStatus("subscribed");
-      }, 1000);
+        onClose();
+        setSubscriptionStatus("idle");
+        setPaymentMethod("move");
+      }, 2000);
     } catch {
       setSubscriptionStatus("failed");
     }

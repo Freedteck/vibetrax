@@ -69,7 +69,3 @@ export const EmptyState = ({
     </div>
   );
 };
-<<<<<<< HEAD
-
-=======
->>>>>>> 0187921 (Update responsiveness)

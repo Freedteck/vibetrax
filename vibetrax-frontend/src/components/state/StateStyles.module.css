@@ -382,7 +382,15 @@
   width: 120px;
   height: 120px;
   border-radius: 50%;
+<<<<<<< HEAD
   background: linear-gradient(135deg, rgba(29, 185, 84, 0.1), rgba(29, 185, 84, 0.05));
+=======
+  background: linear-gradient(
+    135deg,
+    rgba(29, 185, 84, 0.1),
+    rgba(29, 185, 84, 0.05)
+  );
+>>>>>>> 0187921 (Update responsiveness)
   border: 2px solid rgba(29, 185, 84, 0.2);
   display: flex;
   align-items: center;
@@ -392,7 +400,12 @@
 }
 
 @keyframes float {
+<<<<<<< HEAD
   0%, 100% {
+=======
+  0%,
+  100% {
+>>>>>>> 0187921 (Update responsiveness)
     transform: translateY(0);
   }
   50% {

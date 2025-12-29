@@ -18,6 +18,12 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.albumArtContainer:hover {
+  transform: scale(1.02);
 }
 
 .albumArt {
@@ -27,6 +33,44 @@
   display: block;
 }
 
+.playOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.albumArtContainer:hover .playOverlay {
+  opacity: 1;
+}
+
+.playOverlayBtn {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: none;
+  color: white;
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 8px 24px rgba(29, 185, 84, 0.4);
+  pointer-events: auto;
+}
+
+.playOverlayBtn:hover {
+  transform: scale(1.1);
+  background: var(--color-primary-light);
+}
+
 .vinylEffect {
   position: absolute;
   top: 50%;
@@ -34,6 +78,7 @@
   transform: translate(-50%, -50%);
   opacity: 0;
   transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 
 .albumArtContainer:hover .vinylEffect {
@@ -343,7 +388,7 @@
 
 @media (max-width: 768px) {
   .nowPlaying {
-    padding: 24px 20px;
+    padding: 24px 20px 160px 20px;
   }
 
   .heroSection {
@@ -354,6 +399,16 @@
   .albumArtContainer {
     max-width: 400px;
     margin: 0 auto;
+  }
+
+  .albumArtContainer:active .playOverlay {
+    opacity: 1;
+  }
+
+  .playOverlayBtn {
+    width: 64px;
+    height: 64px;
+    font-size: 28px;
   }
 
   .trackInfo {
@@ -390,6 +445,12 @@
 @media (max-width: 480px) {
   .trackTitle {
     font-size: 28px;
+  }
+
+  .playOverlayBtn {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
   }
 
   .actions {

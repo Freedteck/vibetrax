@@ -13,16 +13,13 @@ import {
 } from "react-icons/fi";
 import { MdShuffle, MdRepeat, MdRepeatOne } from "react-icons/md";
 import styles from "./NowPlayingBar.module.css";
-import { useMovementWallet } from "../../hooks/useMovementWallet";
 
 const NowPlayingBar = ({
   currentTrack,
   playlist = [],
   onTrackChange,
   onClose,
-  subscriberData,
 }) => {
-  const { walletAddress } = useMovementWallet();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -32,38 +29,25 @@ const NowPlayingBar = ({
   const [isShuffled, setIsShuffled] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const audioRef = useRef(null);
   const navigate = useNavigate();
 
-  // Normalize addresses for comparison
-  const normalizeAddress = (addr) => {
-    if (!addr) return "";
-    let normalized = addr.toLowerCase();
-    if (!normalized.startsWith("0x")) normalized = "0x" + normalized;
-    if (normalized.length < 66) {
-      normalized = "0x" + normalized.slice(2).padStart(64, "0");
-    }
-    return normalized;
-  };
-
-  // Check if user has premium access
-  const isPremium =
-    normalizeAddress(walletAddress) ===
-      normalizeAddress(currentTrack?.artist) ||
-    normalizeAddress(walletAddress) ===
-      normalizeAddress(currentTrack?.current_owner) ||
-    currentTrack?.collaborators
-      ?.map((c) => normalizeAddress(c))
-      ?.includes(normalizeAddress(walletAddress)) ||
-    (subscriberData && subscriberData.is_active);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (audioRef.current && currentTrack) {
       setIsLoading(true);
-      audioRef.current.src = isPremium
-        ? currentTrack.high_quality_ipfs
-        : currentTrack.low_quality_ipfs;
+      audioRef.current.src =
+        currentTrack.high_quality_ipfs || currentTrack.low_quality_ipfs;
       audioRef.current.load();
       if (isPlaying) {
         audioRef.current.play().catch((err) => {
@@ -235,8 +219,133 @@ const NowPlayingBar = ({
 
   if (!currentTrack) return null;
 
+  // Desktop: normal player bar
+  if (!isMobile || isExpanded) {
+    return (
+      <div
+        className={`${styles.playerBar} ${
+          isExpanded ? styles.expandedPlayer : ""
+        }`}
+      >
+        <audio
+          ref={audioRef}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onEnded={handleNext}
+        />
+
+        {/* Track Info */}
+        <div className={styles.trackInfo}>
+          <img
+            src={currentTrack.music_art}
+            alt={currentTrack.title}
+            className={styles.albumArt}
+            onClick={() => navigate(`/discover/${currentTrack.id.id}`)}
+          />
+          <div className={styles.trackDetails}>
+            <h4 className={styles.trackTitle}>{currentTrack.title}</h4>
+            <p className={styles.trackArtist}>
+              {currentTrack.artist.slice(0, 6)}...
+              {currentTrack.artist.slice(-4)}
+            </p>
+          </div>
+          <button
+            className={`${styles.likeButton} ${isLiked ? styles.liked : ""}`}
+            onClick={() => setIsLiked(!isLiked)}
+          >
+            <FiHeart />
+          </button>
+        </div>
+
+        {/* Player Controls */}
+        <div className={styles.playerControls}>
+          <div className={styles.controlButtons}>
+            <button
+              className={`${styles.controlBtn} ${styles.smallBtn} ${
+                isShuffled ? styles.active : ""
+              }`}
+              onClick={() => setIsShuffled(!isShuffled)}
+            >
+              <MdShuffle />
+            </button>
+            <button className={styles.controlBtn} onClick={handlePrevious}>
+              <FiSkipBack />
+            </button>
+            <button
+              className={styles.playButton}
+              onClick={togglePlay}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className={styles.spinner} />
+              ) : isPlaying ? (
+                <FiPause />
+              ) : (
+                <FiPlay />
+              )}
+            </button>
+            <button className={styles.controlBtn} onClick={handleNext}>
+              <FiSkipForward />
+            </button>
+            <button
+              className={`${styles.controlBtn} ${styles.smallBtn} ${
+                repeatMode !== "off" ? styles.active : ""
+              }`}
+              onClick={toggleRepeat}
+            >
+              {repeatMode === "one" ? <MdRepeatOne /> : <MdRepeat />}
+            </button>
+          </div>
+
+          {/* Progress Bar */}
+          <div className={styles.progressContainer}>
+            <span className={styles.timeLabel}>{formatTime(currentTime)}</span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={(currentTime / duration) * 100 || 0}
+              onChange={handleSeek}
+              className={styles.progressBar}
+            />
+            <span className={styles.timeLabel}>{formatTime(duration)}</span>
+          </div>
+        </div>
+
+        {/* Volume Controls */}
+        <div className={styles.volumeControls}>
+          <button className={styles.controlBtn} onClick={toggleMute}>
+            {isMuted || volume === 0 ? <FiVolumeX /> : <FiVolume2 />}
+          </button>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={isMuted ? 0 : volume * 100}
+            onChange={handleVolumeChange}
+            className={styles.volumeSlider}
+          />
+          <button
+            className={styles.controlBtn}
+            onClick={() => navigate(`/discover/${currentTrack.id.id}`)}
+          >
+            <FiMaximize2 />
+          </button>
+          <button
+            className={`${styles.controlBtn} ${styles.closeBtn}`}
+            onClick={isMobile ? () => setIsExpanded(false) : onClose}
+            title={isMobile ? "Minimize" : "Close player"}
+          >
+            <FiX />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Mobile: floating mini player
   return (
-    <div className={styles.playerBar}>
+    <>
       <audio
         ref={audioRef}
         onTimeUpdate={handleTimeUpdate}
@@ -244,111 +353,61 @@ const NowPlayingBar = ({
         onEnded={handleNext}
       />
 
-      {/* Track Info */}
-      <div className={styles.trackInfo}>
+      <div
+        className={styles.floatingMiniPlayer}
+        onClick={() => setIsExpanded(true)}
+      >
         <img
           src={currentTrack.music_art}
           alt={currentTrack.title}
-          className={styles.albumArt}
-          onClick={() => navigate(`/discover/${currentTrack.id.id}`)}
+          className={styles.miniAlbumArt}
         />
-        <div className={styles.trackDetails}>
-          <h4 className={styles.trackTitle}>{currentTrack.title}</h4>
-          <p className={styles.trackArtist}>
+        <div className={styles.miniTrackInfo}>
+          <h4 className={styles.miniTrackTitle}>{currentTrack.title}</h4>
+          <p className={styles.miniTrackArtist}>
             {currentTrack.artist.slice(0, 6)}...{currentTrack.artist.slice(-4)}
           </p>
         </div>
-        <button
-          className={`${styles.likeButton} ${isLiked ? styles.liked : ""}`}
-          onClick={() => setIsLiked(!isLiked)}
-        >
-          <FiHeart />
-        </button>
-      </div>
-
-      {/* Player Controls */}
-      <div className={styles.playerControls}>
-        <div className={styles.controlButtons}>
+        <div className={styles.miniControls}>
           <button
-            className={`${styles.controlBtn} ${styles.smallBtn} ${
-              isShuffled ? styles.active : ""
-            }`}
-            onClick={() => setIsShuffled(!isShuffled)}
+            className={styles.miniControlButton}
+            onClick={(e) => {
+              e.stopPropagation();
+              handlePrevious();
+            }}
           >
-            <MdShuffle />
-          </button>
-          <button className={styles.controlBtn} onClick={handlePrevious}>
             <FiSkipBack />
           </button>
           <button
-            className={styles.playButton}
-            onClick={togglePlay}
-            disabled={isLoading}
+            className={styles.miniPlayButton}
+            onClick={(e) => {
+              e.stopPropagation();
+              togglePlay();
+            }}
           >
-            {isLoading ? (
-              <div className={styles.spinner} />
-            ) : isPlaying ? (
-              <FiPause />
-            ) : (
-              <FiPlay />
-            )}
-          </button>
-          <button className={styles.controlBtn} onClick={handleNext}>
-            <FiSkipForward />
+            {isPlaying ? <FiPause /> : <FiPlay />}
           </button>
           <button
-            className={`${styles.controlBtn} ${styles.smallBtn} ${
-              repeatMode !== "off" ? styles.active : ""
-            }`}
-            onClick={toggleRepeat}
+            className={styles.miniControlButton}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleNext();
+            }}
           >
-            {repeatMode === "one" ? <MdRepeatOne /> : <MdRepeat />}
+            <FiSkipForward />
           </button>
         </div>
-
-        {/* Progress Bar */}
-        <div className={styles.progressContainer}>
-          <span className={styles.timeLabel}>{formatTime(currentTime)}</span>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={(currentTime / duration) * 100 || 0}
-            onChange={handleSeek}
-            className={styles.progressBar}
-          />
-          <span className={styles.timeLabel}>{formatTime(duration)}</span>
-        </div>
-      </div>
-
-      {/* Volume Controls */}
-      <div className={styles.volumeControls}>
-        <button className={styles.controlBtn} onClick={toggleMute}>
-          {isMuted || volume === 0 ? <FiVolumeX /> : <FiVolume2 />}
-        </button>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={isMuted ? 0 : volume * 100}
-          onChange={handleVolumeChange}
-          className={styles.volumeSlider}
-        />
         <button
-          className={styles.controlBtn}
-          onClick={() => navigate(`/discover/${currentTrack.id.id}`)}
-        >
-          <FiMaximize2 />
-        </button>
-        <button
-          className={`${styles.controlBtn} ${styles.closeBtn}`}
-          onClick={onClose}
-          title="Close player"
+          className={styles.miniCloseButton}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
         >
           <FiX />
         </button>
       </div>
-    </div>
+    </>
   );
 };
 

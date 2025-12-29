@@ -6,8 +6,19 @@ export default defineConfig({
   plugins: [react()],
   define: {
     global: 'globalThis',
+    'process.env': {},
+  },
+  resolve: {
+    alias: {
+      buffer: 'buffer/',
+    },
   },
   optimizeDeps: {
-    include: ['@privy-io/react-auth'],
+    include: ['@privy-io/react-auth', 'buffer'],
+    esbuildOptions: {
+      define: {
+        global: 'globalThis',
+      },
+    },
   },
 })

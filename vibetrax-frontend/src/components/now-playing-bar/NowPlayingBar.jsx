@@ -19,6 +19,7 @@ const NowPlayingBar = ({
   playlist = [],
   onTrackChange,
   onClose,
+  subscriberData,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -35,6 +36,9 @@ const NowPlayingBar = ({
   const audioRef = useRef(null);
   const navigate = useNavigate();
 
+  // Check if user is premium
+  const isPremium = subscriberData && subscriberData.is_active;
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -46,8 +50,10 @@ const NowPlayingBar = ({
   useEffect(() => {
     if (audioRef.current && currentTrack) {
       setIsLoading(true);
-      audioRef.current.src =
-        currentTrack.high_quality_ipfs || currentTrack.low_quality_ipfs;
+      // Use high quality for premium users, low quality for non-premium
+      audioRef.current.src = isPremium
+        ? currentTrack.high_quality_ipfs
+        : currentTrack.low_quality_ipfs;
       audioRef.current.load();
       if (isPlaying) {
         audioRef.current.play().catch((err) => {
@@ -57,7 +63,7 @@ const NowPlayingBar = ({
         });
       }
     }
-  }, [currentTrack, isPlaying]);
+  }, [currentTrack, isPlaying, isPremium]);
 
   useEffect(() => {
     if (audioRef.current) {

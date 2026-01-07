@@ -316,7 +316,7 @@ const NowPlayingBar = ({
       onPlay={handlePlay}
       onPause={handlePause}
       onEnded={handleEnded}
-      style={{ display: 'none' }}
+      style={{ display: "none" }}
     />
   );
 
@@ -331,111 +331,113 @@ const NowPlayingBar = ({
           }`}
         >
           {/* Track Info */}
-        <div className={styles.trackInfo}>
-          <img
-            src={currentTrack.music_art}
-            alt={currentTrack.title}
-            className={styles.albumArt}
-            onClick={() => navigate(`/discover/${currentTrack.id.id}`)}
-          />
-          <div className={styles.trackDetails}>
-            <h4 className={styles.trackTitle}>{currentTrack.title}</h4>
-            <p className={styles.trackArtist}>
-              {currentTrack.artist.slice(0, 6)}...
-              {currentTrack.artist.slice(-4)}
-            </p>
-          </div>
-          <button
-            className={`${styles.likeButton} ${isLiked ? styles.liked : ""}`}
-            onClick={() => setIsLiked(!isLiked)}
-          >
-            <FiHeart />
-          </button>
-        </div>
-
-        {/* Player Controls */}
-        <div className={styles.playerControls}>
-          <div className={styles.controlButtons}>
+          <div className={styles.trackInfo}>
+            <img
+              src={currentTrack.music_art}
+              alt={currentTrack.title}
+              className={styles.albumArt}
+              onClick={() => navigate(`/discover/${currentTrack.id.id}`)}
+            />
+            <div className={styles.trackDetails}>
+              <h4 className={styles.trackTitle}>{currentTrack.title}</h4>
+              <p className={styles.trackArtist}>
+                {currentTrack.artist.slice(0, 6)}...
+                {currentTrack.artist.slice(-4)}
+              </p>
+            </div>
             <button
-              className={`${styles.controlBtn} ${styles.smallBtn} ${
-                isShuffled ? styles.active : ""
-              }`}
-              onClick={() => setIsShuffled(!isShuffled)}
+              className={`${styles.likeButton} ${isLiked ? styles.liked : ""}`}
+              onClick={() => setIsLiked(!isLiked)}
             >
-              <MdShuffle />
-            </button>
-            <button className={styles.controlBtn} onClick={handlePrevious}>
-              <FiSkipBack />
-            </button>
-            <button
-              className={styles.playButton}
-              onClick={togglePlay}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <div className={styles.spinner} />
-              ) : isPlaying ? (
-                <FiPause />
-              ) : (
-                <FiPlay />
-              )}
-            </button>
-            <button className={styles.controlBtn} onClick={handleNext}>
-              <FiSkipForward />
-            </button>
-            <button
-              className={`${styles.controlBtn} ${styles.smallBtn} ${
-                repeatMode !== "off" ? styles.active : ""
-              }`}
-              onClick={toggleRepeat}
-            >
-              {repeatMode === "one" ? <MdRepeatOne /> : <MdRepeat />}
+              <FiHeart />
             </button>
           </div>
 
-          {/* Progress Bar */}
-          <div className={styles.progressContainer}>
-            <span className={styles.timeLabel}>{formatTime(currentTime)}</span>
+          {/* Player Controls */}
+          <div className={styles.playerControls}>
+            <div className={styles.controlButtons}>
+              <button
+                className={`${styles.controlBtn} ${styles.smallBtn} ${
+                  isShuffled ? styles.active : ""
+                }`}
+                onClick={() => setIsShuffled(!isShuffled)}
+              >
+                <MdShuffle />
+              </button>
+              <button className={styles.controlBtn} onClick={handlePrevious}>
+                <FiSkipBack />
+              </button>
+              <button
+                className={styles.playButton}
+                onClick={togglePlay}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <div className={styles.spinner} />
+                ) : isPlaying ? (
+                  <FiPause />
+                ) : (
+                  <FiPlay />
+                )}
+              </button>
+              <button className={styles.controlBtn} onClick={handleNext}>
+                <FiSkipForward />
+              </button>
+              <button
+                className={`${styles.controlBtn} ${styles.smallBtn} ${
+                  repeatMode !== "off" ? styles.active : ""
+                }`}
+                onClick={toggleRepeat}
+              >
+                {repeatMode === "one" ? <MdRepeatOne /> : <MdRepeat />}
+              </button>
+            </div>
+
+            {/* Progress Bar */}
+            <div className={styles.progressContainer}>
+              <span className={styles.timeLabel}>
+                {formatTime(currentTime)}
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={(currentTime / duration) * 100 || 0}
+                onChange={handleSeek}
+                className={styles.progressBar}
+              />
+              <span className={styles.timeLabel}>{formatTime(duration)}</span>
+            </div>
+          </div>
+
+          {/* Volume Controls */}
+          <div className={styles.volumeControls}>
+            <button className={styles.controlBtn} onClick={toggleMute}>
+              {isMuted || volume === 0 ? <FiVolumeX /> : <FiVolume2 />}
+            </button>
             <input
               type="range"
               min="0"
               max="100"
-              value={(currentTime / duration) * 100 || 0}
-              onChange={handleSeek}
-              className={styles.progressBar}
+              value={isMuted ? 0 : volume * 100}
+              onChange={handleVolumeChange}
+              className={styles.volumeSlider}
             />
-            <span className={styles.timeLabel}>{formatTime(duration)}</span>
+            <button
+              className={styles.controlBtn}
+              onClick={() => navigate(`/discover/${currentTrack.id.id}`)}
+            >
+              <FiMaximize2 />
+            </button>
+            <button
+              className={`${styles.controlBtn} ${styles.closeBtn}`}
+              onClick={isMobile ? () => setIsExpanded(false) : onClose}
+              title={isMobile ? "Minimize" : "Close player"}
+            >
+              <FiX />
+            </button>
           </div>
         </div>
-
-        {/* Volume Controls */}
-        <div className={styles.volumeControls}>
-          <button className={styles.controlBtn} onClick={toggleMute}>
-            {isMuted || volume === 0 ? <FiVolumeX /> : <FiVolume2 />}
-          </button>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={isMuted ? 0 : volume * 100}
-            onChange={handleVolumeChange}
-            className={styles.volumeSlider}
-          />
-          <button
-            className={styles.controlBtn}
-            onClick={() => navigate(`/discover/${currentTrack.id.id}`)}
-          >
-            <FiMaximize2 />
-          </button>
-          <button
-            className={`${styles.controlBtn} ${styles.closeBtn}`}
-            onClick={isMobile ? () => setIsExpanded(false) : onClose}
-            title={isMobile ? "Minimize" : "Close player"}
-          >
-            <FiX />
-          </button>
-        </div>
-      </div>
       </>
     );
   }

@@ -460,7 +460,7 @@
     bottom: 80px;
     right: 16px;
     width: calc(100% - 32px);
-    max-width: 400px;
+    /* max-width: 400px; */
     height: 72px;
     background: var(--color-bg-secondary);
     border-radius: 8px;

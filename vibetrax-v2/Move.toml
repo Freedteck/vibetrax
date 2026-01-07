@@ -14,7 +14,3 @@ rev = "movement"
 subdir = "aptos-move/framework/aptos-framework"
 
 [dev-dependencies]
-<<<<<<< HEAD
-=======
- 
->>>>>>> 0187921 (Update responsiveness)

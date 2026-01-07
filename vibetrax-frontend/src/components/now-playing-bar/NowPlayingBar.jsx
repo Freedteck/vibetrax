@@ -13,6 +13,8 @@ import {
 } from "react-icons/fi";
 import { MdShuffle, MdRepeat, MdRepeatOne } from "react-icons/md";
 import styles from "./NowPlayingBar.module.css";
+import { useStreamTracking } from "../../hooks/useStreamTracking";
+import { useHighQualityLink } from "../../hooks/useHighQualityLink";
 
 const NowPlayingBar = ({
   currentTrack,
@@ -33,11 +35,19 @@ const NowPlayingBar = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
+  // Stream tracking state
+  const [playStartTime, setPlayStartTime] = useState(null);
+  const [hasTrackedStream, setHasTrackedStream] = useState(false);
+
   const audioRef = useRef(null);
   const navigate = useNavigate();
+  const { trackStream } = useStreamTracking();
+
+  // Get high-quality link from contract if user has access
+  const { highQualityLink } = useHighQualityLink(currentTrack?.id?.id);
 
   // Check if user is premium
-  const isPremium = subscriberData && subscriberData.is_active;
+  const _isPremium = subscriberData && subscriberData.is_active;
 
   useEffect(() => {
     const handleResize = () => {
@@ -50,20 +60,16 @@ const NowPlayingBar = ({
   useEffect(() => {
     if (audioRef.current && currentTrack) {
       setIsLoading(true);
-      // Use high quality for premium users, low quality for non-premium
-      audioRef.current.src = isPremium
-        ? currentTrack.high_quality_ipfs
-        : currentTrack.low_quality_ipfs;
-      audioRef.current.load();
-      if (isPlaying) {
-        audioRef.current.play().catch((err) => {
-          console.error("Playback error:", err);
-          setIsPlaying(false);
-          setIsLoading(false);
-        });
+      // Use high quality link from contract if available (for premium/artist/owner), otherwise fallback
+      const newSrc = highQualityLink || currentTrack.low_quality_ipfs;
+
+      // Only load if the source actually changed
+      if (audioRef.current.src !== newSrc) {
+        audioRef.current.src = newSrc;
+        audioRef.current.load();
       }
     }
-  }, [currentTrack, isPlaying, isPremium]);
+  }, [currentTrack, highQualityLink]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -81,6 +87,8 @@ const NowPlayingBar = ({
           console.error("Playback error:", err);
         });
         setIsPlaying(true);
+        // Start tracking when play begins
+        setPlayStartTime(Date.now());
       }
     }
   }, [isPlaying, isLoading]);
@@ -106,20 +114,50 @@ const NowPlayingBar = ({
   }, [isLiked]);
 
   const handleNext = useCallback(() => {
+    // Track stream before changing to next track
+    if (playStartTime && !hasTrackedStream && currentTrack?.id?.id) {
+      const streamDuration = Math.floor((Date.now() - playStartTime) / 1000);
+      if (streamDuration >= 30) {
+        trackStream(currentTrack.id.id, streamDuration);
+      }
+    }
+
     if (playlist.length > 0 && onTrackChange) {
       const currentIndex = playlist.findIndex((t) => t.id === currentTrack?.id);
       const nextIndex = (currentIndex + 1) % playlist.length;
       onTrackChange(playlist[nextIndex]);
     }
-  }, [playlist, onTrackChange, currentTrack]);
+  }, [
+    playlist,
+    onTrackChange,
+    currentTrack,
+    playStartTime,
+    hasTrackedStream,
+    trackStream,
+  ]);
 
   const handlePrevious = useCallback(() => {
+    // Track stream before changing to previous track
+    if (playStartTime && !hasTrackedStream && currentTrack?.id?.id) {
+      const streamDuration = Math.floor((Date.now() - playStartTime) / 1000);
+      if (streamDuration >= 30) {
+        trackStream(currentTrack.id.id, streamDuration);
+      }
+    }
+
     if (playlist.length > 0 && onTrackChange) {
       const currentIndex = playlist.findIndex((t) => t.id === currentTrack?.id);
       const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
       onTrackChange(playlist[prevIndex]);
     }
-  }, [playlist, onTrackChange, currentTrack]);
+  }, [
+    playlist,
+    onTrackChange,
+    currentTrack,
+    playStartTime,
+    hasTrackedStream,
+    trackStream,
+  ]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -195,6 +233,44 @@ const NowPlayingBar = ({
     }
   };
 
+  const handlePlay = () => {
+    // Sync playing state when audio actually starts playing
+    setIsPlaying(true);
+    if (!playStartTime) {
+      setPlayStartTime(Date.now());
+    }
+  };
+
+  const handlePause = () => {
+    // Only track if the audio is actually paused (not just a state change)
+    if (audioRef.current && audioRef.current.paused && !isLoading) {
+      // Track stream if played for 30+ seconds when paused
+      if (playStartTime && !hasTrackedStream && currentTrack?.id?.id) {
+        const streamDuration = Math.floor((Date.now() - playStartTime) / 1000);
+        if (streamDuration >= 30) {
+          trackStream(currentTrack.id.id, streamDuration);
+          setHasTrackedStream(true);
+        }
+      }
+      setPlayStartTime(null);
+      setIsPlaying(false);
+    }
+  };
+
+  const handleEnded = () => {
+    // Track full stream when song ends
+    if (playStartTime && !hasTrackedStream && currentTrack?.id?.id) {
+      const streamDuration = Math.floor((Date.now() - playStartTime) / 1000);
+      if (streamDuration >= 30) {
+        trackStream(currentTrack.id.id, streamDuration);
+        setHasTrackedStream(true);
+      }
+    }
+    setPlayStartTime(null);
+    setIsPlaying(false);
+    handleNext();
+  };
+
   const handleSeek = (e) => {
     const seekTime = (e.target.value / 100) * duration;
     if (audioRef.current) {
@@ -223,24 +299,38 @@ const NowPlayingBar = ({
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
+  // Reset tracking when track changes
+  useEffect(() => {
+    setHasTrackedStream(false);
+    setPlayStartTime(null);
+  }, [currentTrack?.id?.id]);
+
   if (!currentTrack) return null;
+
+  // Shared audio element for both mobile and desktop views
+  const audioElement = (
+    <audio
+      ref={audioRef}
+      onTimeUpdate={handleTimeUpdate}
+      onLoadedMetadata={handleLoadedMetadata}
+      onPlay={handlePlay}
+      onPause={handlePause}
+      onEnded={handleEnded}
+      style={{ display: 'none' }}
+    />
+  );
 
   // Desktop: normal player bar
   if (!isMobile || isExpanded) {
     return (
-      <div
-        className={`${styles.playerBar} ${
-          isExpanded ? styles.expandedPlayer : ""
-        }`}
-      >
-        <audio
-          ref={audioRef}
-          onTimeUpdate={handleTimeUpdate}
-          onLoadedMetadata={handleLoadedMetadata}
-          onEnded={handleNext}
-        />
-
-        {/* Track Info */}
+      <>
+        {audioElement}
+        <div
+          className={`${styles.playerBar} ${
+            isExpanded ? styles.expandedPlayer : ""
+          }`}
+        >
+          {/* Track Info */}
         <div className={styles.trackInfo}>
           <img
             src={currentTrack.music_art}
@@ -346,19 +436,14 @@ const NowPlayingBar = ({
           </button>
         </div>
       </div>
+      </>
     );
   }
 
   // Mobile: floating mini player
   return (
     <>
-      <audio
-        ref={audioRef}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-        onEnded={handleNext}
-      />
-
+      {audioElement}
       <div
         className={styles.floatingMiniPlayer}
         onClick={() => setIsExpanded(true)}

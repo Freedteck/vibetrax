@@ -32,6 +32,7 @@ const Form = ({
   const { id } = useParams();
   const [songData, setSongData] = useState(null);
   const [isPending, setIsPending] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Function to fetch NFT data from Movement blockchain
   useEffect(() => {
@@ -271,6 +272,7 @@ const Form = ({
       return;
     }
 
+    setIsUploading(true);
     const toastId = toast.loading("Preparing upload...");
 
     const cIds = await uploadMusicImageFile(e, toastId);
@@ -293,20 +295,24 @@ const Form = ({
     const roles = contributors.map((c) => c.role);
     const percentages = contributors.map((c) => parseInt(c.percentage) * 100);
 
-    uploadMusic(
-      toastId,
-      title,
-      description,
-      genre,
-      `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${imageCid}`,
-      `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${highQualityCid}`,
-      `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${lowQualityCid}`,
-      price,
-      royaltyPercentage,
-      addresses,
-      roles,
-      percentages
-    );
+    try {
+      await uploadMusic(
+        toastId,
+        title,
+        description,
+        genre,
+        `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${imageCid}`,
+        `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${highQualityCid}`,
+        `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${lowQualityCid}`,
+        price,
+        royaltyPercentage,
+        addresses,
+        roles,
+        percentages
+      );
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   // function to update music
@@ -320,6 +326,7 @@ const Form = ({
       return;
     }
 
+    setIsUploading(true);
     const toastId = toast.loading("Preparing update...");
 
     const cIds = await uploadMusicImageFile(e, toastId);
@@ -341,21 +348,25 @@ const Form = ({
     const roles = contributors.map((c) => c.role);
     const percentages = contributors.map((c) => parseInt(c.percentage) * 100);
 
-    updateMusic(
-      toastId,
-      id,
-      title,
-      description,
-      genre,
-      `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${imageCid}`,
-      `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${highQualityCid}`,
-      `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${lowQualityCid}`,
-      price,
-      forSale,
-      addresses,
-      roles,
-      percentages
-    );
+    try {
+      await updateMusic(
+        toastId,
+        id,
+        title,
+        description,
+        genre,
+        `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${imageCid}`,
+        `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${highQualityCid}`,
+        `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${lowQualityCid}`,
+        price,
+        forSale,
+        addresses,
+        roles,
+        percentages
+      );
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -707,10 +718,20 @@ const Form = ({
             btnClass={"secondary"}
             text={"Preview"}
             onClick={showPreview}
+            disabled={isUploading}
           />
           <Button
             btnClass={"primary"}
-            text={id ? "Update Track" : "Upload Track"}
+            text={
+              isUploading
+                ? id
+                  ? "Updating..."
+                  : "Uploading..."
+                : id
+                ? "Update Track"
+                : "Upload Track"
+            }
+            disabled={isUploading}
           />
         </div>
       </form>

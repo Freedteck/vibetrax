@@ -214,16 +214,22 @@
     bottom: 0;
     top: auto;
     flex-direction: row;
-    padding: 8px 16px;
+    padding: 0;
     border-right: none;
     border-top: 1px solid var(--color-border-light);
     z-index: 90;
+    background: rgba(26, 26, 26, 0.95);
+    backdrop-filter: blur(10px);
   }
 
   .sidebarContent {
+    flex: 1;
     flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
+    justify-content: space-around;
+    align-items: center;
+    overflow: visible;
+    padding: 0;
+    gap: 0;
   }
 
   .logo,
@@ -234,23 +240,53 @@
 
   .mainNav,
   .secondaryNav {
-    flex-direction: row;
-    gap: 8px;
+    display: contents;
   }
 
   .navItem {
+    flex: 1;
     flex-direction: column;
-    gap: 4px;
-    padding: 8px 16px;
-    min-width: fit-content;
+    gap: 2px;
+    padding: 10px 8px;
+    min-width: 0;
+    border-radius: 0;
+    justify-content: center;
+    align-items: center;
+    position: relative;
   }
 
   .navItem span {
     display: block;
-    font-size: 11px;
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   .navIcon {
-    font-size: 20px;
+    font-size: 22px;
+    min-width: 22px;
+  }
+
+  .navItem.active {
+    background: transparent;
+    color: var(--color-primary);
+  }
+
+  .navItem.active::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--color-primary);
+    border-radius: 0 0 3px 3px;
+  }
+
+  .navItem:hover {
+    background: transparent;
   }
 }

@@ -166,15 +166,18 @@ const Profile = () => {
                     className={styles.claimStat}
                     onClick={() => setShowClaimModal(true)}
                   >
-                    <div className={styles.claimIconWrapper}>
+                    <div
+                      className={styles.claimIconWrapper}
+                      title="Click to Claim"
+                    >
                       <FiGift />
                     </div>
-                    <div className={styles.claimContent}>
+                    {/* <div className={styles.claimContent}>
                       <span className={styles.claimValue}>
                         {unclaimedRewards.tokensEarned}
                       </span>
                       <span className={styles.claimLabel}>Click to Claim</span>
-                    </div>
+                    </div> */}
                   </div>
                 )}
             </div>

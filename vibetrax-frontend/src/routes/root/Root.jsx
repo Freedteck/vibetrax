@@ -8,8 +8,15 @@ import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
 import { useAppContext } from "../../hooks/useAppContext";
 
 const Root = () => {
-  const { isSubscribed, currentTrack, playlist, setCurrentTrack, setPlaylist, isPlaying, setIsPlaying } =
-    useAppContext();
+  const {
+    isSubscribed,
+    currentTrack,
+    playlist,
+    setCurrentTrack,
+    setPlaylist,
+    isPlaying,
+    setIsPlaying,
+  } = useAppContext();
 
   // Create subscriberData object for backward compatibility
   const subscriberData = isSubscribed ? { is_active: true } : null;
@@ -64,7 +71,15 @@ const Root = () => {
       <Header />
 
       <main className={styles.mainContent}>
-        <Outlet context={{ subscriberData, handlePlayTrack, currentTrack, isPlaying, setIsPlaying }} />
+        <Outlet
+          context={{
+            subscriberData,
+            handlePlayTrack,
+            currentTrack,
+            isPlaying,
+            setIsPlaying,
+          }}
+        />
       </main>
 
       <NowPlayingBar

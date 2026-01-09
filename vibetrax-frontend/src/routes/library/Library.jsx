@@ -89,7 +89,7 @@ const Library = () => {
           .eq("user_address", walletAddress);
 
         if (likesError) throw likesError;
-        
+
         const likedNftAddresses = likes?.map((l) => l.nft_address) || [];
         setLikedSongs(likedNftAddresses);
       } catch (err) {

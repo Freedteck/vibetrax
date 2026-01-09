@@ -28,11 +28,21 @@ import toast from "react-hot-toast";
 
 const MusicPlayer = () => {
   const { id } = useParams();
-  const { subscriberData, handlePlayTrack, currentTrack: currentlyPlayingTrack, isPlaying, setIsPlaying } = useOutletContext();
+  const {
+    subscriberData,
+    handlePlayTrack,
+    currentTrack: currentlyPlayingTrack,
+    isPlaying,
+    setIsPlaying,
+  } = useOutletContext();
   const { walletAddress } = useMovementWallet();
   const navigate = useNavigate();
   const { purchaseTrack, toggleTrackForSale, deleteTrack } = useMusicActions();
-  const { trackLike, hasLiked: checkHasLiked, getNftStats } = useStreamTracking();
+  const {
+    trackLike,
+    hasLiked: checkHasLiked,
+    getNftStats,
+  } = useStreamTracking();
   const [hasLiked, setHasLiked] = useState(false);
   const [realTimeLikeCount, setRealTimeLikeCount] = useState(null);
 
@@ -246,7 +256,10 @@ const MusicPlayer = () => {
             </span>
             <span className={styles.metaDot}>•</span>
             <span className={styles.metaItem}>
-              {realTimeLikeCount !== null ? realTimeLikeCount : track.like_count} likes
+              {realTimeLikeCount !== null
+                ? realTimeLikeCount
+                : track.like_count}{" "}
+              likes
             </span>
           </div>
 
@@ -265,7 +278,9 @@ const MusicPlayer = () => {
                     await trackLike(id);
                     setHasLiked(true);
                     // Update real-time like count
-                    setRealTimeLikeCount((prev) => (prev !== null ? prev + 1 : 1));
+                    setRealTimeLikeCount((prev) =>
+                      prev !== null ? prev + 1 : 1
+                    );
                   }
                 }}
                 disabled={hasVoted || hasLiked}

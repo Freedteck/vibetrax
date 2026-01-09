@@ -68,7 +68,7 @@ const NowPlayingBar = ({
       if (audioRef.current.src !== newSrc) {
         audioRef.current.src = newSrc;
         audioRef.current.load();
-        
+
         // Auto-play if music was playing before track change
         if (isPlaying) {
           audioRef.current.play().catch((err) => {
@@ -134,7 +134,7 @@ const NowPlayingBar = ({
     if (playlist.length > 0 && onTrackChange) {
       const currentIndex = playlist.findIndex((t) => t.id === currentTrack?.id);
       let nextIndex;
-      
+
       if (isShuffled) {
         // Shuffle: pick random track that's not current
         do {
@@ -144,7 +144,7 @@ const NowPlayingBar = ({
         // Normal: go to next track
         nextIndex = (currentIndex + 1) % playlist.length;
       }
-      
+
       onTrackChange(playlist[nextIndex]);
     }
   }, [
@@ -289,24 +289,32 @@ const NowPlayingBar = ({
     }
     setPlayStartTime(null);
 
-    if (repeatMode === 'one') {
+    if (repeatMode === "one") {
       // Repeat one: replay current song
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
         audioRef.current.play().catch((err) => {
-          console.error('Playback error:', err);
+          console.error("Playback error:", err);
         });
         setIsPlaying(true);
         setPlayStartTime(Date.now());
       }
-    } else if (repeatMode === 'all' || playlist.length > 0) {
+    } else if (repeatMode === "all" || playlist.length > 0) {
       // Repeat all or normal: play next song
       handleNext();
     } else {
       // No repeat and no playlist: just stop
       setIsPlaying(false);
     }
-  }, [repeatMode, handleNext, playStartTime, hasTrackedStream, currentTrack, trackStream, playlist.length]);
+  }, [
+    repeatMode,
+    handleNext,
+    playStartTime,
+    hasTrackedStream,
+    currentTrack,
+    trackStream,
+    playlist.length,
+  ]);
 
   const handleSeek = (e) => {
     const seekTime = (e.target.value / 100) * duration;

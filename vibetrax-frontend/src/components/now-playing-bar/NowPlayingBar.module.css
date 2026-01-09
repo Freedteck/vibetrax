@@ -198,6 +198,11 @@
   cursor: pointer;
 }
 
+.progressBar::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+}
+
 .progressBar::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -206,12 +211,26 @@
   border-radius: 50%;
   background: var(--color-text-primary);
   cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  opacity: 1;
+  transition: all 0.2s ease;
+  margin-top: -4px;
 }
 
 .progressBar:hover::-webkit-slider-thumb {
-  opacity: 1;
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.progressBar::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-bg-hover);
+}
+
+.progressBar::-moz-range-progress {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-primary);
 }
 
 .progressBar::-moz-range-thumb {
@@ -221,12 +240,13 @@
   background: var(--color-text-primary);
   border: none;
   cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  opacity: 1;
+  transition: all 0.2s ease;
 }
 
 .progressBar:hover::-moz-range-thumb {
-  opacity: 1;
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
 }
 
 /* Volume Controls */

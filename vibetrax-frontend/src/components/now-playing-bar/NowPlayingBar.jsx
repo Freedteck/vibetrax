@@ -22,8 +22,9 @@ const NowPlayingBar = ({
   onTrackChange,
   onClose,
   subscriberData,
+  isPlaying,
+  setIsPlaying,
 }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
@@ -67,9 +68,17 @@ const NowPlayingBar = ({
       if (audioRef.current.src !== newSrc) {
         audioRef.current.src = newSrc;
         audioRef.current.load();
+        
+        // Auto-play if music was playing before track change
+        if (isPlaying) {
+          audioRef.current.play().catch((err) => {
+            console.error("Auto-play error:", err);
+            setIsPlaying(false);
+          });
+        }
       }
     }
-  }, [currentTrack, highQualityLink]);
+  }, [currentTrack, highQualityLink, isPlaying]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -124,7 +133,18 @@ const NowPlayingBar = ({
 
     if (playlist.length > 0 && onTrackChange) {
       const currentIndex = playlist.findIndex((t) => t.id === currentTrack?.id);
-      const nextIndex = (currentIndex + 1) % playlist.length;
+      let nextIndex;
+      
+      if (isShuffled) {
+        // Shuffle: pick random track that's not current
+        do {
+          nextIndex = Math.floor(Math.random() * playlist.length);
+        } while (nextIndex === currentIndex && playlist.length > 1);
+      } else {
+        // Normal: go to next track
+        nextIndex = (currentIndex + 1) % playlist.length;
+      }
+      
       onTrackChange(playlist[nextIndex]);
     }
   }, [
@@ -134,6 +154,7 @@ const NowPlayingBar = ({
     playStartTime,
     hasTrackedStream,
     trackStream,
+    isShuffled,
   ]);
 
   const handlePrevious = useCallback(() => {
@@ -257,7 +278,7 @@ const NowPlayingBar = ({
     }
   };
 
-  const handleEnded = () => {
+  const handleEnded = useCallback(() => {
     // Track full stream when song ends
     if (playStartTime && !hasTrackedStream && currentTrack?.id?.id) {
       const streamDuration = Math.floor((Date.now() - playStartTime) / 1000);
@@ -267,9 +288,25 @@ const NowPlayingBar = ({
       }
     }
     setPlayStartTime(null);
-    setIsPlaying(false);
-    handleNext();
-  };
+
+    if (repeatMode === 'one') {
+      // Repeat one: replay current song
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch((err) => {
+          console.error('Playback error:', err);
+        });
+        setIsPlaying(true);
+        setPlayStartTime(Date.now());
+      }
+    } else if (repeatMode === 'all' || playlist.length > 0) {
+      // Repeat all or normal: play next song
+      handleNext();
+    } else {
+      // No repeat and no playlist: just stop
+      setIsPlaying(false);
+    }
+  }, [repeatMode, handleNext, playStartTime, hasTrackedStream, currentTrack, trackStream, playlist.length]);
 
   const handleSeek = (e) => {
     const seekTime = (e.target.value / 100) * duration;

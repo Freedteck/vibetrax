@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useMovementWallet } from "../../hooks/useMovementWallet";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { useMusicNfts } from "../../hooks/useMusicNfts";
+import { supabase } from "../../config/supabase";
 import MusicCard from "../../components/cards/music-card/MusicCard";
 import TrackListItem from "../../components/track-list-item/TrackListItem";
 import { LoadingState } from "../../components/state/LoadingState";
@@ -69,20 +70,55 @@ const Library = () => {
     return isPremium ? "Premium" : "Standard";
   };
 
-  // Load data from localStorage
+  // Load playlists from localStorage and liked/recent from Supabase
   useEffect(() => {
-    if (walletAddress) {
+    const fetchLibraryData = async () => {
+      if (!walletAddress) return;
+
+      // Load playlists from localStorage
       const storedPlaylists = localStorage.getItem(
         `playlists_${walletAddress}`
       );
-      const storedLiked = localStorage.getItem(`liked_${walletAddress}`);
-      const storedRecent = localStorage.getItem(`recent_${walletAddress}`);
-
       if (storedPlaylists) setPlaylists(JSON.parse(storedPlaylists));
-      if (storedLiked) setLikedSongs(JSON.parse(storedLiked));
-      if (storedRecent) setRecentlyPlayed(JSON.parse(storedRecent));
-    }
-  }, [walletAddress]);
+
+      // Fetch liked songs from Supabase
+      try {
+        const { data: likes, error: likesError } = await supabase
+          .from("likes")
+          .select("nft_address")
+          .eq("user_address", walletAddress);
+
+        if (likesError) throw likesError;
+        
+        const likedNftAddresses = likes?.map((l) => l.nft_address) || [];
+        setLikedSongs(likedNftAddresses);
+      } catch (err) {
+        console.error("Error fetching liked songs:", err);
+      }
+
+      // Fetch recently played from Supabase
+      try {
+        const { data: streams, error: streamsError } = await supabase
+          .from("streams")
+          .select("nft_address, created_at")
+          .eq("user_address", walletAddress)
+          .order("created_at", { ascending: false })
+          .limit(50);
+
+        if (streamsError) throw streamsError;
+
+        // Get unique NFT addresses (most recent first)
+        const uniqueNftAddresses = [
+          ...new Set(streams?.map((s) => s.nft_address) || []),
+        ];
+        setRecentlyPlayed(uniqueNftAddresses);
+      } catch (err) {
+        console.error("Error fetching recently played:", err);
+      }
+    };
+
+    fetchLibraryData();
+  }, [walletAddress, musicNfts.length]);
 
   // Save playlists to localStorage
   const savePlaylistsToStorage = (newPlaylists) => {
@@ -218,10 +254,15 @@ const Library = () => {
       normalizeAddress(track.artist) === normalizeAddress(walletAddress)
   );
 
-  // Get liked songs from storage
+  // Get liked songs from Supabase data
   const likedTracks = musicNfts.filter((track) =>
     likedSongs.includes(track.id.id)
   );
+
+  // Get recently played tracks from Supabase data (preserve order)
+  const recentTracks = recentlyPlayed
+    .map((nftAddress) => musicNfts.find((track) => track.id.id === nftAddress))
+    .filter(Boolean); // Remove any undefined entries
 
   const tabs = [
     {
@@ -247,7 +288,7 @@ const Library = () => {
       id: "recent",
       label: "Recently Played",
       icon: FiClock,
-      count: recentlyPlayed.length,
+      count: recentTracks.length,
     },
   ];
 
@@ -270,7 +311,7 @@ const Library = () => {
         showManagement = true;
         break;
       case "recent":
-        tracks = recentlyPlayed;
+        tracks = recentTracks;
         title = "Recently Played";
         description = "Your recent listening history";
         break;

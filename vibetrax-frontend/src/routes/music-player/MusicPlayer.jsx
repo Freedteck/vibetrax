@@ -7,6 +7,8 @@ import {
   FiMoreVertical,
   FiDollarSign,
   FiZap,
+  FiPlay,
+  FiPause,
 } from "react-icons/fi";
 import { BsVinyl } from "react-icons/bs";
 import styles from "./MusicPlayer.module.css";
@@ -26,12 +28,13 @@ import toast from "react-hot-toast";
 
 const MusicPlayer = () => {
   const { id } = useParams();
-  const { subscriberData, handlePlayTrack } = useOutletContext();
+  const { subscriberData, handlePlayTrack, currentTrack: currentlyPlayingTrack, isPlaying, setIsPlaying } = useOutletContext();
   const { walletAddress } = useMovementWallet();
   const navigate = useNavigate();
   const { purchaseTrack, toggleTrackForSale, deleteTrack } = useMusicActions();
-  const { trackLike, hasLiked: checkHasLiked } = useStreamTracking();
+  const { trackLike, hasLiked: checkHasLiked, getNftStats } = useStreamTracking();
   const [hasLiked, setHasLiked] = useState(false);
+  const [realTimeLikeCount, setRealTimeLikeCount] = useState(null);
 
   const [isOpen, setIsOpen] = useState(false);
   const [isSubcribeModalOpen, setIsSubcribeModalOpen] = useState(false);
@@ -97,6 +100,10 @@ const MusicPlayer = () => {
           const liked = await checkHasLiked(id);
           setHasLiked(liked);
         }
+
+        // Fetch real-time like count from Supabase
+        const stats = await getNftStats(id);
+        setRealTimeLikeCount(stats.totalLikes);
       } catch (error) {
         console.error("Error fetching song data:", error);
         setIsError(true);
@@ -156,13 +163,18 @@ const MusicPlayer = () => {
 
   const hasVoted = votersData && votersData.length > 0;
 
-  useEffect(() => {
-    if (songData && musicNfts.length > 0) {
-      // Auto-play when page loads
+  // Check if this track is the one currently playing
+  const isThisTrackPlaying = currentlyPlayingTrack?.id?.id === id && isPlaying;
+
+  const handlePlayPauseClick = () => {
+    if (currentlyPlayingTrack?.id?.id === id) {
+      // Same track - toggle play/pause
+      setIsPlaying(!isPlaying);
+    } else {
+      // Different track - start playing this one
       handlePlayTrack(songData, musicNfts);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, songData, musicNfts.length]);
+  };
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -206,6 +218,15 @@ const MusicPlayer = () => {
             alt={track.title}
             className={styles.albumArt}
           />
+          <div className={styles.playOverlay}>
+            <button
+              className={styles.playOverlayBtn}
+              onClick={handlePlayPauseClick}
+              aria-label={isThisTrackPlaying ? "Pause song" : "Play song"}
+            >
+              {isThisTrackPlaying ? <FiPause /> : <FiPlay />}
+            </button>
+          </div>
           <div className={styles.vinylEffect}>
             <BsVinyl className={styles.vinylIcon} />
           </div>
@@ -224,7 +245,9 @@ const MusicPlayer = () => {
               {track.genre || "Unknown Genre"}
             </span>
             <span className={styles.metaDot}>•</span>
-            <span className={styles.metaItem}>{track.like_count} likes</span>
+            <span className={styles.metaItem}>
+              {realTimeLikeCount !== null ? realTimeLikeCount : track.like_count} likes
+            </span>
           </div>
 
           {/* Action Buttons */}
@@ -241,6 +264,8 @@ const MusicPlayer = () => {
                   if (!hasLiked) {
                     await trackLike(id);
                     setHasLiked(true);
+                    // Update real-time like count
+                    setRealTimeLikeCount((prev) => (prev !== null ? prev + 1 : 1));
                   }
                 }}
                 disabled={hasVoted || hasLiked}

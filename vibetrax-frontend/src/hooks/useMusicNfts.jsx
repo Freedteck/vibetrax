@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { aptos, CONTRACT_ADDRESS } from "../config/movement";
+import { supabase } from "../config/supabase";
 
 export const useMusicNfts = () => {
   const [musicNfts, setMusicNfts] = useState([]);
@@ -35,6 +36,17 @@ export const useMusicNfts = () => {
                 resourceType: `${CONTRACT_ADDRESS}::vibetrax::MusicNFT`,
               });
 
+              // Fetch real-time stats from Supabase
+              const { count: streamsCount } = await supabase
+                .from("streams")
+                .select("*", { count: "exact", head: true })
+                .eq("nft_address", nftAddress);
+
+              const { count: likesCount } = await supabase
+                .from("likes")
+                .select("*", { count: "exact", head: true })
+                .eq("nft_address", nftAddress);
+
               // Transform the data to match the expected format
               return {
                 id: { id: nftAddress }, // Use NFT address as ID
@@ -49,8 +61,8 @@ export const useMusicNfts = () => {
                 base_price: parseInt(nftResource.base_price),
                 current_price: parseInt(nftResource.current_price),
                 royalty_percentage: parseInt(nftResource.royalty_percentage),
-                streaming_count: parseInt(nftResource.streaming_count),
-                like_count: parseInt(nftResource.like_count),
+                streaming_count: streamsCount || 0, // Use Supabase count
+                like_count: likesCount || 0, // Use Supabase count
                 tip_count: parseInt(nftResource.tip_count),
                 purchase_count: parseInt(nftResource.purchase_count),
                 boost_count: parseInt(nftResource.boost_count),

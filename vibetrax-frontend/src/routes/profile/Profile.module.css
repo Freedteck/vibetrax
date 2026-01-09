@@ -283,7 +283,7 @@
   }
 
   .addressContainer {
-    flex-direction: column;
+    /* flex-direction: column; */
     gap: 12px;
   }
 
@@ -321,7 +321,7 @@
   }
 
   .stats {
-    flex-direction: column;
+    /* flex-direction: column; */
     gap: 16px;
     align-items: center;
   }

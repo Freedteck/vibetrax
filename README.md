@@ -1,129 +1,353 @@
-# VibeTrax
+# 🎵 VibeTrax
 
-**Empowering emerging artists through blockchain-backed, transparent music collaboration.**
+**A Modern Decentralized Music Streaming Platform**
 
-## Overview
+Stream, own, and trade music on the blockchain. Experience the future of music with transparent royalties, artist collaboration, and true ownership.
 
-VibeTrax is a decentralized music platform built on the **Iota blockchain**, enabling upcoming artists to release music **without upfront capital**, collaborate transparently, and earn fair, on-chain revenue. Fans can stream, own, and even resell music—creating an ecosystem where everyone is rewarded based on the value they contribute.
+---
 
-## Core Features
+## 🌟 Overview
 
-- **No Upfront Capital Needed** – Artists launch music and pay collaborators based on revenue shares.
-- **On-Chain Revenue Splitting** – Instant, automatic payments to artists and collaborators on song sales or resales.
-- **Subscription Access** – Fans subscribe on-chain to unlock premium content and early access.
-- **Optional Ownership** – Buy music NFTs to support artists, collect, resell, and own own the music value.
-- **Dynamic Music Value** - Upvoting a music increases the music's value dynamically overtime.
-- **Collaborator Dashboards** – Real-time dashboards for all contributors to track revenue and engagement.
-- **Top-Rated Artists** – Voted by the community, not by industry gatekeepers.
+VibeTrax is a **Web3 music streaming application** built on the **Movement blockchain**, combining the familiar experience of modern music streaming platforms like Spotify with the revolutionary power of blockchain technology.
 
-## Real Use Case: Mr. A’s Journey
+Artists can upload music, collaborate with others, and receive **instant on-chain payments**. Fans can stream music, purchase tracks as NFTs, earn rewards, and truly own their music collection—all while supporting artists directly.
 
-An emerging artist—Mr. A—partners with a producer and studio via VibeTrax. Instead of upfront payments, he offers revenue shares. They upload the track, assign royalty percentages, and release it.
+---
 
-Fans:
+## ✨ Core Features
 
-- **Stream it freely**
-- **Subscribe for high-fidelity access**
-- **Buy the track as a collectible NFT**
+### 🎨 **Modern Music Streaming Experience**
 
-Mr. A and his collaborators receive **instant, transparent payouts** on every purchase or resale. It's music, reimagined.
+- **Spotify-Inspired Interface** – Dark theme, sidebar navigation, persistent bottom player
+- **Browse & Discover** – Featured carousel, genre filters, trending tracks
+- **Search Functionality** – Find songs and artists instantly
+- **Responsive Design** – Seamless experience across desktop, tablet, and mobile
 
-## How It Works
+### 🎵 **For Artists**
 
-1. **Artists upload tracks**, set prices, assign collaborators, and define revenue splits.
-2. **Smart contracts** mint music NFTs with embedded metadata and revenue logic.
-3. **Listeners**:
-   - Stream music
-   - Subscribe for premium features
-   - Purchase music as NFTs
-4. **Royalties & Resale Earnings**:
-   - Automatically distributed to artists and collaborators
-   - All tracked on-chain
+- **No Upfront Capital** – Upload music and share revenue with collaborators
+- **On-Chain Revenue Splitting** – Automatic payments to all contributors
+- **Collaborator Management** – Set revenue splits and roles for each contributor
+- **Artist Analytics** – Track likes, plays, and earnings in real-time
+- **Dynamic Pricing** – Set your own prices and royalty percentages
 
-## User Types
+### 🎧 **For Listeners**
 
-- **Artists**: Upload, assign collaborators, manage revenue.
-- **Collaborators**: Track songs they worked on and monitor earnings.
-- **Fans**: Stream, subscribe, own music.
+- **Free Streaming** – Listen to all tracks at standard quality (128kbps)
+- **Premium Upgrade** – Subscribe for high-fidelity audio (320kbps)
+- **NFT Ownership** – Buy tracks to support artists and own music NFTs
+- **Like & Vote System** – Support favorite tracks and influence trending lists
+- **Token Rewards** – Earn rewards for streaming and engagement
 
-Each user has a dashboard accessible after connecting a wallet.
+### ⛓️ **Blockchain Features**
 
-## Tech Stack
+- **Web3 Wallet Integration** – Privy authentication + native Movement wallets
+- **Token Economy** – Platform tokens for purchases and rewards
+- **Smart Contracts** – Transparent, automated royalty distribution
+- **NFT Marketplace** – Buy, own, and trade music NFTs
+- **On-Chain Subscriptions** – Premium memberships managed on-chain
 
-| Layer                        | Technology                                                    |
-| ---------------------------- | ------------------------------------------------------------- |
-| **Blockchain**               | [Iota blockchain](https://iota.org) (smart contracts in Move) |
-| **Frontend**                 | React.js                                                      |
-| **Wallet Integration**       | Iota Wallet                                                   |
-| **Storage**                  | Pinata (for music/audio file storage)                         |
-| **Authentication**           | Iota Wallet                                                   |
-| **NFT Metadata**             | Collaborator revenue shares embedded in each music NFT        |
-| **Subscription System**      | Fully handled on-chain                                        |
-| **Royalty & Revenue Splits** | Managed on-chain through smart contracts                      |
+---
 
-## Getting Started
+## 🛠️ Tech Stack
 
-**Prerequisites:**
+| Layer                  | Technology                                                        |
+| ---------------------- | ----------------------------------------------------------------- |
+| **Blockchain**         | [Movement](https://movementlabs.xyz) (Aptos-based, Move language) |
+| **Frontend**           | React.js + Vite                                                   |
+| **Styling**            | CSS Modules (Modern Spotify-inspired design)                      |
+| **Wallet Integration** | Privy Auth + Aptos Wallet Adapter                                 |
+| **Storage**            | Pinata IPFS (audio files & artwork)                               |
+| **Authentication**     | Privy.io (Web3 authentication)                                    |
+| **State Management**   | React Context API                                                 |
+| **Icons**              | React Icons (Feather Icons)                                       |
+| **Avatars**            | React Jazzicon                                                    |
+| **Notifications**      | React Hot Toast                                                   |
+| **Routing**            | React Router v6                                                   |
+| **Smart Contracts**    | Move language on Movement blockchain                              |
 
-- [Node.js](https://nodejs.org/)
-- [Iota CLI](https://docs.iota.org/developer/getting-started/install-iota)
-- [Iota Wallet Extension](https://chromewebstore.google.com/detail/iota-wallet/iidjkmdceolghepehaaddojmnjnkkija)
-- [Pinata](https://app.pinata.cloud/)
+---
 
-**Installation & Running:**
+## 🚀 Getting Started
 
-1.  **Clone the repository:**
+### Prerequisites
 
-    ```bash
-    git clone https://github.com/CodeWithRonaldo/vibetrax.git
-    cd vibetrax-frontend
-    ```
+Before you begin, ensure you have the following installed:
 
-2.  **3. Set Up Environment Variables**
+- [Node.js](https://nodejs.org/) (v16 or higher)
+- [Git](https://git-scm.com/)
+- A Web3 wallet (Petra, Martian, or use Privy's embedded wallet)
+- [Pinata Account](https://app.pinata.cloud/) (for IPFS storage)
 
-    Create a .env.local file in the root directory and add your PinataJwt key and PinataGatewayUrl:
+### Installation
 
-    ```
-    VITE_PINATA_JWT=<YOUR PINATA JWT>
-    VITE_PINATA_GATEWAY=<YOUR PINATA GATEWAY URL>
-    ```
+1. **Clone the repository:**
 
-3.  **Install dependencies:**
+   ```bash
+   git clone https://github.com/Freedteck/vibetrax.git
+   cd vibetrax
+   ```
 
-    ```bash
-    npm install
-    ```
+2. **Navigate to the frontend directory:**
 
-4.  **Run the development server:**
+   ```bash
+   cd vibetrax-frontend
+   ```
 
-    ```bash
-    npm run dev
-    ```
+3. **Install dependencies:**
 
-    This will typically start the application on `http://localhost:5173` (Vite's default). Open this URL in your browser.
+   ```bash
+   npm install
+   ```
 
-## Project Status
+4. **Set up environment variables:**
 
-- Tech design completed (smart contracts, revenue logic)
-- Frontend development in React.js
-- Storage via Pinata integrated
-- GitHub repo live
-- 2-person core team actively building
+   Create a `.env` file in the `vibetrax-frontend` directory:
 
-## Contributing
+   ```env
+   # Pinata Configuration
+   VITE_PINATA_JWT=your_pinata_jwt_token
+   VITE_PINATA_GATEWAY=your_pinata_gateway_url
 
-We’re building the future of music with community at the core. If you're a:
+   # Privy Configuration
+   VITE_PRIVY_APP_ID=your_privy_app_id
 
-- Web3 developer (Move, React, smart contracts)
-- Music tech enthusiast
-- Designer, tester, or fan
+   # Movement Blockchain Configuration
+   VITE_MOVEMENT_NETWORK=testnet
+   VITE_CONTRACT_ADDRESS=your_deployed_contract_address
+   ```
 
-Feel free to contribute or join the discussion.
+5. **Run the development server:**
 
-**GitHub Repository:** [GitHub](https://github.com/CodeWithRonaldo/vibetrax)
+   ```bash
+   npm run dev
+   ```
 
-**Live Url:** [vibeTrax Live](https://vibetrax-delta.vercel.app/)
+   The app will be available at `http://localhost:5173`
 
-## License
+### Smart Contract Deployment
 
-This project is licensed under **MIT LICENSE**. See the [LICENSE](LICENSE) file for details.
+1. **Navigate to the smart contract directory:**
+
+   ```bash
+   cd vibetrax-v2
+   ```
+
+2. **Build the Move contract:**
+
+   ```bash
+   movement move compile
+   ```
+
+3. **Deploy to Movement testnet:**
+
+   ```bash
+   movement move publish
+   ```
+
+4. **Update the contract address in your `.env` file**
+
+---
+
+## 🎯 Key Features Walkthrough
+
+### **Home Page**
+
+- Trending tracks based on likes
+- Recently added music
+- Popular albums
+- Featured artists
+- Personalized recommendations
+
+### **Browse/Discover**
+
+- Hero carousel with featured tracks
+- Filter by: All, Songs, Albums
+- Genre filtering (Pop, HipHop, R&B, Rock, Electronic, Jazz, Classical, Afrobeat, Latin)
+- Search functionality with real-time results
+
+### **Now Playing**
+
+- Large album artwork with vinyl animation
+- Full track details and metadata
+- Buy NFT or subscribe to premium
+- View collaborators and revenue splits
+- More tracks from the same artist
+
+### **Artist Profile**
+
+- User avatar and stats
+- Uploaded tracks showcase
+- Owned NFTs collection
+- Token balance (for own profile)
+- Upload new music button
+
+### **Player Controls**
+
+- Persistent bottom player bar
+- Play/pause, skip, shuffle, repeat
+- Volume control
+- Progress bar with seek
+- Like button
+- Full-screen player view
+
+---
+
+## 📱 Application Structure
+
+```
+vibetrax-frontend/
+├── src/
+│   ├── components/
+│   │   ├── sidebar/          # Main navigation
+│   │   ├── header/           # Top bar with search
+│   │   ├── now-playing-bar/  # Bottom player
+│   │   ├── cards/            # Music cards
+│   │   ├── wallet/           # Wallet connection
+│   │   └── modals/           # Various modals
+│   ├── routes/
+│   │   ├── home/             # Landing page
+│   │   ├── discover/         # Browse music
+│   │   ├── profile/          # Artist/User profile
+│   │   ├── music-player/     # Now playing view
+│   │   └── upload-music/     # Upload interface
+│   ├── hooks/
+│   │   ├── useMovementWallet.jsx    # Wallet integration
+│   │   ├── useMusicNfts.jsx         # Fetch music data
+│   │   ├── useMusicActions.jsx      # Like, buy, upload
+│   │   ├── useAppContext.jsx        # Global state
+│   │   └── useStreamTracking.jsx    # Track streams
+│   └── modals/
+│       ├── buy-tokens-modal/
+│       ├── claim-rewards-modal/
+│       └── premium-modal/
+```
+
+---
+
+## 🔐 Wallet Integration
+
+VibeTrax supports multiple wallet types:
+
+- **Privy Embedded Wallets** – Easy onboarding for Web2 users
+- **Petra Wallet** – Official Aptos wallet
+- **Martian Wallet** – Multi-chain support
+- **Native Movement Wallets** – Direct blockchain connection
+
+---
+
+## 💰 Token Economy
+
+- **Platform Tokens** – Used for purchases and subscriptions
+- **Rewards System** – Earn tokens for streaming and engagement
+- **Staking (Coming Soon)** – Stake tokens for premium benefits
+- **Governance (Planned)** – Vote on platform decisions
+
+---
+
+## 🎨 Design Philosophy
+
+VibeTrax combines the best of Web2 and Web3:
+
+- **Familiar UX** – Spotify-inspired interface that users love
+- **Web3 Power** – True ownership, transparent royalties, direct artist support
+- **Dark Theme** – Easy on the eyes for long listening sessions
+- **Responsive** – Beautiful on every device
+- **Fast & Smooth** – Optimized performance with modern React
+
+---
+
+## 📊 Project Status
+
+✅ **Completed:**
+
+- Modern music streaming UI/UX
+- Movement blockchain integration
+- Wallet authentication (Privy + Native)
+- Music upload & NFT minting
+- Like/Vote system
+- Premium subscription logic
+- Token rewards system
+- Artist collaboration features
+- Responsive mobile design
+
+🚧 **In Progress:**
+
+- Enhanced analytics dashboard
+- Playlist creation
+- Social features (comments, sharing)
+- Advanced search filters
+
+🔮 **Planned:**
+
+- Mobile apps (iOS/Android)
+- Artist verification system
+- Live streaming concerts
+- DAO governance
+- Cross-chain support
+
+---
+
+## 🤝 Contributing
+
+We're building the future of music with the community! Contributions are welcome from:
+
+- **Blockchain Developers** – Move language, smart contract optimization
+- **Frontend Developers** – React, UI/UX improvements
+- **Designers** – Interface design, user experience
+- **Music Enthusiasts** – Feature ideas, testing, feedback
+- **Content Creators** – Documentation, tutorials, demos
+
+### How to Contribute:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 🔗 Links
+
+- **Live Application:** [https://vibetrax-blue.vercel.app/](https://vibetrax-blue.vercel.app/)
+- **GitHub Repository:** [https://github.com/Freedteck/vibetrax](https://github.com/Freedteck/vibetrax)
+- **Movement Blockchain:** [movementlabs.xyz](https://movementlabs.xyz)
+- **Documentation:** Coming soon
+
+---
+
+## 👥 Team
+
+Built with ❤️ by passionate developers who believe in the future of decentralized music.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- Movement Labs for the blockchain infrastructure
+- Privy for Web3 authentication
+- Pinata for IPFS storage
+- The open-source community for amazing tools and libraries
+
+---
+
+## 📞 Support
+
+For questions, issues, or feature requests:
+
+- Open an issue on [GitHub](https://github.com/Freedteck/vibetrax/issues)
+- Join our community discussions
+- Contact the team
+
+---
+
+**Built for artists. Powered by blockchain. Designed for everyone.**
+
+🎵 **VibeTrax** - _Where Music Meets Web3_

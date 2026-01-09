@@ -1,16 +1,16 @@
 # 🎵 VibeTrax
 
-**A Modern Decentralized Music Streaming Platform**
+**The First Stream-to-Earn Music Platform on Movement Blockchain**
 
-Stream, own, and trade music on the blockchain. Experience the future of music with transparent royalties, artist collaboration, and true ownership.
+Stream music and earn rewards. Own and trade music on the blockchain. Experience the future of music with transparent royalties, artist collaboration, and true ownership.
 
 ---
 
 ## 🌟 Overview
 
-VibeTrax is a **Web3 music streaming application** built on the **Movement blockchain**, combining the familiar experience of modern music streaming platforms like Spotify with the revolutionary power of blockchain technology.
+VibeTrax is the **first stream-to-earn music platform** built on the **Movement blockchain**, combining the familiar experience of modern music streaming platforms with the revolutionary power of blockchain technology.
 
-Artists can upload music, collaborate with others, and receive **instant on-chain payments**. Fans can stream music, purchase tracks as NFTs, earn rewards, and truly own their music collection—all while supporting artists directly.
+Artists can upload music, collaborate with others, and receive **instant on-chain payments**. Fans earn platform tokens by streaming and engaging with music, purchase tracks as NFTs, and truly own their music collection—all while supporting artists directly through a transparent token economy.
 
 ---
 
@@ -33,19 +33,21 @@ Artists can upload music, collaborate with others, and receive **instant on-chai
 
 ### 🎧 **For Listeners**
 
-- **Free Streaming** – Listen to all tracks at standard quality (128kbps)
-- **Premium Upgrade** – Subscribe for high-fidelity audio (320kbps)
+- **Stream-to-Earn** – Earn platform tokens by streaming music and engaging with tracks
+- **Free Streaming** – Listen to all tracks at standard quality
+- **Premium Upgrade** – Subscribe for high-fidelity audio using MOVE or earned tokens
 - **NFT Ownership** – Buy tracks to support artists and own music NFTs
-- **Like & Vote System** – Support favorite tracks and influence trending lists
-- **Token Rewards** – Earn rewards for streaming and engagement
+- **Like & Vote System** – Support favorite tracks, influence trending lists, and earn more tokens
+- **Use Earned Tokens** – Tip artists, boost songs, or purchase subscriptions with your rewards
 
 ### ⛓️ **Blockchain Features**
 
 - **Web3 Wallet Integration** – Privy authentication + native Movement wallets
-- **Token Economy** – Platform tokens for purchases and rewards
-- **Smart Contracts** – Transparent, automated royalty distribution
+- **Stream-to-Earn Economy** – Platform tokens minted on-chain for streaming and engagement
+- **Smart Contracts** – Transparent, automated royalty distribution with Move2
 - **NFT Marketplace** – Buy, own, and trade music NFTs
 - **On-Chain Subscriptions** – Premium memberships managed on-chain
+- **Instant Revenue Splitting** – Automatic payments to unlimited collaborators with basis-point precision
 
 ---
 
@@ -64,7 +66,7 @@ Artists can upload music, collaborate with others, and receive **instant on-chai
 | **Avatars**            | React Jazzicon                                                    |
 | **Notifications**      | React Hot Toast                                                   |
 | **Routing**            | React Router v6                                                   |
-| **Smart Contracts**    | Move language on Movement blockchain                              |
+| **Smart Contracts**    | Move2 language on Movement blockchain                             |
 
 ---
 
@@ -238,8 +240,10 @@ VibeTrax supports multiple wallet types:
 
 ## 💰 Token Economy
 
-- **Platform Tokens** – Used for purchases and subscriptions
-- **Rewards System** – Earn tokens for streaming and engagement
+- **Stream-to-Earn** – Earn platform tokens by streaming music and engaging with tracks
+- **Token Utility** – Use earned tokens for tips, boosts, subscriptions, and purchases
+- **On-Chain Rewards** – Tokens minted on-chain with anti-spam protection
+- **Circular Economy** – Fans earn by streaming, artists earn when fans support them
 - **Staking (Coming Soon)** – Stake tokens for premium benefits
 - **Governance (Planned)** – Vote on platform decisions
 
@@ -249,7 +253,8 @@ VibeTrax supports multiple wallet types:
 
 VibeTrax combines the best of Web2 and Web3:
 
-- **Familiar UX** – Spotify-inspired interface that users love
+- **Familiar UX** – Modern music streaming interface that users love
+- **Stream-to-Earn** – Users earn while listening, creating value for engagement
 - **Web3 Power** – True ownership, transparent royalties, direct artist support
 - **Dark Theme** – Easy on the eyes for long listening sessions
 - **Responsive** – Beautiful on every device
@@ -261,13 +266,15 @@ VibeTrax combines the best of Web2 and Web3:
 
 ✅ **Completed:**
 
+- Stream-to-earn reward system
 - Modern music streaming UI/UX
-- Movement blockchain integration
+- Movement blockchain integration (Move2)
 - Wallet authentication (Privy + Native)
 - Music upload & NFT minting
-- Like/Vote system
-- Premium subscription logic
-- Token rewards system
+- Instant revenue splitting to unlimited collaborators
+- Like/Vote system with token rewards
+- Premium subscription logic (MOVE or earned tokens)
+- On-chain token claiming with anti-spam protection
 - Artist collaboration features
 - Responsive mobile design
 
@@ -350,4 +357,4 @@ For questions, issues, or feature requests:
 
 **Built for artists. Powered by blockchain. Designed for everyone.**
 
-🎵 **VibeTrax** - _Where Music Meets Web3_
+🎵 **VibeTrax** - _The First Stream-to-Earn Music Platform on Movement_
